@@ -1,0 +1,74 @@
+@page "/Login"
+@using ISP_Projektas_2022.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Log In</PageTitle>
+@if (currentUser?.LoggedIn != true)
+{
+    <section class="login_part section_padding ">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6">
+                    <div class="login_part_text text-center">
+                        <div class="login_part_text_iner">
+                            <h2>New to our Shop?</h2>
+                            <a href="/profiles/create" class="btn_3">Create an Account</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="login_part_form">
+                        <div class="login_part_form_iner">
+                            <h3>
+                                Welcome Back ! <br>
+                                Please Sign in now
+                            </h3>
+                            <EditForm Model="@loginDto" OnSubmit="@OnLoginClicked">
+                                <div class="col-md-12 form-group p_star">
+                                    <input @bind="@loginDto.Email" type="text" class="form-control" id="name" name="name" placeholder="Email">
+                                </div>
+                                <div class="col-md-12 form-group p_star">
+                                    <input @bind="@loginDto.Password" type="password" class="form-control" id="password" name="password"
+                                       placeholder="Password">
+                                </div>
+                                <div class="col-md-12 form-group">
+                                    <input type="submit" value="Login" class="btn btn-primary" />
+                                </div>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else{
+    <p><em>Loading...</em></p>
+}
+@code {
+    public LoginDto loginDto = new();
+    public CurrentUser? currentUser = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await Http.GetFromJsonAsync<CurrentUser>("/api/currentuser");
+
+        if (currentUser?.LoggedIn == true)
+            NavManager.NavigateTo("/");
+    }
+
+    public async Task OnLoginClicked()
+    {
+        var response = await Http.PostAsJsonAsync("api/auth/login", loginDto);
+        CurrentUser? user = await response.Content.ReadFromJsonAsync<CurrentUser>();
+        if (user is not null)
+            NavManager.NavigateTo("/", forceLoad: true);
+    }
+
+    // Userlevel:
+    // 0 - admin
+    // 1 - client
+    // 2 - worker
+    // 3 - supplier
+}

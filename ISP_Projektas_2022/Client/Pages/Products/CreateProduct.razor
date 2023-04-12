@@ -1,0 +1,65 @@
+﻿@page "/products/create"
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Microsoft.Extensions.Logging
+
+<PageTitle>Product Creation</PageTitle>
+
+
+
+<EditForm Model="@product" OnValidSubmit="@HandleValidSubmit">
+    <div class="custom-file">
+        <InputFile class="custom-file-input"  accept="image/png, image/jpeg, image/gif"
+            id="inputFile" />
+        <label class="custom-file-label" for="inputFile">Choose file</label>
+    </div>
+    <div class="input-group-append">
+        <button class="btn btn-success">Upload</button>
+    </div>
+
+    <label for="title"><b>Produkto pavadinimas</b></label>
+    <input @bind="@product.title" placeholder="Product title" type="text" name="uname" required>
+
+    <label for="description"><b>Aprašymas</b></label>
+    <input @bind="@product.description" placeholder="Description" name="description" required>
+
+    <button type="submit">Kurti produktą</button>
+</EditForm>
+
+
+
+
+
+@code {
+    public Product product = new();
+
+    @* public class ImageFile
+    {
+        public string base64data { get; set; }
+        public string contentType { get; set; }
+        public string fileName { get; set; }
+    } *@
+    public class Product
+    {
+        public string title = "";
+        public string description = "";
+    }
+
+    private void HandleValidSubmit()
+    {
+        PrettyWrite(product, product.title + ".json");
+    }
+
+    private static readonly JsonSerializerOptions _options =
+    new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+    public static void PrettyWrite(object obj, string fileName)
+    {
+        var options = new JsonSerializerOptions(_options)
+        {
+            WriteIndented = true
+        };
+        var jsonString = JsonSerializer.Serialize(obj, options);
+        File.WriteAllText(fileName, jsonString);
+    }
+}

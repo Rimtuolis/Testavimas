@@ -1,0 +1,61 @@
+﻿@page "/profiles"
+@using ISP_Projektas_2022.Shared
+@inject HttpClient Http
+
+<PageTitle>Profiles</PageTitle>
+
+
+    <br>
+    <br>
+@if (profilepages == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <!-- Add icon library -->
+
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+            <div class="row">
+                @foreach (var profile in profilepages)
+                {
+                    @if(profile.slapyvardis!="DELETED USER"){
+                    <div class="col-xl-4 col-lg-4 col-md-6">
+                        <div class="single-product mb-60">
+                            <a href="/profiles/view/@profile.slapyvardis">
+                                <h1>@profile.vardas</h1>
+                                <h1 class="username">@profile.pavarde</h1>
+                                <p>@profile.el_pastas</p>         
+                                </a>                       
+                        </div>
+                    </div>
+                    }
+
+                    
+
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+}
+
+@code {
+    public Profile[]? profilepages;
+
+    private CurrentUser? viewer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        viewer = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+        profilepages = await Http.GetFromJsonAsync<Profile[]>("api/profile/getAll");
+
+    }
+
+
+}

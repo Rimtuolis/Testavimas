@@ -1,0 +1,170 @@
+﻿@using ISP_Projektas_2022.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+@if (profile == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <header>
+        <div class="header-area">
+            <div class="main-header ">
+                <div class="header-top top-bg d-none d-lg-block">
+                    <div class="container-fluid">
+                        <div class="col-xl-12">
+                            <div class="row d-flex justify-content-between align-items-center">
+
+                                <div class="header-info-right">
+                                    <ul>
+                                        @if (@profile.LoggedIn)
+                                        {
+                                            <li><a href="login">My Account </a></li>
+                                        }
+                                        <li><a href="products">Shopping</a></li>
+                                        <li><a href="cart">Cart</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-bottom  header-sticky">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <!-- Logo -->
+                            <div class="col-xl-1 col-lg-1 col-md-1 col-sm-3">
+                                <div class="logo">
+                                    <a href="">
+                                        <img src="assets/img/logo/logo.png" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 col-lg-8 col-md-7 col-sm-5">
+                                <!-- Main-menu -->
+                                <div class="main-menu f-right d-none d-lg-block">
+                                    <nav>
+                                        <ul id="navigation">
+                                            <li><a href="products">Products</a></li>
+                                            <li style="z-index: 10">
+                                                <a href="#">Account</a>
+                                                <ul class="submenu">
+                                                    @if (!@profile.LoggedIn)
+                                                    {
+                                                        <li><a href="login">Login</a></li>
+                                                    }
+                                                    <li><a href="newsletter">Newsletter</a></li>
+                                                    @if (@profile.LoggedIn)
+                                                    {
+                                                        <li><a href="" onclick="@OnLogoutClicked">Log out</a></li>
+                                                    }
+                                                    @if (@profile?.UserLevel == AccessLevelType.ADMIN)
+                                                    {
+                                                        <li><a href="profiles">Profiles</a></li>
+                                                    }
+                                                    @if (@profile?.LoggedIn == true && @profile?.UserLevel == AccessLevelType.ADMIN)
+                                                    {
+                                                        <li><a href="profiles/view/@profile.Username">My Profile</a></li>
+                                                    }
+                                                </ul>
+                                            </li>
+                                            @if (@profile?.LoggedIn == true)
+                                            {
+                                                <li style ="z-index: 10">
+                                                    <a href="/contracts/">Contracts</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/contracts/">View contracts</a></li>
+                                                        @if (@profile?.UserLevel == AccessLevelType.ADMIN)
+                                                        {
+                                                            @*if user is logged in and admin*@
+                                                            <li><a href="/contracts/create">Add contract</a></li>
+                                                        }
+                                                    </ul>
+                                                </li>
+                                            }
+                                            @if (@profile?.LoggedIn == true)
+                                            {
+                                                <li>
+                                                    <a href="/orders/vieworders">Orders</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/orders/vieworders">View Orders</a></li>
+                                                        <li><a href="/cart">View Cart</a></li>
+                                                    </ul>
+                                                </li>
+                                            }
+                                            @if (@profile?.LoggedIn == true)
+                                            {
+                                                <li>
+                                                    <a href="/suppliers/">Suppliers</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/suppliers/">Edit Suppliers</a></li>
+                                                    </ul>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            <div class="col-xl-5 col-lg-3 col-md-3 col-sm-3 fix-card">
+                                <ul class="header-right f-right d-none d-lg-block d-flex justify-content-between">
+                                    <li class="d-none d-xl-block">
+                                        <div class="form-box f-right ">
+                                            <input type="text" name="Search" placeholder="Search products">
+                                            <div class="search-icon">
+                                                <i class="fas fa-search special-tag"></i>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    @if (@profile?.LoggedIn == true && profile?.UserLevel != AccessLevelType.SUPPLIER)
+                                    {
+                                        <li>
+                                            <div class="shopping-card">
+                                                <a href="cart"><i class="fas fa-shopping-cart"></i></a>
+                                            </div>
+                                        </li>
+                                    }
+                                    @if (@profile?.LoggedIn != true)
+                                    {
+                                        <li class="d-none d-lg-block"> <a href="login" class="btn header-btn">Sign in</a></li>
+                                    }
+
+
+                                </ul>
+                            </div>
+                            <!-- Mobile Menu -->
+                            <div class="col-12">
+                                <div class="mobile_menu d-block d-lg-none"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Header End -->
+    </header>
+
+}
+
+@code {
+
+    private CurrentUser? profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+
+    }
+
+
+    public async Task OnLogoutClicked()
+    {
+
+        await Http.GetFromJsonAsync<CurrentUser>("api/auth/logout");
+        NavManager.NavigateTo("/", forceLoad: true);
+
+    }
+
+
+}

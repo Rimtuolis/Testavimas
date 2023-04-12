@@ -1,0 +1,95 @@
+﻿@page "/profiles/edit/{username}"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using ISP_Projektas_2022.Shared
+@using Microsoft.Extensions.Logging
+
+
+
+
+<PageTitle>Profile Editing</PageTitle>
+
+
+
+<EditForm Model="@profile" OnValidSubmit="@HandleValidSubmit">
+    @if (viewer?.UserLevel == AccessLevelType.ADMIN||viewer?.Username == @profile.slapyvardis)
+                {
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="custom-file">
+                <div class="single_product_text text-center">
+                    <label for="uname"><b>@profile.slapyvardis</b></label>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="name"><b>Name</b></label>
+                    <input @bind="@profile.vardas" placeholder="Enter Name" name="name" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="name"><b>Lastname</b></label>
+                    <input @bind="@profile.pavarde" placeholder="Enter Last Name" name="name" required>
+                </div>
+                @if(viewer?.Username == @profile.slapyvardis){
+                <div class="single_product_text text-center">
+                    <label for="password"><b>Password</b></label>
+                    <input @bind="@profile.slaptazodis" placeholder="Enter Password" name="password" required>
+                </div>
+                }
+                <div class="single_product_text text-center">
+                    <label for="contact"><b>Contact Email</b></label>
+                    <input @bind="@profile.el_pastas" placeholder="Enter Email" name="contact" required>
+                </div>
+                <br>
+                <div class="single_product_text text-center">
+                    <button type="submit" class="btn">Submit Edit</button>
+                </div>
+                <br>
+                <div class="single_product_text text-center">
+                    <a onclick="@OnDeleteClicked">
+                    <button class="btn">Delete User</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+                }
+</EditForm>
+
+
+
+
+
+@code {
+    public Profile profile = new();
+
+    [Parameter]
+    public string? Username  { get; set; }
+
+    public CurrentUser? viewer = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        profile.slapyvardis=Username;
+
+        viewer = await Http.GetFromJsonAsync<CurrentUser>("/api/currentuser");
+        var response = await Http.PostAsJsonAsync<Profile>("/api/profile/get", profile);
+        profile = await response.Content.ReadFromJsonAsync<Profile>();
+
+        if (viewer?.LoggedIn == false)
+            NavManager.NavigateTo("/");
+        StateHasChanged();
+
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        var response = await Http.PostAsJsonAsync("api/profile/edit", profile);
+    }
+
+    public async Task OnDeleteClicked()
+    {
+        var response = await Http.PostAsJsonAsync("api/profile/delete", profile);
+    }
+
+}

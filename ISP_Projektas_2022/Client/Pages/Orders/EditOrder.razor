@@ -1,0 +1,224 @@
+﻿@page "/orders/editorder/{orderid:int}"
+@using ISP_Projektas_2022.Shared
+@inject HttpClient Http
+
+<PageTitle> Edit Order </PageTitle>
+
+@if (_products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <div class="checkout_btn_inner float-right">
+                        @if(_order is not null)
+                        {
+                            <p>
+                                Order #@_order.Id_Uzsakymas @_order.Data.ToShortDateString(): 
+                            </p>
+                        }
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var product in _products)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="media">
+                                            <div class="d-flex">
+                                                @if (product.Nuotrauka == null)
+                                                {
+                                                    <img src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="" style="width: 150px" />
+                                                }
+                                                else
+                                                {
+                                                    <img src="@product.Nuotrauka" alt="" />
+                                                }
+                                            </div>
+                                            <div class="media-body">
+                                                <a href="/products/view/@product.Id_Preke">
+                                                    <p>@product.Pavadinimas</p>
+                                                </a>
+
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <h5>@product.Kaina€</h5>
+                                    </td>
+                                    <td>
+                                        <h5>@product.Kiekis</h5>
+
+                                    </td>
+                                    <td>
+                                        <h5>@GetPrice(product.Kaina, product.Kiekis)€</h5>
+                                    </td>
+                                </tr>
+                            }
+
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <h5>Subtotal</h5>
+                                </td>
+                                <td>
+                                    <h5>@_order?.Suma€</h5>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="WorkerSelect">Workers</label>
+                                        <select class="form-select" id="WorkerSelect" @bind="@WORKERID">
+                                            @if (_workers is not null)
+                                            {
+                                                @foreach (Worker worker in _workers)
+                                                {
+                                                    if (worker.id_Sandelinkas == _order?.Fk_Sandelininkas)
+                                                    {
+                                                        <option value="@worker.id_Sandelinkas" selected>@GetWorkerName(worker.id_Sandelinkas)</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@worker.id_Sandelinkas">@GetWorkerName(worker.id_Sandelinkas)</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td colspan="4">
+                                    <div class="input-group mb-3">
+                                        <label class="input-group-text" for="StateSelect">States</label>
+                                        <select class="form-select" id="StateSelect" @bind="@STATE">
+                                            @switch (_order?.Busena)
+                                            {
+                                                case OrderState.Nauja:
+                                                    <option value="@OrderState.Nauja" selected>@OrderState.Nauja</option>
+                                                    <option value="@OrderState.Issiutas">@OrderState.Issiutas</option>
+                                                    <option value="@OrderState.GautasApmokejimas">@OrderState.GautasApmokejimas</option>
+                                                    <option value="@OrderState.Pristatyta">@OrderState.Pristatyta</option>
+                                                    break;
+
+                                                case OrderState.Issiutas:
+                                                    <option value="@OrderState.Nauja">@OrderState.Nauja</option>
+                                                    <option value="@OrderState.Issiutas selected">@OrderState.Issiutas</option>
+                                                    <option value="@OrderState.GautasApmokejimas">@OrderState.GautasApmokejimas</option>
+                                                    <option value="@OrderState.Pristatyta">@OrderState.Pristatyta</option>
+                                                    break;
+                                                case OrderState.GautasApmokejimas:
+                                                    <option value="@OrderState.Nauja">@OrderState.Nauja</option>
+                                                    <option value="@OrderState.Issiutas">@OrderState.Issiutas</option>
+                                                    <option value="@OrderState.GautasApmokejimas" selected>@OrderState.GautasApmokejimas</option>
+                                                    <option value="@OrderState.Pristatyta">@OrderState.Pristatyta</option>
+                                                    break;
+                                                case OrderState.Pristatyta:
+                                                    <option value="@OrderState.Nauja">@OrderState.Nauja</option>
+                                                    <option value="@OrderState.Issiutas">@OrderState.Issiutas</option>
+                                                    <option value="@OrderState.GautasApmokejimas">@OrderState.GautasApmokejimas</option>
+                                                    <option value="@OrderState.Pristatyta" selected>@OrderState.Pristatyta</option>
+                                                    break;
+                                            }
+                                        </select>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="single_product_text text-center">
+            <button class="btn btn-primary" @onclick="@EditClientOrder">Edit Order</button>
+        </div>
+    </section>
+}
+
+@code {
+        [Parameter]
+        public int orderid { get; set; }
+
+    private OrderDto? _order;
+    private List<OrderProductDto>? _orderProducts;
+    private List<Product> _products = new List<Product>();
+    private List<Client>? _clients;
+    private List<Worker>? _workers;
+    private int? WORKERID;
+    private OrderState? STATE;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _clients = await Http.GetFromJsonAsync<List<Client>>("api/Client");
+        _order = await Http.GetFromJsonAsync<OrderDto>($"api/Orders/{orderid}");
+        _orderProducts = await Http.GetFromJsonAsync<List<OrderProductDto>>($"api/Orderproduct/{orderid}");
+        _workers = await Http.GetFromJsonAsync<List<Worker>>($"api/Worker");
+        if (_orderProducts is not null)
+            foreach (OrderProductDto orderProduct in _orderProducts)
+            {
+                Product? product = await Http.GetFromJsonAsync<Product>($"api/Products/{orderProduct.fk_preke}");
+                if (product is not null)
+                    _products.Add(product);
+            }
+    }
+
+    public string GetClientName(int clientId)
+    {
+        Client? client = _clients?.FirstOrDefault(c => c.id_Klientas == clientId);
+        if (client is not null)
+            return client.vardas + " " + client.pavarde;
+        return string.Empty;
+    }
+
+    public string GetWorkerName(int id)
+    {
+        Worker? worker = _workers?.FirstOrDefault(w => w.id_Sandelinkas == id);
+        if (worker is not null)
+            return worker.vardas + " " + worker.pavarde;
+        return string.Empty;
+    }
+
+    public double? GetPrice(double price, int? quantity)
+    {
+        return price * quantity;
+    }
+
+    public async Task EditClientOrder()
+    {
+        bool edited = false;
+
+        if(STATE is not null && _order is not null){
+            _order.Busena = (OrderState)STATE;
+            edited = true;
+        }
+
+        if (WORKERID is not null && _order is not null)
+        {
+            _order.Fk_Sandelininkas = (int)WORKERID;
+            edited = true;
+        }
+
+        if (edited && _order is not null)
+        {
+            _order.Data = DateTime.Now;
+            await Http.PutAsJsonAsync("api/Orders", _order);
+        }
+    }
+    }
