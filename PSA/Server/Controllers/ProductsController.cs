@@ -30,7 +30,8 @@ namespace PSA.Server.Controllers
         [HttpGet("{id}")]
         public async Task<Product?> Get(int id)
         {
-            return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM preke where id_Preke = {id}");
+            //return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM preke where id_Preke = {id}");
+            return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM preke where Id = {id}");
         }
 
         // creates product in DB
@@ -38,14 +39,17 @@ namespace PSA.Server.Controllers
         [HttpPost]
         public async Task Create([FromBody] Product product)
         {
-            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Preke) from preke");
-            index++;
-            await _databaseOperationsService.ExecuteAsync($"insert into " +
-                $"preke(pavadinimas, pagaminimo_data, kaina, miestas, modelis, aprasymas, kiekis, " +
-                $"gamintojas, kategorija, kokybe, nuotrauka, id_Preke, fk_Tiekejasid_Tiekejas) " +
-                $"values({product.Pavadinimas}, {product.Pagaminimo_Data}, {product.Kaina}, {product.Miestas}, {product.Modelis}, " +
-                $"{product.Aprasymas}, {product.Kiekis}, {product.Gamintojas}, {product.Kategorija}, {product.Kokybe}, {product.Nuotrauka}, " +
-                $"{index}, {product.Fk_Tiekejasid_Tiekejas})");
+            //var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Preke) from preke");
+            //index++;
+            //await _databaseOperationsService.ExecuteAsync($"insert into " +
+            //    $"preke(pavadinimas, pagaminimo_data, kaina, miestas, modelis, aprasymas, kiekis, " +
+            //    $"gamintojas, kategorija, kokybe, nuotrauka, id_Preke, fk_Tiekejasid_Tiekejas) " +
+            //    $"values({product.Pavadinimas}, {product.Pagaminimo_Data}, {product.Kaina}, {product.Miestas}, {product.Modelis}, " +
+            //    $"{product.Aprasymas}, {product.Kiekis}, {product.Gamintojas}, {product.Kategorija}, {product.Kokybe}, {product.Nuotrauka}, " +
+            //    $"{index}, {product.Fk_Tiekejasid_Tiekejas})");
+            if (string.IsNullOrEmpty(product.Picture))
+                product.Picture = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
+            await _databaseOperationsService.ExecuteAsync($"insert into preke(Name, Description, Price, Picture) values('{product.Name}', '{product.Description}', {product.Price}, '{product.Picture}')");
         }
 
         // updates record of product in DB by ID
@@ -53,9 +57,11 @@ namespace PSA.Server.Controllers
         [HttpPut]
         public async Task Update([FromBody] Product product)
         {
+            if (string.IsNullOrEmpty(product.Picture))
+                product.Picture = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
             await _databaseOperationsService.ExecuteAsync($"update preke " +
-                $"set pavadinimas = {product.Pavadinimas}, pagaminimo_data = {product.Pagaminimo_Data.ToShortDateString()}, kaina = {product.Kaina}, " +
-                $"aprasymas = {product.Aprasymas}, nuotrauka = {product.Nuotrauka} where id_Preke = {product.Id_Preke}");
+                $"set Name = '{product.Name}', Price = {product.Price}, " +
+                $"Description = '{product.Description}', Picture = '{product.Picture}' where Id = {product.Id}");
         }
 
         // Deletes product from DB by ID
@@ -63,7 +69,7 @@ namespace PSA.Server.Controllers
         [HttpDelete("{id}")]
         public async Task Delete(int id)
         {
-            await _databaseOperationsService.ExecuteAsync($"delete from preke where id_Preke = {id}");
+            await _databaseOperationsService.ExecuteAsync($"delete from preke where Id = {id}");
         }
 
         // Gets product by ID

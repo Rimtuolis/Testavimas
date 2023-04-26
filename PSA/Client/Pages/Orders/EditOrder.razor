@@ -39,24 +39,24 @@ else
                                     <td>
                                         <div class="media">
                                             <div class="d-flex">
-                                                @if (product.Nuotrauka == null)
+@*                                                @if (product.Nuotrauka == null)
                                                 {
                                                     <img src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="" style="width: 150px" />
                                                 }
                                                 else
                                                 {
                                                     <img src="@product.Nuotrauka" alt="" />
-                                                }
+                                                }*@
                                             </div>
                                             <div class="media-body">
-                                                <a href="/products/view/@product.Id_Preke">
+             @*                                   <a href="/products/view/@product.Id_Preke">
                                                     <p>@product.Pavadinimas</p>
-                                                </a>
+                                                </a>*@
 
                                             </div>
                                         </div>
                                     </td>
-                                    <td>
+@*                                    <td>
                                         <h5>@product.Kaina€</h5>
                                     </td>
                                     <td>
@@ -65,7 +65,7 @@ else
                                     </td>
                                     <td>
                                         <h5>@GetPrice(product.Kaina, product.Kiekis)€</h5>
-                                    </td>
+                                    </td>*@
                                 </tr>
                             }
 

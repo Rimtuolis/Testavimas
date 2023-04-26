@@ -15,15 +15,15 @@ else
         <div class="container">
             <div class="row justify-content-center">
 
-                <img src="@product.Nuotrauka" alt="#" class="product-image">
+                <img src="@product.Picture" alt="#" class="product-image">
 
                 <div class="col-lg-8">
                     <div class="single_product_text text-center">
-                        <h3>@product.Pavadinimas</h3>
-                        <p>@product.Aprasymas</p>
+                        <h3>@product.Name</h3>
+                        <p>@product.Description</p>
                         <div class="card_area">
                             <div class="product_count_area">
-                                <p>@product.Kaina</p>
+                                <p>@product.Price</p>
                             </div>
                             <div class="add_to_cart">
                                 @if (profile?.LoggedIn == true)
@@ -33,6 +33,8 @@ else
                                 else
                                 {
                                     <a href="login" class="btn_3">Log in to add to cart</a>
+                                    <a class="btn btn-primary" href="/products/edit/@product.Id">Edit</a>
+                                    <a class="btn btn-primary" @onclick="() => RemoveProductFromDB(product.Id)">Remove</a>
                                 }
                                 @if (@profile?.UserLevel == AccessLevelType.ADMIN)
                                 {
@@ -70,6 +72,13 @@ else
     {
         await Http.PostAsJsonAsync("/api/cart/add", product);
         NavManager.NavigateTo("/products/view/" + id, forceLoad: true);
+    }
+
+    public async void RemoveProductFromDB(int id)
+    {
+        await Http.DeleteAsync($"api/products/{id}");
+        await InvokeAsync(() => StateHasChanged());
+        NavManager.NavigateTo("/products", forceLoad: true);
     }
 
 }

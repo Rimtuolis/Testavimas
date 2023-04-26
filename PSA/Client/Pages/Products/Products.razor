@@ -4,7 +4,7 @@
 
 <PageTitle>Products</PageTitle>
 
-@if (products == null)
+@if (products == null || products.Length == 0)
 {
     <p><em>Loading...</em></p>
 }
@@ -15,27 +15,26 @@ else
     <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
             <div class="row">
-
                 @foreach (var product in products)
                 {
                     <div class="col-xl-4 col-lg-4 col-md-6">
                         <div class="single-product mb-60">
                             <div class="product-img">
-                                @if (string.IsNullOrEmpty(product.Nuotrauka))
+                                @if (string.IsNullOrEmpty(product.Picture))
                                 {
                                     <img class="medium-img" src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="" style="width: 150px" />
                                 }
                                 else
                                 {
-                                    <img class="medium-img" src="@product.Nuotrauka" alt="" />
+                                    <img class="medium-img" src="@product.Picture" alt="" />
                                 }
                             </div>
                             <div class="product-caption">
-                                <h4><a href="/products/view/@product.Id_Preke">@product.Pavadinimas</a></h4>
-                                <p>@product.Aprasymas</p>
+                                <h4><a href="/products/view/@product.Id">@product.Name</a></h4>
+                                <p>@product.Description</p>
                                 <div class="price">
                                     <ul>
-                                        <li>@product.Kaina€</li>
+                                        <li>@product.Price€</li>
                                     </ul>
                                 </div>
                             </div>
@@ -88,6 +87,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         products = await Http.GetFromJsonAsync<Product[]>("api/products");
+        //Console.WriteLine(products);
+        //Console.WriteLine(products.Length);
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
     }
 }

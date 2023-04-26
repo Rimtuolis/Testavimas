@@ -58,13 +58,13 @@ namespace PSA.Server.Controllers
 
                 await _databaseOperationsService.ExecuteAsync($"insert into uzsakymas(suma, data, busena, id_Uzsakymas, fk_Klientasid_Klientas, fk_sandelininkas) values({total}, NOW(), {(int)OrderState.Nauja}, {index}, {_currentUserService.GetUser().Id}, {sandelininkas})");
 
-                foreach (var product in cart)
-                {
-                    for (int i = 0; i < product.Kiekis; i++)
-                    {
-                        await _databaseOperationsService.ExecuteAsync($"insert into prekes_uzakymas values({index}, {product.Id_Preke})");
-                    }
-                }
+                //foreach (var product in cart)
+                //{
+                //    for (int i = 0; i < product.Kiekis; i++)
+                //    {
+                //        await _databaseOperationsService.ExecuteAsync($"insert into prekes_uzakymas values({index}, {product.Id_Preke})");
+                //    }
+                //}
                 var contract_index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Sutartis) from sutartis");
                 contract_index++;
                 var ManagersIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");

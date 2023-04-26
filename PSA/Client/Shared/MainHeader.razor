@@ -47,7 +47,20 @@ else
                                 <div class="main-menu f-right d-none d-lg-block">
                                     <nav>
                                         <ul id="navigation">
-                                            <li><a href="products">Products</a></li>
+                                            <li style ="z-index: 10">
+                                                <a href="products">Products</a>
+                                                <ul class="submenu">
+                                                    <li><a href="/products/">View products</a></li>
+                                                        @*@if (@profile?.UserLevel == AccessLevelType.ADMIN)
+                                                        {*@
+                                                            @*if user is logged in and admin*@
+                                                        @*<li><a href="/contracts/create">Add contract</a></li>
+                                                        }*@
+                                                        <li>
+                                                            <a href="/products/create">Add product</a>
+                                                        </li>
+                                                </ul>
+                                            </li>
                                             <li style="z-index: 10">
                                                 <a href="#">Account</a>
                                                 <ul class="submenu">
