@@ -1,0 +1,112 @@
+﻿@page "/cart"
+@using PSA.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Cart</PageTitle>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Product</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Total</th>
+                                <th scope="col">Remove</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var product in products)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="media">
+                                            <div class="d-flex">
+                                                <img src="@product.Nuotrauka" alt="" />
+                                            </div>
+                                            <div class="media-body">
+                                                <a href="/products/view/@product.Id_Preke">
+                                                    <p>@product.Pavadinimas</p>
+                                                </a>
+
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <h5>@product.Kaina€</h5>
+                                    </td>
+                                    <td>
+                                        <p>@product.Kiekis</p>
+                                    </td>
+                                    <td>
+                                        <h5>@product.Kaina€</h5>
+                                    </td>
+                                    <td>
+                                        <button @onclick="()=>RemoveFromCart(product)" class="btn_3">Remove from cart</button>
+                                    </td>
+                                </tr>
+                            }
+
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td>
+                                    <h5>Subtotal</h5>
+                                </td>
+                                <td>
+                                    <h5>@cost€</h5>
+                                </td>
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+                    <div class="checkout_btn_inner float-right">
+                        <a class="btn_1" href="/products/">Continue Shopping</a>
+                        <button @onclick="()=>CreateOrder()" class="btn_1 checkout_btn_1">Confirm Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private List<Product>? products;
+
+    public double cost = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Http.GetFromJsonAsync<List<Product>?>("api/cart");
+        if (products == null)
+        {
+            return;
+        }
+
+        cost = products.Sum(x => x.Kaina * x.Kiekis ?? 0);
+
+    }
+
+    public async Task RemoveFromCart(Product product)
+    {
+        await Http.PostAsJsonAsync("/api/cart/removeall", product);
+        NavManager.NavigateTo("/cart", forceLoad: true);
+    }
+
+    public async Task CreateOrder()
+    {
+        await Http.PostAsJsonAsync("/api/orders", cost);
+        NavManager.NavigateTo("/cart", forceLoad: true);
+    }
+}

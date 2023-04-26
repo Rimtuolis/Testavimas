@@ -1,0 +1,187 @@
+﻿@page "/suppliers/edit"
+@inject HttpClient Http
+@using PSA.Shared
+
+<PageTitle>Edit Supplier</PageTitle>
+
+@if (profilepages == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    @if (suppliers?.Count != 0)
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <td>
+                                        Supplier ID
+                                    </td>
+                                    <td>
+                                        Name
+                                    </td>
+                                    <td>
+                                        Email
+                                    </td>
+                                    <td>
+                                        Phone number
+                                    </td>
+                                    <td>
+                                        Representative
+                                    </td>
+                                    <td>
+                                        City
+                                    </td>
+                                    <td>
+                                        Field
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                @foreach (var item in suppliers)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.id_Tiekejas
+                                        </td>
+                                        <td>
+                                            @item.pavadinimas
+                                        </td>
+                                        <td>
+                                            @item.el_pastas
+                                        </td>
+                                        <td>
+                                            @item.tel_nr
+                                        </td>
+                                        <td>
+                                            @item.atstovas
+                                        </td>
+                                        <td>
+                                            @item.miestas
+                                        </td>
+                                        <td>
+                                            @item.sritis
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="btn" @onclick="() => SelectSupplier(item)" data-bs-toggle="modal" data-bs-target="#supplierModal">Edit</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h2>
+                            There are no suppliers.
+                        </h2>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+
+<div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="supplierTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        @if (supplier is not null)
+        {
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="supplierTitle">Tiekėjo #@supplier.id_Tiekejas redagavimas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body">
+                            <p class="card-text">
+                                <div class="input-group mb-3">
+                                    <label for="title"><b>Name</b></label>
+                                    <input @bind="@supplier.pavadinimas" placeholder="Name" type="text" name="name" required>
+
+                                    <br>
+                                    <label for="email"><b>Email</b></label>
+                                    <input @bind="@supplier.el_pastas" placeholder="123@mail.com" name="email" required>
+
+                                    <br>
+                                    <label for="phone"><b>Phone number</b></label>
+                                    <input @bind="@supplier.tel_nr" placeholder="+770000000" name="phone" required>
+
+                                    <br>
+                                    <label for="representative"><b>Representative</b></label>
+                                    <input @bind="@supplier.atstovas" placeholder="Organization" name="representative" required>
+
+                                    <br>
+                                    <label for="city"><b>City</b></label>
+                                    <input @bind="@supplier.miestas" placeholder="City" name="city" required>
+
+                                    <br>
+                                    <label for="field"><b>Field</b></label>
+                                    <input @bind="@supplier.sritis" placeholder="Field" name="field" required>
+
+                                    <br>
+                                    <label for="pass"><b>Password</b></label>
+                                    <input @bind="@supplier.slaptazodis" placeholder="Password" name="pass" required>
+                                    
+                                </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="@UpdateSupplier" data-bs-dismiss="modal" aria-label="Edit">Edit</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    private Profilepages[]? profilepages;
+
+    private List<Supplier>? suppliers = new List<Supplier>();
+    private Supplier? supplier;
+
+    protected override async Task OnInitializedAsync()
+    {
+        suppliers = await Http.GetFromJsonAsync<List<Supplier>>("api/Supplier");
+        profilepages = await Http.GetFromJsonAsync<Profilepages[]>("data/currentuser.json");
+        if (profilepages == null)
+        {
+            return;
+        }
+
+    }
+
+    public class Profilepages
+    {
+        public string? Id { get; set; }
+        public string? ImageSource { get; set; }
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public string? UploadedBy { get; set; }
+        public string? UploadedRef { get; set; }
+    }
+
+    public void SelectSupplier(Supplier selectedSupplier)
+    {
+        supplier = selectedSupplier;
+    }
+
+    public async Task UpdateSupplier()
+    {
+        if (supplier is not null)
+        {
+            await Http.PutAsJsonAsync("api/Supplier", supplier);
+        }
+    }
+}

@@ -1,0 +1,129 @@
+﻿@page "/suppliers"
+@using PSA.Shared
+@inject HttpClient Http
+
+<PageTitle>Suppliers</PageTitle>
+
+
+@if (profilepages == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    @if (suppliers?.Count != 0)
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <td>
+                                        Supplier ID
+                                    </td>
+                                    <td>
+                                        Name
+                                    </td>
+                                    <td>
+                                        Email
+                                    </td>
+                                    <td>
+                                        Phone number
+                                    </td>
+                                    <td>
+                                        Representative
+                                    </td>
+                                    <td>
+                                        City
+                                    </td>
+                                    <td>
+                                        Field
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                @foreach (var item in suppliers)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.id_Tiekejas
+                                        </td>
+                                        <td>
+                                            @item.pavadinimas
+                                        </td>
+                                        <td>
+                                            @item.el_pastas
+                                        </td>
+                                        <td>
+                                            @item.tel_nr
+                                        </td>
+                                        <td>
+                                            @item.atstovas
+                                        </td>
+                                        <td>
+                                            @item.miestas
+                                        </td>
+                                        <td>
+                                            @item.sritis
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h2>
+                            There are no suppliers.
+                        </h2>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@if (@profile?.UserLevel == AccessLevelType.ADMIN)
+{
+    <a href="/suppliers/create">
+        <button class="btn_1 checkout_btn_1 center">Create New</button>
+    </a>
+    <a href="/suppliers/remove">
+        <button class="btn_1 checkout_btn_1 center">Delete</button>
+    </a>
+      <a href="/suppliers/edit">
+        <button class="btn_1 checkout_btn_1 center">Edit</button>
+    </a>
+    <a href="/suppliers/report">
+        <button class="btn_1 checkout_btn_1 center">Report</button>
+    </a>
+}
+
+@code {
+    private ProfilePages[]? profilepages;
+    private List<Supplier>? suppliers = new List<Supplier>();
+
+    private CurrentUser? profile;
+    protected override async Task OnInitializedAsync()
+    {
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+
+        profilepages = await Http.GetFromJsonAsync<ProfilePages[]>("data/suppliers.json");
+
+        suppliers = await Http.GetFromJsonAsync<List<Supplier>>("api/Supplier");
+    }
+
+    public class ProfilePages
+    {
+        public string? ImageSource { get; set; }
+        public string? Username { get; set; }
+        public string? Name { get; set; }
+        public string? Title { get; set; }
+        public string? Organization { get; set; }
+        public string? Contact { get; set; }
+    }
+}

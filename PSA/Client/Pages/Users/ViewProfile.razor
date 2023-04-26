@@ -1,0 +1,65 @@
+﻿@page "/profiles/view/{name}"
+@using PSA.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+
+@if (profile == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="product_image_area">
+        <div class="container">
+            <div class="row justify-content-center">
+
+
+                <div class="col-lg-8">
+                    <div class="single_product_text text-center">
+                        <h1 class="username">@profile.vardas</h1>
+                        <p class="title">@profile.pavarde</p>
+                        <p><button>@profile.el_pastas</button></p>
+
+                    </div>
+                </div>
+                @if (viewer?.UserLevel == AccessLevelType.ADMIN)
+                {
+                    <a href="/profiles/edit/@profile.slapyvardis">
+                        <button class="btn_1 checkout_btn_1 center">Edit</button>
+                    </a>
+                }
+            </div>
+
+        </div>
+
+    </div>
+
+
+}
+
+@code {
+
+    public Profile loginDto = new();
+
+    private CurrentUser? viewer;
+
+    private Profile? profile;
+
+    [Parameter]
+    public string? Name  { get; set; }
+
+   
+
+    protected override async Task OnInitializedAsync()
+    {
+        loginDto.slapyvardis=Name;
+        viewer = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+            
+        var response = await Http.PostAsJsonAsync("api/profile/get", loginDto);
+        profile = await response.Content.ReadFromJsonAsync<Profile>();
+        StateHasChanged();
+    }
+
+
+}

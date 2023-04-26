@@ -1,0 +1,184 @@
+﻿@page "/contracts/edit/{contractsid:int}"
+@using PSA.Shared
+@inject HttpClient Http
+
+<PageTitle>Edit Contracts</PageTitle>
+
+@if (_contract is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    @if (_contract is not null)
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <td>
+                                        Contract ID
+                                    </td>
+                                    <td>
+                                        Contract Date
+                                    </td>
+                                    <td>
+                                        Order ID
+                                    </td>
+                                    <td>
+                                        Manager Full Name
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                <tr>
+                                    <td>
+                                        @_contract.id_Sutartis
+                                    </td>
+                                    <td>
+                                        @_contract.isdavimo_data
+                                    </td>
+                                    <td>
+                                        @_contract.fk_Uzsakymasid_Uzsakymas
+                                    </td>
+                                    <td>
+                                        @GetManagerNameByID(_contract.fk_Vadybininkasid_Vadybininkas)
+                                    </td>
+                                    <td>
+                                        <button type="submit" class="btn" data-bs-toggle="modal" data-bs-target="#contractModal">Edit</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h2>
+                            There are no contracts.
+                        </h2>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+<div class="modal fade" id="contractModal" tabindex="-1" aria-labelledby="contractTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        @if (_contract is not null)
+        {
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="contractTitle">Sutarties #@_contract.id_Sutartis redagavimas</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-header">
+                            To update, select new order or new manager.
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <div class="input-group mb-3">
+                                    <label class="input-group-text" for="ContractOrderSelect">Order ID's</label>
+                                    <select class="form-select" id="ContractOrderSelect" @bind="@ORDERID">
+                                        @if (orders is not null)
+                                        {
+                                            @foreach (OrderDto order in orders)
+                                            {
+                                                if (order.Id_Uzsakymas == _contract.fk_Uzsakymasid_Uzsakymas)
+                                                {
+                                                    <option value="@order.Id_Uzsakymas" selected>@_contract.fk_Uzsakymasid_Uzsakymas</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@order.Id_Uzsakymas">@order.Id_Uzsakymas</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                </p>
+                            <p class="card-text">
+                                <div class="input-group mb-3">
+                                    <label class="input-group-text" for="ContractManagerSelect">Manager</label>
+                                    <select class="form-select" id="ContractManagerSelect" @bind="@MANAGERID">
+                                        @if (managers is not null)
+                                        {
+                                            @foreach (Manager manager in managers)
+                                            {
+                                                if (manager.id_Vadybininkas == _contract.fk_Vadybininkasid_Vadybininkas)
+                                                {
+                                                    <option value="@manager.id_Vadybininkas" selected>@GetManagerNameByID(_contract.fk_Vadybininkasid_Vadybininkas)</option>
+                                                }
+                                                else
+                                                {
+                                                    <option value="@manager.id_Vadybininkas">@GetManagerNameByID(manager.id_Vadybininkas)</option>
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="@UpdateContract" data-bs-dismiss="modal" aria-label="Edit">Edit</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public int? contractsid { get; set; }
+
+    private List<Manager>? managers = new List<Manager>();
+    private List<OrderDto>? orders = new List<OrderDto>();
+    private Contract? _contract;
+    private int? ORDERID;
+    private int? MANAGERID;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //contracts = await Http.GetFromJsonAsync<List<Contract>>("api/Contracts");
+        managers = await Http.GetFromJsonAsync<List<Manager>>("api/Manager");
+        orders = await Http.GetFromJsonAsync<List<OrderDto>>("api/Orders");
+        _contract = await Http.GetFromJsonAsync<Contract>($"api/Contracts/get/{contractsid}");
+    }
+
+    public string GetManagerNameByID(int id)
+    {
+        Manager? manager = managers?.FirstOrDefault(m => m.id_Vadybininkas == id);
+        if (manager is null)
+            return string.Empty;
+        return manager.vardas + " " + manager.pavarde;
+    }
+
+    public async Task UpdateContract()
+    {
+        bool edited = false;
+        if (ORDERID is not null && _contract is not null){
+            _contract.fk_Uzsakymasid_Uzsakymas = (int)ORDERID;
+            edited = true;
+        }
+        if (MANAGERID is not null && _contract is not null){
+            _contract.fk_Vadybininkasid_Vadybininkas = (int)MANAGERID;
+            edited = true;
+        }
+
+        if (edited && _contract is not null)
+        {
+            _contract.isdavimo_data = DateTime.Now;
+            await Http.PutAsJsonAsync("api/Contracts", _contract);
+        }
+    }
+}

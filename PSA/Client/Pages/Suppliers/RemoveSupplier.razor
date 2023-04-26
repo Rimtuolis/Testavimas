@@ -1,0 +1,123 @@
+﻿@page "/suppliers/remove"
+@using PSA.Shared;
+@inject HttpClient Http
+
+<PageTitle>Remove Supplier</PageTitle>
+
+@if (profilepages == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    @if (suppliers?.Count != 0)
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <td>
+                                        Supplier ID
+                                    </td>
+                                    <td>
+                                        Name
+                                    </td>
+                                    <td>
+                                        Email
+                                    </td>
+                                    <td>
+                                        Phone number
+                                    </td>
+                                    <td>
+                                        Representative
+                                    </td>
+                                    <td>
+                                        City
+                                    </td>
+                                    <td>
+                                        Field
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                                @foreach (var item in suppliers)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.id_Tiekejas
+                                        </td>
+                                        <td>
+                                            @item.pavadinimas
+                                        </td>
+                                        <td>
+                                            @item.el_pastas
+                                        </td>
+                                        <td>
+                                            @item.tel_nr
+                                        </td>
+                                        <td>
+                                            @item.atstovas
+                                        </td>
+                                        <td>
+                                            @item.miestas
+                                        </td>
+                                        <td>
+                                            @item.sritis
+                                        </td>
+                                        <td>
+                                            <button type="submit" class="btn" @onclick="() => RemoveSuppliersFromDB(item.id_Tiekejas)">Remove</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h2>
+                            There are no suppliers.
+                        </h2>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+
+@code {
+    private ProfilePages[]? profilepages;
+    private List<Supplier>? suppliers = new List<Supplier>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        suppliers = await Http.GetFromJsonAsync<List<Supplier>>("api/Supplier");
+        profilepages = await Http.GetFromJsonAsync<ProfilePages[]>("data/currentuser.json");
+        if (profilepages == null)
+        {
+            return;
+        }
+    }
+
+    public class ProfilePages
+    {
+        public string? ImageSource { get; set; }
+        public string? Username { get; set; }
+        public string? Name { get; set; }
+        public string? Title { get; set; }
+        public string? Organization { get; set; }
+        public string? Contact { get; set; }
+    }
+
+    public async void RemoveSuppliersFromDB(int id)
+    {
+        await Http.DeleteAsync($"api/Supplier/{id}");
+        suppliers = suppliers?.Where(supplier => supplier.id_Tiekejas != id).ToList();
+        await InvokeAsync(() => StateHasChanged());
+    }
+}

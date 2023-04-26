@@ -1,0 +1,80 @@
+﻿@page "/suppliers/create"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@using PSA.Shared
+@using System.Text.Json.Serialization
+
+<PageTitle>Create Supplier</PageTitle>
+
+<EditForm Model="@supplier" OnValidSubmit="@HandleSubmit">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="single_product_text text-center">
+                <label for="title"><b>Name</b></label>
+                <input @bind="@name" placeholder="Name" type="text" name="name" required>
+            </div>
+            <div class="single_product_text text-center">
+                <label for="email"><b>Email</b></label>
+                <input @bind="@email" placeholder="123@mail.com" name="email" required>
+            </div>
+            <div class="single_product_text text-center">
+                <label for="phone"><b>Phone number</b></label>
+                <input @bind="@phone" placeholder="+770000000" name="phone" required>
+            </div>
+            <div class="single_product_text text-center">
+                 <label for="representative"><b>Representative</b></label>
+                 <input @bind="@representative" placeholder="Organization" name="representative" required>
+            </div>
+            <div class="single_product_text text-center">
+                 <label for="city"><b>City</b></label>
+                 <input @bind="@city" placeholder="City" name="city" required>
+            </div>
+             <div class="single_product_text text-center">
+                 <label for="field"><b>Field</b></label>
+                 <input @bind="@field" placeholder="Field" name="field" required>
+            </div>
+             <div class="single_product_text text-center">
+                 <label for="pass"><b>Password</b></label>
+                 <input @bind="@pass" placeholder="Password" name="pass" required>
+            </div>
+            <div class="single_product_text text-center">
+                 <button type="submit">Create Supplier</button>
+            </div>
+
+        </div>
+    </div>
+</EditForm>
+
+
+
+@code {
+    private Supplier supplier = new Supplier();
+    private string? name;
+    private string? email;
+    private string? phone;
+    private string? representative;
+    private string? city;
+    private string? field;
+    private string? pass;
+
+    public async Task HandleSubmit()
+    {
+        if (name is not null)
+            supplier.pavadinimas = (string)name;
+        if (email is not null)
+            supplier.el_pastas = (string)email;
+        if (phone is not null)
+            supplier.tel_nr = (string)phone;
+        if (representative is not null)
+            supplier.atstovas = (string)representative;
+        if (city is not null)
+            supplier.miestas = (string)city;
+        if (field is not null)
+            supplier.sritis = (string)field;
+        if (pass is not null)
+            supplier.slaptazodis = (string)pass;
+
+        await Http.PostAsJsonAsync($"api/Supplier/", supplier);
+        NavManager.NavigateTo("/suppliers", forceLoad: true);
+    }
+}

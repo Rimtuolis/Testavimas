@@ -1,0 +1,72 @@
+﻿@page "/profiles/create"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@using System.Text.Json.Serialization
+@using PSA.Shared
+
+
+
+<PageTitle>Profile Creation</PageTitle>
+
+
+
+<EditForm Model="@profile" OnValidSubmit="@HandleValidSubmit">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+                <div class="single_product_text text-center">
+                    <label for="uname"><b>Username</b></label>
+                    <input @bind="@profile.slapyvardis" placeholder="Enter Username" type="text" name="uname" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="name"><b>Name</b></label>
+                    <input @bind="@profile.vardas" placeholder="Enter your name" name="name" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="title"><b>Last Name</b></label>
+                    <input @bind="@profile.pavarde" placeholder="Enter your last name" name="title" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="title"><b>City</b></label>
+                    <input @bind="@profile.miestas" placeholder="Enter city" name="title" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="organization"><b>Postal Code</b></label>
+                    <input @bind="@profile.pasto_kodas" placeholder="Enter your postal code" name="organization"
+                        required>
+                </div>
+                 <div class="single_product_text text-center">
+                    <label for="organization"><b>Birth Date</b></label>
+=                    <input @bind="@profile.gimimo_data" format-value="yyyy-MM-dd" name="organization" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="contact"><b>Contact Email</b></label>
+                    <input @bind="@profile.el_pastas" placeholder="Enter your contact email" name="contact" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <label for="psw"><b>Password</b></label>
+                    <input @bind="@profile.slaptazodis" placeholder="Enter Password" name="password" required>
+                </div>
+                <div class="single_product_text text-center">
+                    <button type="submit">Create User</button>
+                </div>
+            
+        </div>
+    </div>
+</EditForm>
+
+
+
+
+
+@code {
+    public ProfileCreation profile = new();
+    public CurrentUser? currentUser = null;
+
+    public async Task HandleValidSubmit()
+    {
+        var response = await Http.PostAsJsonAsync("api/auth/register", profile);
+        currentUser = await response.Content.ReadFromJsonAsync<CurrentUser>();
+        NavManager.NavigateTo("/", forceLoad: true);
+    }
+}
