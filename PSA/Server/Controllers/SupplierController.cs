@@ -39,8 +39,8 @@ namespace PSA.Server.Controllers
         {
             var index = await _databaseOperationsService.ReadItemAsync<int?>($"select max(id_Tiekejas) form tiekejas");
             index++;
-            await _databaseOperationsService.ExecuteAsync($"insert into tiekejas(pavadinimas, el_pastas, slaptazodis, tel_nr, atstovas, miestas, sritis, " +
-                $"id_Tiekejas) values({supplier.pavadinimas}, {supplier.el_pastas}, {supplier.slaptazodis}, {supplier.tel_nr}, {supplier.atstovas}, " +
+            await _databaseOperationsService.ExecuteAsync($"insert into tiekejas(pavadinimas, email, slaptazodis, tel_nr, atstovas, miestas, sritis, " +
+                $"id_Tiekejas) values({supplier.pavadinimas}, {supplier.email}, {supplier.slaptazodis}, {supplier.tel_nr}, {supplier.atstovas}, " +
                 $"{supplier.miestas}, {supplier.sritis}, {index})");
         }
 
@@ -49,7 +49,7 @@ namespace PSA.Server.Controllers
         public async Task Put([FromBody] Supplier supplier)
         {
             await _databaseOperationsService.ExecuteAsync($"update 'tiekejas' " +
-                $"set 'pavadinimas' = {supplier.pavadinimas}, 'el_pastas' = {supplier.el_pastas}, 'slaptazodis' = {supplier.slaptazodis}, " +
+                $"set 'pavadinimas' = {supplier.pavadinimas}, 'email' = {supplier.email}, 'slaptazodis' = {supplier.slaptazodis}, " +
                 $"'tel_nr' = {supplier.tel_nr}, 'atstovas' = {supplier.atstovas}, 'miestas' = {supplier.miestas}, 'sritis' = {supplier.sritis} where 'id_Tiekejas' = {supplier.id_Tiekejas}");
         }
 

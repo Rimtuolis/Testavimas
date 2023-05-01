@@ -20,13 +20,13 @@ else
             <div class="row">
                 @foreach (var profile in profilepages)
                 {
-                    @if(profile.slapyvardis!="DELETED USER"){
+                    @if(profile.nickname!="DELETED USER"){
                     <div class="col-xl-4 col-lg-4 col-md-6">
                         <div class="single-product mb-60">
-                            <a href="/profiles/view/@profile.slapyvardis">
-                                <h1>@profile.vardas</h1>
-                                <h1 class="username">@profile.pavarde</h1>
-                                <p>@profile.el_pastas</p>         
+                            <a href="/profiles/view/@profile.nickname">
+                                <h1>@profile.name</h1>
+                                <h1 class="username">@profile.last_name</h1>
+                                <p>@profile.email</p>         
                                 </a>                       
                         </div>
                     </div>

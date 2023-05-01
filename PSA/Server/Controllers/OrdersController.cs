@@ -56,7 +56,7 @@ namespace PSA.Server.Controllers
                 var sandelininkuIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
                 var sandelininkas = sandelininkuIds[new Random().Next(0, sandelininkuIds.Count - 1)];
 
-                await _databaseOperationsService.ExecuteAsync($"insert into uzsakymas(suma, data, busena, id_Uzsakymas, fk_Klientasid_Klientas, fk_sandelininkas) values({total}, NOW(), {(int)OrderState.Nauja}, {index}, {_currentUserService.GetUser().Id}, {sandelininkas})");
+                await _databaseOperationsService.ExecuteAsync($"insert into uzsakymas(suma, data, busena, id_Uzsakymas, fk_Klientasid_User, fk_sandelininkas) values({total}, NOW(), {(int)OrderState.Nauja}, {index}, {_currentUserService.GetUser().Id}, {sandelininkas})");
 
                 //foreach (var product in cart)
                 //{
@@ -71,9 +71,9 @@ namespace PSA.Server.Controllers
                 var managerID = ManagersIds[new Random().Next(0, ManagersIds.Count - 1)];
                 await _databaseOperationsService.ExecuteAsync($"insert into sutartis values(NOW(), {contract_index}, {index}, {managerID})");
                 await _databaseOperationsService.ExecuteAsync($"insert into email_saskaita(data, prekiu_skaicius, suma, " +
-                    $"papildoma_informacija, fk_Sandelinkasid_Sandelinkas, fk_Klientasid_Klientas, fk_Sutartisid_Sutartis) " +
+                    $"papildoma_informacija, fk_Sandelinkasid_Sandelinkas, fk_Klientasid_User, fk_Sutartisid_Sutartis) " +
                     $"values(NOW(), {cart.Count}, {total}, '-', {sandelininkas}, {_currentUserService.GetUser().Id}, {contract_index})");
-                Shared.Client? client = await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from klientas where id_Klientas = {_currentUserService.GetUser().Id}");
+                Shared.Client? client = await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from klientas where id_User = {_currentUserService.GetUser().Id}");
                 Contract? contract = await _databaseOperationsService.ReadItemAsync<Contract>($"select * from sutartis where id_Sutartis = {contract_index}");
                 Manager? manager = await _databaseOperationsService.ReadItemAsync<Manager>($"select * from vadybininkas where id_Vadybininkas = {managerID}");
                 Worker? worker = await _databaseOperationsService.ReadItemAsync<Worker>($"select * from sandelinkas where id_Sandelinkas = {sandelininkas}");

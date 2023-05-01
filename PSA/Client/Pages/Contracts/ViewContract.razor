@@ -59,7 +59,7 @@
                                     @_order.Busena
                                 </td>
                                 <td>
-                                    @GetClientName(_order.Fk_KlientasId_Klientas)
+                                    @GetClientName(_order.Fk_Klientasid_User)
                                 </td>
                                 <td>
                                     @GetWorkerName(_order.Fk_Sandelininkas)
@@ -103,14 +103,14 @@ else
         Manager? manager = _managers?.FirstOrDefault(m => m.id_Vadybininkas == id);
         if (manager is null)
             return string.Empty;
-        return manager.vardas + " " + manager.pavarde;
+        return manager.name + " " + manager.last_name;
     }
 
     public string GetClientName(int clientId)
     {
-        Client? client = _clients?.FirstOrDefault(c => c.id_Klientas == clientId);
+        Client? client = _clients?.FirstOrDefault(c => c.id_User == clientId);
         if (client is not null)
-            return client.vardas + " " + client.pavarde;
+            return client.name + " " + client.last_name;
         return string.Empty;
     }
 
@@ -118,7 +118,7 @@ else
     {
         Worker? worker = _workers?.FirstOrDefault(w => w.id_Sandelinkas == workerId);
         if (worker is not null)
-            return worker.vardas + " " + worker.pavarde;
+            return worker.name + " " + worker.last_name;
         return string.Empty;
     }
 }

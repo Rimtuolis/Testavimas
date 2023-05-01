@@ -24,15 +24,7 @@ namespace PSA.Server.Controllers
         {
 
             
-            var clients = await _databaseOperationsService.ReadListAsync<Profile>($"select vardas, pavarde, el_pastas, slapyvardis from klientas");
-
-            var workers = await _databaseOperationsService.ReadListAsync<Profile>($"select vardas, pavarde, el_pastas,  slapyvardis from sandelinkas");
-
-            clients.AddRange(workers);
-
-            var managers = await _databaseOperationsService.ReadListAsync<Profile>($"select vardas, pavarde, el_pastas,  slapyvardis from vadybininkas");
-
-            clients.AddRange(managers);
+            var clients = await _databaseOperationsService.ReadListAsync<Profile>($"select name, last_name, email, nickname from User");
 
 
             return clients;
@@ -44,21 +36,10 @@ namespace PSA.Server.Controllers
         {
 
             
-            var client = await _databaseOperationsService.ReadItemAsync<Profile>($"select vardas, pavarde, el_pastas, slapyvardis from klientas where slapyvardis = '{value.slapyvardis}'");
+            var client = await _databaseOperationsService.ReadItemAsync<Profile>($"select name, last_name, email, nickname from user where nickname = '{value.nickname}'");
 
             if(client!=null){
                 return client;
-            }
-            var worker = await _databaseOperationsService.ReadItemAsync<Profile>($"select vardas, pavarde, el_pastas, slapyvardis from sandelinkas where slapyvardis = '{value.slapyvardis}'");
-
-            if(worker!=null){
-                return worker;
-            }
-
-            var manager = await _databaseOperationsService.ReadItemAsync<Profile>($"select vardas, pavarde, el_pastas, slapyvardis from vadybininkas where slapyvardis = '{value.slapyvardis}'");
-
-            if(manager!=null){
-                return manager;
             }
 
             return null;
@@ -68,16 +49,16 @@ namespace PSA.Server.Controllers
         [HttpPost("edit")]
         public async void EditProfile([FromBody] ProfileCreation value)
         {   
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `klientas` SET `vardas`='{value.vardas}', `pavarde` = '{value.pavarde}',  `slaptazodis`='{value.slaptazodis}', `gimimo_data`='{value.gimimo_data}', `miestas`='{value.miestas}', `el_pastas`='{value.el_pastas}', `pasto_kodas`='{value.pasto_kodas}' WHERE `slapyvardis`='{value.slapyvardis}'");
+            await _databaseOperationsService.ExecuteAsync($"UPDATE `klientas` SET `name`='{value.name}', `last_name` = '{value.last_name}',  `slaptazodis`='{value.password}', `gimimo_data`='{value.birthdate}', `miestas`='{value.city}', `email`='{value.email}', `pasto_kodas`='{value.post_code}' WHERE `nickname`='{value.nickname}'");
         }
 
         // POST api/profiles/delete
         [HttpPost("delete")]
         public async void DeleteProfile([FromBody] ProfileCreation value)
         {
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `klientas` SET `slapyvardis`='DELETED USER' WHERE `slapyvardis`='{value.slapyvardis}'");
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `sandelinkas` SET `slapyvardis`='DELETED USER' WHERE `slapyvardis`='{value.slapyvardis}'");
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `vadybininkas` SET `slapyvardis`='DELETED USER' WHERE `slapyvardis`='{value.slapyvardis}'");
+            await _databaseOperationsService.ExecuteAsync($"UPDATE `klientas` SET `nickname`='DELETED USER' WHERE `nickname`='{value.nickname}'");
+            await _databaseOperationsService.ExecuteAsync($"UPDATE `sandelinkas` SET `nickname`='DELETED USER' WHERE `nickname`='{value.nickname}'");
+            await _databaseOperationsService.ExecuteAsync($"UPDATE `vadybininkas` SET `nickname`='DELETED USER' WHERE `nickname`='{value.nickname}'");
 
         }
     }

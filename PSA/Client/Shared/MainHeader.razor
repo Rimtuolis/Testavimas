@@ -47,42 +47,17 @@ else
                                 <div class="main-menu f-right d-none d-lg-block">
                                     <nav>
                                         <ul id="navigation">
-                                            <li style ="z-index: 10">
-                                                <a href="products">Products</a>
-                                                <ul class="submenu">
-                                                    <li><a href="/products/">View products</a></li>
-                                                        @*@if (@profile?.UserLevel == AccessLevelType.ADMIN)
-                                                        {*@
-                                                            @*if user is logged in and admin*@
-                                                        @*<li><a href="/contracts/create">Add contract</a></li>
-                                                        }*@
-                                                        <li>
-                                                            <a href="/products/create">Add product</a>
-                                                        </li>
-                                                </ul>
-                                            </li>
-                                            <li style="z-index: 10">
-                                                <a href="#">Account</a>
-                                                <ul class="submenu">
-                                                    @if (!@profile.LoggedIn)
-                                                    {
-                                                        <li><a href="login">Login</a></li>
-                                                    }
-                                                    <li><a href="newsletter">Newsletter</a></li>
-                                                    @if (@profile.LoggedIn)
-                                                    {
-                                                        <li><a href="" onclick="@OnLogoutClicked">Log out</a></li>
-                                                    }
-                                                    @if (@profile?.UserLevel == AccessLevelType.ADMIN)
-                                                    {
-                                                        <li><a href="profiles">Profiles</a></li>
-                                                    }
-                                                    @if (@profile?.LoggedIn == true && @profile?.UserLevel == AccessLevelType.ADMIN)
-                                                    {
-                                                        <li><a href="profiles/view/@profile.Username">My Profile</a></li>
-                                                    }
-                                                </ul>
-                                            </li>
+                                            @if(profile.LoggedIn == true){
+                                                <li style ="z-index: 10">
+                                                    <a href="products">Products</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/products/">View products</a></li>
+                                                            <li>
+                                                                <a href="/products/create">Add product</a>
+                                                            </li>
+                                                    </ul>
+                                                </li>
+                                            }
                                             @if (@profile?.LoggedIn == true)
                                             {
                                                 <li style ="z-index: 10">
@@ -116,6 +91,37 @@ else
                                                     </ul>
                                                 </li>
                                             }
+                                            @if (@profile?.LoggedIn == true)
+                                            {
+                                                <li>
+                                                    <a>Gamble</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="Gambling/BlackJack">BlackJack</a></li>
+                                                    </ul>
+                                                </li>
+                                            }
+                                            <li style="z-index: 10">
+                                                <a href="login">Account</a>
+                                                <ul class="submenu">
+                                                    @if (@profile?.LoggedIn == false)
+                                                    {
+                                                        <li><a href="login">Login</a></li>
+                                                    }
+                                                    @if (@profile?.UserLevel == AccessLevelType.CLIENT)
+                                                    {
+                                                        <li><a href="profiles">Profiles</a></li>
+                                                    }
+                                                    @if (@profile?.LoggedIn == true && @profile?.UserLevel == AccessLevelType.ADMIN)
+                                                    {
+                                                        <li><a href="profiles/view/@profile.Username">My Profile</a></li>
+                                                    }
+                                                    @if (@profile?.LoggedIn == true)
+                                                    {
+                                                        <li><a href="" @onclick="@OnLogoutClicked">Log out</a></li>
+                                                    }
+                                                    <li><a href="newsletter">Newsletter</a></li>
+                                                </ul>
+                                            </li>
                                         </ul>
                                     </nav>
                                 </div>
@@ -130,11 +136,16 @@ else
                                             </div>
                                         </div>
                                     </li>
-                                    @if (@profile?.LoggedIn == true && profile?.UserLevel != AccessLevelType.SUPPLIER)
+                                    @if (@profile?.LoggedIn == true)
                                     {
                                         <li>
                                             <div class="shopping-card">
                                                 <a href="cart"><i class="fas fa-shopping-cart"></i></a>
+                                            </div>
+                                        </li>
+                                        <li class="d-none d-xl-block">
+                                            <div class="col-10">
+                                                Balance: <b>@profile.balance</b>
                                             </div>
                                         </li>
                                     }

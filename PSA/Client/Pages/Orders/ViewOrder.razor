@@ -23,7 +23,7 @@
                         <tr>
                             <td>@_order.Id_Uzsakymas</td>
                             <td>@_order.Suma</td>
-                            <td>@GetClientName(_order.Fk_KlientasId_Klientas)</td>
+                            <td>@GetClientName(_order.Fk_Klientasid_User)</td>
                             <td>@_order.Busena</td>
                         </tr>
                         <tr>
@@ -104,9 +104,9 @@ else{
 
     public string GetClientName(int clientId)
     {
-        Client? client = _clients?.FirstOrDefault(c => c.id_Klientas == clientId);
+        Client? client = _clients?.FirstOrDefault(c => c.id_User == clientId);
         if (client is not null)
-            return client.vardas + " " + client.pavarde;
+            return client.name + " " + client.last_name;
         return string.Empty;
     }
 }

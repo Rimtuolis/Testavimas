@@ -42,10 +42,10 @@ namespace PSA.Server.Controllers
         {
             var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Sandelinkas) from sandelinkas");
             index++;
-            await _databaseOperationsService.ExecuteAsync($"insert into sandelinkas(vardas, pavarde, " +
-                $"slaptazodis, isidarbinimo_data, tel_nr, el_pastas, id_Sandelinkas, slapyvardis) values(" +
-                $"{worker.vardas}, {worker.pavarde}, {worker.slaptazodis}, {worker.isidarbinimo_data}, {worker.tel_nr}, " +
-                $"{worker.el_pastas}, {index}, {worker.slapyvardis})");
+            await _databaseOperationsService.ExecuteAsync($"insert into sandelinkas(name, last_name, " +
+                $"slaptazodis, isidarbinimo_data, tel_nr, email, id_Sandelinkas, nickname) values(" +
+                $"{worker.name}, {worker.last_name}, {worker.slaptazodis}, {worker.isidarbinimo_data}, {worker.tel_nr}, " +
+                $"{worker.email}, {index}, {worker.nickname})");
         }
 
         // DELETE api/<WorkerController>/5

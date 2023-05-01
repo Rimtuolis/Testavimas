@@ -1,0 +1,38 @@
+﻿@page "/Gambling/BlackJack"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using PSA.Shared
+@using Microsoft.Extensions.Logging
+<PageTitle>BlackJack</PageTitle>
+
+<h3>BlackJack</h3>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-6">
+            Dealer Hand: @Deck[0] @Deck[1]
+        </div>
+        <div class="col-6">
+            Player Hand: @Deck[2] @Deck[3]
+        </div>
+        <button class="btn col-3">Hit</button>
+        <button class="btn col-3">Stand</button>
+        <button class="btn col-3">Double</button>
+    </div>
+</div>
+
+
+@code {
+    private List<Card>? Deck = new List<Card>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Deck = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/deck");
+        if (Deck is not null)
+            Console.WriteLine(Deck[0]);
+        else
+            Deck = new List<Card>();
+
+    }
+}

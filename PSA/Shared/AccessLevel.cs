@@ -8,11 +8,7 @@ namespace PSA.Shared
 {
     public enum AccessLevelType
     {
-        NONE = 0,
-        CLIENT = 1,
-        WORKER = 2,
-        SUPPLIER = 3,
-
-        ADMIN = 4
+        CLIENT = 2,
+        ADMIN = 1
     }
 }

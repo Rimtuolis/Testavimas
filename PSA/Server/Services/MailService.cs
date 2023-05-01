@@ -48,19 +48,19 @@ namespace PSA.Server.Services
 
         public async Task SendInvoice(Shared.Client? client, Contract? contract, Manager? manager, Worker? worker)
         {
-            if (string.IsNullOrWhiteSpace(manager.vardas) ||
-                string.IsNullOrWhiteSpace(manager.pavarde) ||
-                string.IsNullOrWhiteSpace(worker.vardas) ||
-                string.IsNullOrWhiteSpace(worker.pavarde) ||
-                string.IsNullOrWhiteSpace(client.vardas) ||
-                string.IsNullOrWhiteSpace(client.el_pastas))
+            if (string.IsNullOrWhiteSpace(manager.name) ||
+                string.IsNullOrWhiteSpace(manager.last_name) ||
+                string.IsNullOrWhiteSpace(worker.name) ||
+                string.IsNullOrWhiteSpace(worker.last_name) ||
+                string.IsNullOrWhiteSpace(client.name) ||
+                string.IsNullOrWhiteSpace(client.email))
             {
                 return;
             }
 
-            string html = $"<html> <h1> Invoice #{contract.id_Sutartis} </h1> <p> Thank you for ordering! </p> <h3> Signed by manager {manager.vardas} {manager.pavarde} </h3> <h3> Shipped by worker {worker.vardas} {worker.pavarde} </h3> </html>";
+            string html = $"<html> <h1> Invoice #{contract.id_Sutartis} </h1> <p> Thank you for ordering! </p> <h3> Signed by manager {manager.name} {manager.last_name} </h3> <h3> Shipped by worker {worker.name} {worker.last_name} </h3> </html>";
 
-            await SendEmailAsync($"Invoice #{contract.id_Sutartis}", client.vardas, client.el_pastas, html, "html");
+            await SendEmailAsync($"Invoice #{contract.id_Sutartis}", client.name, client.email, html, "html");
         }
     }
 }

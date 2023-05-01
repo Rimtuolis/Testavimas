@@ -112,7 +112,7 @@ else
         Manager? manager = managers.FirstOrDefault(m => m.id_Vadybininkas == id);
         if (manager is null)
             return string.Empty;
-        return manager.vardas + " " + manager.pavarde;
+        return manager.name + " " + manager.last_name;
     }
 
     public async void RemoveContractFromDB(int id)

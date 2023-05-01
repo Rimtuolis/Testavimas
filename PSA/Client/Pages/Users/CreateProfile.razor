@@ -14,41 +14,40 @@
     <div class="row justify-content-center">
         <div class="col-lg-8">
 
-                <div class="single_product_text text-center">
+                <div class="mb-3">
                     <label for="uname"><b>Username</b></label>
-                    <input @bind="@profile.slapyvardis" placeholder="Enter Username" type="text" name="uname" required>
+                    <input class="form-control" id="uname" @bind="@profile.nickname" placeholder="Enter Username" type="text" name="uname" required>
                 </div>
-                <div class="single_product_text text-center">
+                <div class="mb-3">
                     <label for="name"><b>Name</b></label>
-                    <input @bind="@profile.vardas" placeholder="Enter your name" name="name" required>
+                <input class="form-control" id="name" @bind="@profile.name" placeholder="Enter your name" name="name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="last_name"><b>Last Name</b></label>
+                <input class="form-control" id="last_name" @bind="@profile.last_name" placeholder="Enter your last name" name="last_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="city"><b>City</b></label>
+                    <input class="form-control" id="city" @bind="@profile.city" placeholder="Enter city" name="city" required>
+                </div>
+                <div class="mb-3">
+                    <label for="post_code"><b>Postal Code</b></label>
+                    <input class="form-control" id="post_code" @bind="@profile.post_code" placeholder="Enter your postal code" name="post_code" required>
+                </div>
+                 <div class="mb-3">
+                    <label for="birthdate"><b>Birth Date</b></label>
+                    <input class="form-control" id="birthdate" @bind="@profile.birthdate" format-value="yyyy-MM-dd" name="birthdate" placeholder="Your birthdate yyyy-MM-dd" required>
+                </div>
+                <div class="mb-3">
+                    <label for="email"><b>Contact Email</b></label>
+                    <input class="form-control" id="email" @bind="@profile.email" placeholder="Enter your contact email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password"><b>Password</b></label>
+                    <input class="form-control" id="password" @bind="@profile.password" placeholder="Enter Password" name="password" required>
                 </div>
                 <div class="single_product_text text-center">
-                    <label for="title"><b>Last Name</b></label>
-                    <input @bind="@profile.pavarde" placeholder="Enter your last name" name="title" required>
-                </div>
-                <div class="single_product_text text-center">
-                    <label for="title"><b>City</b></label>
-                    <input @bind="@profile.miestas" placeholder="Enter city" name="title" required>
-                </div>
-                <div class="single_product_text text-center">
-                    <label for="organization"><b>Postal Code</b></label>
-                    <input @bind="@profile.pasto_kodas" placeholder="Enter your postal code" name="organization"
-                        required>
-                </div>
-                 <div class="single_product_text text-center">
-                    <label for="organization"><b>Birth Date</b></label>
-=                    <input @bind="@profile.gimimo_data" format-value="yyyy-MM-dd" name="organization" required>
-                </div>
-                <div class="single_product_text text-center">
-                    <label for="contact"><b>Contact Email</b></label>
-                    <input @bind="@profile.el_pastas" placeholder="Enter your contact email" name="contact" required>
-                </div>
-                <div class="single_product_text text-center">
-                    <label for="psw"><b>Password</b></label>
-                    <input @bind="@profile.slaptazodis" placeholder="Enter Password" name="password" required>
-                </div>
-                <div class="single_product_text text-center">
-                    <button type="submit">Create User</button>
+                    <button class="btn" type="submit">Create User</button>
                 </div>
             
         </div>

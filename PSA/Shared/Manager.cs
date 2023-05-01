@@ -9,12 +9,12 @@ namespace PSA.Shared
     public class Manager
     {
         public int id_Vadybininkas { get; set; }
-        public string? vardas { get; set; }
-        public string? pavarde { get; set; }
+        public string? name { get; set; }
+        public string? last_name { get; set; }
         public string? slaptazodis { get; set; }
         public string? tel_nr { get; set; }
-        public string? el_pastas { get; set; }
+        public string? email { get; set; }
 
-        public string? slapyvardis { get; set; }
+        public string? nickname { get; set; }
     }
 }

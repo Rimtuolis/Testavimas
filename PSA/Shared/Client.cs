@@ -9,15 +9,16 @@ namespace PSA.Shared
 {
     public class Client
     {
-        public int id_Klientas { get; set; }
-        public string? vardas { get; set; }
-        public string? pavarde { get; set; }
-        public string? slapyvardis { get; set; }
-        public string? slaptazodis { get; set; }
-        public DateTime gimimo_data { get; set; }
-        public string? miestas { get; set; }
-        public string? el_pastas { get; set; }
-        public int pasto_kodas { get; set; }
-        public string? adresas { get; set; }
+        public int id_User { get; set; }
+        public string? name { get; set; }
+        public string? last_name { get; set; }
+        public string? nickname { get; set; }
+        public string? password { get; set; }
+        public DateTime birthdate { get; set; }
+        public string? city { get; set; }
+        public string? email { get; set; }
+        public int post_code { get; set; }
+        public double balance { get; set; }
+        public AccessLevelType role { get; set; }
     }
 }

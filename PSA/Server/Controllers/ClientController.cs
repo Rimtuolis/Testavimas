@@ -25,33 +25,33 @@ namespace PSA.Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<Shared.Client>> Get()
         {
-            return await _databaseOperationsService.ReadListAsync<Shared.Client>("select * from klientas");
+            return await _databaseOperationsService.ReadListAsync<Shared.Client>("select * from User");
         }
 
         // GET api/<ClientController>/5
         [HttpGet("{id}")]
         public async Task<Shared.Client?> Get(int id)
         {
-            return await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from klientas where id_Klientas = {id}");
+            return await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from User where id_User = {id}");
         }
 
         // POST api/<ClientController>
         [HttpPost]
         public async Task Post([FromBody] Shared.Client client)
         {
-            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Klientas) from klientas");
+            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_User) from klientas");
             index++;
-            await _databaseOperationsService.ExecuteAsync($"insert into klientas(vardas, pavarde, slapyvardis, " +
-                $"slaptazodis, gimimo_data, miestas, el_pastas, pasto_kodas, adresas, id_Klientas) " +
-                $"values({client.vardas}, {client.pavarde}, {client.slapyvardis}, {client.slaptazodis}, {client.gimimo_data}, {client.miestas}, " +
-                $"{client.el_pastas}, {client.pasto_kodas}, {client.adresas}, {index})");
+            await _databaseOperationsService.ExecuteAsync($"insert into klientas(name, last_name, nickname, " +
+                $"slaptazodis, gimimo_data, miestas, email, pasto_kodas, id_User) " +
+                $"values({client.name}, {client.last_name}, {client.nickname}, {client.password}, {client.birthdate}, {client.city}, " +
+                $"{client.email}, {client.post_code}, {index})");
         }
 
         // DELETE api/<ClientController>/5
         [HttpDelete("{id}")]
         public async Task Delete(int id)
         {
-            await _databaseOperationsService.ExecuteAsync($"delete from klientas where id_Klientas = {id}");
+            await _databaseOperationsService.ExecuteAsync($"delete from klientas where id_User = {id}");
         }
     }
 }
