@@ -11,6 +11,7 @@ namespace PSA.Shared
     {
         private static string[] ranks = new[] { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
         private static string[] suits = new[] { "Clubs", "Diamonds", "Hearts", "Spades" };
+        private static int[] values = new[] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11}; 
         private static List<Card> deck = new List<Card>();
 
 
@@ -18,9 +19,9 @@ namespace PSA.Shared
         {
             foreach (var suit in suits)
             {
-                foreach (var rank in ranks)
+                for(int i = 0; i < ranks.Length; i++)
                 {
-                    deck.Add(new Card(rank, suit));
+                    deck.Add(new Card(ranks[i], suit, values[i]));
                 }
             }
 

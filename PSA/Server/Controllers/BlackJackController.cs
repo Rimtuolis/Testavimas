@@ -14,12 +14,16 @@ namespace PSA.Server.Controllers
         private readonly IDatabaseOperationsService _databaseOperationsService;
         private readonly ICurrentUserService _currentUserService;
         private readonly ILogger _logger;
+        //Should create a blackjack service for it not to load always
+        //Or use database calls to push/pull data to them constantly
+        private readonly IBlackJackService _blackJackService;
 
-        public BlackJackController(IDatabaseOperationsService databaseOperationsService, ICurrentUserService currentUserService, ILogger<AuthController> logger)
+        public BlackJackController(IDatabaseOperationsService databaseOperationsService, ICurrentUserService currentUserService, ILogger<AuthController> logger, IBlackJackService blackJackService)
         {
             _databaseOperationsService = databaseOperationsService;
             _currentUserService = currentUserService;
             _logger = logger;
+            _blackJackService = blackJackService;
         }
 
         // GET: api/<BlackJackController>
@@ -31,9 +35,57 @@ namespace PSA.Server.Controllers
 
         [HttpGet("deck")]
         public List<Card> GetDeck(){
-            var deck = Deck.GetDeck();
-            deck = Deck.ShuffleDeck(deck);
-            return deck;
+            //Update database
+            return _blackJackService.GetDeck();
+        }
+
+        [HttpGet("hit")]
+        public List<Card> Hit()
+        {
+            //Update database
+            return _blackJackService.Hit();
+        }
+
+        [HttpGet("hitdealer")]
+        public List<Card> HitDealer()
+        {
+            //Update database
+            return _blackJackService.HitDealer();
+        }
+
+        [HttpGet("playercards")]
+        public List<Card> GetPlayerCards()
+        {
+            //Update database
+            return _blackJackService.GetPlayerCards();
+        }
+
+        [HttpGet("dealercards")]
+        public List<Card> GetDealerCards()
+        {
+            //Update database
+            return _blackJackService.GetDealerCards();
+        }
+
+        [HttpGet("gamestate")]
+        public bool GetGameState()
+        {
+            //Update database
+            return _blackJackService.GetState();
+        }
+
+        [HttpPost("gamestate")]
+        public void SetGameState([FromBody] bool state)
+        {
+            //Update database
+            _blackJackService.SetState(state);
+        }
+
+        [HttpPost("resetdeck")]
+        public void ResetDeck()
+        {
+            //Update database
+            _blackJackService.ResetDeck();
         }
 
         // GET api/<BlackJackController>/5

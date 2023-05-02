@@ -7,32 +7,251 @@
 @using Microsoft.Extensions.Logging
 <PageTitle>BlackJack</PageTitle>
 
+@*Enable betting from balance*@
 <h3>BlackJack</h3>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-6">
-            Dealer Hand: @Deck[0] @Deck[1]
+@if(Deck is null || Deck.Count == 0)
+{
+    <p>Loading...</p>
+}
+else{
+    <div class="container">
+        <div class="row justify-content-center align-content-center">
+            @if (finished == true)
+            {
+                @if (playerWon is not null)
+                {
+                    @if (playerWon == false)
+                    {
+                        <div class="row justify-content-center align-content-center text-danger h1">@gameMessage</div>
+                    }
+                    @if (playerWon == true)
+                    {
+                        <div class="row justify-content-center align-content-center text-success h1">@gameMessage</div>
+                    }
+                }
+                @if(tied == true)
+                {
+                    <div class="row justify-content-center align-content-center text-warning h1">@gameMessage</div>
+                }
+            }
+            <div class="row justify-content-center align-content-center">
+                <div class="col-2 d-inline-flex">
+                    Total dealer: <br />
+                    @if(dealerCards is not null)
+                        @dealerCards.Sum(card => card.value)
+                </div>
+                    <div class="col-2 d-inline-flex">
+                        Total player: <br />
+                    @if(playerCards is not null)
+                        @playerCards.Sum(card => card.value)
+                </div>
+            </div>
+            <div class="col-6">
+                Dealer Hand: <br />
+                @if (dealerCards is not null)
+                {
+                    @foreach (var card in dealerCards)
+                    {
+                        @String.Format(@card.ToString() + " ")
+                    }
+                }
+            </div>
+            <div class="col-6">
+                Player Hand: <br/>
+                @if (playerCards is not null)
+                {
+                    @foreach (var card in playerCards)
+                    {
+                        @String.Format(@card.ToString() + " ")
+                    }
+                }
+            </div>
+            <button class="btn col-3" @onclick="HandleHit" disabled="@hitDisabled">Hit</button>
+            <button class="btn col-3" @onclick="HandleStand" disabled="@standDisabled">Stand</button>
+            <button class="btn col-3" @onclick="HandleDouble" disabled="@doubleDisabled">Double</button>
+            @if (finished == true)
+            {
+                <div class="row justify-content-center align-content-center">
+                    <button class="btn col-3" @onclick="HandleNewGame">Start new game</button>
+                </div>
+            }
         </div>
-        <div class="col-6">
-            Player Hand: @Deck[2] @Deck[3]
-        </div>
-        <button class="btn col-3">Hit</button>
-        <button class="btn col-3">Stand</button>
-        <button class="btn col-3">Double</button>
     </div>
-</div>
+}
 
 
 @code {
+    private List<Card>? dealerCards = new List<Card>();
+    private List<Card>? playerCards = new List<Card>();
     private List<Card>? Deck = new List<Card>();
+    private bool finished = false;
+    private bool hitDisabled = false;
+    private bool doubleDisabled = false;
+    private bool standDisabled = false;
+    private bool? playerWon = null;
+    private bool tied = false;
+    private string gameMessage = String.Empty;
+
 
     protected override async Task OnInitializedAsync()
     {
-        Deck = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/deck");
-        if (Deck is not null)
-            Console.WriteLine(Deck[0]);
-        else
-            Deck = new List<Card>();
+        Deck = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/deck"); 
+        playerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/playercards");
+        dealerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/dealercards");
 
+        //If player has 21 then we finish the game and disable all the buttons
+        if(playerCards?.Sum(card => card.value) == 21)
+        {
+            finished = true;
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        }
+
+        //If dealer has 21 then we finish the game and disable all the buttons
+        if(dealerCards?.Sum(card => card.value) == 21)
+        {
+            finished = true;
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        }
+
+        //Player wins if he gets 21 instantly or loses if dealer has 21, but if neither have 21 then value remains null
+        var playerSum = playerCards?.Sum(card => card.value);
+        var dealerSum = dealerCards?.Sum(card => card.value);
+        playerWon = playerSum == 21 ? true : dealerSum == 21 ? false : null;
+
+        //Set the game message depending on the playerWon status
+        gameMessage = playerWon == true ? "You Win!" : playerWon == false ? "You Lose!" : String.Empty;
+    }
+
+    public async Task HandleHit()
+    {
+        playerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/hit");
+        var playerSum = playerCards?.Sum(card => card.value);
+        var dealerSum = dealerCards?.Sum(card => card.value);
+        if(playerSum > 21)
+        {
+            finished = true;
+            playerWon = false;
+            gameMessage = "You lost!";
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        } 
+        else if(playerSum == 21)
+        {
+            if(dealerSum < 17)
+            {
+                await HandleStand();
+            }
+
+            dealerSum = dealerCards?.Sum(card => card.value);
+
+            if(playerSum > dealerSum)
+            {
+                finished = true;
+                playerWon = true;
+                gameMessage = "You Won!";
+                DisableButtons();
+                await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+            }
+            else if(playerSum == dealerSum)
+            {
+                finished = true;
+                playerWon = null;
+                tied = true;
+                gameMessage = "You Tied!";
+                DisableButtons();
+                await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+            }
+        }
+        doubleDisabled = true;
+        StateHasChanged();
+    }
+
+    public async Task HandleStand()
+    {
+        var dealerSum = dealerCards?.Sum(card => card.value);
+        while(dealerSum < 17)
+        {
+            dealerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/hitdealer");
+            dealerSum = dealerCards?.Sum(card => card.value);
+        }
+
+        dealerSum = dealerCards?.Sum(card => card.value);
+        var playerSum = playerCards?.Sum(card => card.value);
+
+        if (dealerSum > 21)
+        {
+            finished = true;
+            playerWon = true;
+            gameMessage = "You Won!";
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        } 
+        else if(dealerSum == 21)
+        {
+            finished = true;
+            playerWon = false;
+            gameMessage = "You Lost!";
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        }
+        else if(dealerSum > playerSum)
+        {
+            finished = true;
+            playerWon = false;
+            gameMessage = "You Lost!";
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        }
+        else if(dealerSum < playerSum)
+        {
+            finished = true;
+            playerWon = true;
+            gameMessage = "You Won!";
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        }
+        else if(dealerSum == playerSum)
+        {
+            finished = true;
+            playerWon = null;
+            tied = true;
+            gameMessage = "You Tied!";
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        }
+
+        StateHasChanged();
+    }
+
+    public async Task HandleDouble()
+    {
+        playerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/hit");
+        if (playerCards?.Sum(card => card.value) > 21)
+        {
+            finished = true;
+            playerWon = false;
+            gameMessage = "You lost!";
+            DisableButtons();
+            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+        }
+        else
+        {
+            await HandleStand();
+        }
+        StateHasChanged();
+    }
+
+    public void HandleNewGame()
+    {
+        NavManager.NavigateTo("Gambling/BlackJack", forceLoad: true);
+    }
+
+    private void DisableButtons()
+    {
+        hitDisabled = true;
+        standDisabled = true;
+        doubleDisabled = true;
     }
 }

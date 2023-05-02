@@ -10,11 +10,13 @@ namespace PSA.Shared
     {
         public string Rank { get; }
         public string Suit { get; }
+        public int value { get; }
 
-        public Card(string rank, string suit)
+        public Card(string rank, string suit, int value)
         {
             Rank = rank;
             Suit = suit;
+            this.value = value;
         }
 
         public override string ToString()
