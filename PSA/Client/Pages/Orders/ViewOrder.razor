@@ -1,0 +1,112 @@
+﻿@page "/orders/vieworder/{orderid:int}"
+@inject HttpClient Http
+@using PSA.Shared
+
+<PageTitle>View Order</PageTitle>
+
+@if(_order is not null)
+{
+<section class="cart_area section_padding">
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Price</td>
+                            <td>Client</td>
+                            <td>Order state</td>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <td>@_order.Id_Uzsakymas</td>
+                            <td>@_order.Suma</td>
+                            <td>@GetClientName(_order.Fk_Klientasid_User)</td>
+                            <td>@_order.Busena</td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                Products(@_products.Count)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Product name
+                            </td>
+                            <td>
+                                Price
+                            </td>
+                            <td>
+                                Description
+                            </td>
+                            <td>
+                                Photo
+                            </td>
+                        </tr>
+                            @foreach (Product product in _products)
+                            {
+                               <tr>
+                                   @*<td>
+                                       @product.Pavadinimas
+                                   </td>
+                                   <td>
+                                       @product.Kaina
+                                   </td>
+                                   <td>
+                                       @product.Aprasymas
+                                   </td>
+                                   <td>
+                                        @if(product.Nuotrauka == null)
+                                        {
+                                            <img src="https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg" alt="" style="width: 150px" />
+                                        }
+                                        else
+                                        {
+                                            <img src="@product.Nuotrauka" alt="" />
+                                        }
+                                    </td>*@
+                               </tr> 
+                            }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+}
+else{
+<p><em>Loading...</em></p>
+}
+@code {
+    [Parameter]
+    public int? orderid { get; set; }
+
+    private OrderDto? _order;
+    private List<OrderProductDto>? _orderProducts;
+    private List<Product> _products = new List<Product>();
+    private List<Client>? _clients;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _clients = await Http.GetFromJsonAsync<List<Client>>("api/Client");
+        _order = await Http.GetFromJsonAsync<OrderDto>($"api/Orders/{orderid}");
+        _orderProducts = await Http.GetFromJsonAsync<List<OrderProductDto>>($"api/Orderproduct/{orderid}");
+        if(_orderProducts is not null)
+            foreach(OrderProductDto orderProduct in _orderProducts)
+            {
+                Product? product = await Http.GetFromJsonAsync<Product>($"api/Products/{orderProduct.fk_preke}");
+                if (product is not null)
+                    _products.Add(product);
+            }
+    }
+
+    public string GetClientName(int clientId)
+    {
+        Client? client = _clients?.FirstOrDefault(c => c.id_User == clientId);
+        if (client is not null)
+            return client.name + " " + client.last_name;
+        return string.Empty;
+    }
+}

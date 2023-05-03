@@ -1,0 +1,124 @@
+﻿@page "/contracts/viewcontract/{contractid:int}"
+@inject HttpClient Http
+@using PSA.Shared;
+
+<PageTitle>View Contract</PageTitle>
+
+@if (_contract is not null)
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Date given</td>
+                                <td>Order id</td>
+                                <td colspan="2">Manager</td>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            <tr>
+                                <td>@_contract.id_Sutartis</td>
+                                <td>@_contract.isdavimo_data</td>
+                                <td>@_contract.fk_Uzsakymasid_Uzsakymas</td>
+                                <td colspan="2">@GetManagerNameByID(_contract.fk_Vadybininkasid_Vadybininkas)</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    Order information
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Order ID
+                                </td>
+                                <td>
+                                    Price
+                                </td>
+                                <td>
+                                    Order state
+                                </td>
+                                <td>
+                                    Client
+                                </td>
+                                <td>
+                                    Worker
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    #@_order.Id_Uzsakymas
+                                </td>
+                                <td>
+                                    @_order.Suma
+                                </td>
+                                <td>
+                                    @_order.Busena
+                                </td>
+                                <td>
+                                    @GetClientName(_order.Fk_Klientasid_User)
+                                </td>
+                                <td>
+                                    @GetWorkerName(_order.Fk_Sandelininkas)
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+@code {
+    [Parameter]
+    public int? contractid { get; set; }
+
+    private List<Manager>? _managers = new List<Manager>();
+    private List<Client>? _clients;
+    private List<Worker>? _workers;
+    private Contract? _contract;
+    private OrderDto? _order;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _managers = await Http.GetFromJsonAsync<List<Manager>>("api/Manager");
+        _clients = await Http.GetFromJsonAsync<List<Client>>("api/Client");
+        _workers = await Http.GetFromJsonAsync<List<Worker>>("api/Worker");
+        //var _contracts = await Http.GetFromJsonAsync<List<Contract>>("api/Contracts");
+        //_contract = _contracts?.FirstOrDefault(c => c.id_Sutartis == contractid);
+        _contract = await Http.GetFromJsonAsync<Contract>($"api/Contracts/get/{contractid}");
+        if(_contract is not null)
+            _order = await Http.GetFromJsonAsync<OrderDto>($"api/Orders/{_contract.fk_Uzsakymasid_Uzsakymas}");
+    }
+
+    public string GetManagerNameByID(int id)
+    {
+        Manager? manager = _managers?.FirstOrDefault(m => m.id_Vadybininkas == id);
+        if (manager is null)
+            return string.Empty;
+        return manager.name + " " + manager.last_name;
+    }
+
+    public string GetClientName(int clientId)
+    {
+        Client? client = _clients?.FirstOrDefault(c => c.id_User == clientId);
+        if (client is not null)
+            return client.name + " " + client.last_name;
+        return string.Empty;
+    }
+
+    public string GetWorkerName(int workerId)
+    {
+        Worker? worker = _workers?.FirstOrDefault(w => w.id_Sandelinkas == workerId);
+        if (worker is not null)
+            return worker.name + " " + worker.last_name;
+        return string.Empty;
+    }
+}
