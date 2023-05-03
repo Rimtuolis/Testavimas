@@ -26,12 +26,6 @@ namespace PSA.Server.Controllers
             _blackJackService = blackJackService;
         }
 
-        // GET: api/<BlackJackController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
 
         [HttpGet("deck")]
         public List<Card> GetDeck(){
