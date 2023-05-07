@@ -68,7 +68,7 @@ namespace PSA.Server.Controllers
             return _blackJackService.GetState();
         }
 
-        [HttpPost("gamestate")]
+        [HttpPost("gamestate")] 
         public void SetGameState([FromBody] bool state)
         {
             //Update database
