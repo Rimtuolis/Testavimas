@@ -107,16 +107,16 @@ else
                                                     {
                                                         <li><a href="login">Login</a></li>
                                                     }
-                                                    @if (@profile?.UserLevel == AccessLevelType.CLIENT)
-                                                    {
-                                                        <li><a href="profiles">Profiles</a></li>
-                                                    }
-                                                    @if (@profile?.LoggedIn == true && @profile?.UserLevel == AccessLevelType.ADMIN)
-                                                    {
-                                                        <li><a href="profiles/view/@profile.Username">My Profile</a></li>
-                                                    }
                                                     @if (@profile?.LoggedIn == true)
                                                     {
+                                                        <li><a href="profiles">Profiles</a></li>
+                                                        <li><a href="profiles/balance" @onclick="OpenAddBalancePage">Add balance</a></li>
+                                                    
+                                                        @if (@profile?.UserLevel == AccessLevelType.ADMIN)
+                                                        {
+                                                            <li><a href="profiles/view/@profile.Username">My Profile</a></li>
+                                                        }
+
                                                         <li><a href="" @onclick="@OnLogoutClicked">Log out</a></li>
                                                     }
                                                     <li><a href="newsletter">Newsletter</a></li>
@@ -188,6 +188,11 @@ else
         await Http.GetFromJsonAsync<CurrentUser>("api/auth/logout");
         NavManager.NavigateTo("/", forceLoad: true);
 
+    }
+
+    public void OpenAddBalancePage()
+    {
+        NavManager.NavigateTo("/profiles/balance", forceLoad: true);
     }
 
 

@@ -7,12 +7,12 @@ namespace PSA.Server.Services
         public List<Card> deck;
         public List<Card> playerCards;
         public List<Card> dealerCards;
-        public bool State;
+        public bool Playing;
         public BlackJackService() {
             deck = new List<Card>(); 
             playerCards = new List<Card>();
             dealerCards = new List<Card>();
-            State = false;
+            Playing = false;
         }
 
         public List<Card> GetDeck()
@@ -69,12 +69,12 @@ namespace PSA.Server.Services
 
         public bool GetState()
         {
-            return State;
+            return Playing;
         }
 
         public void SetState(bool state)
         {
-            State = state ? true : false;
+            Playing = state;
         }
 
         public void ResetDeck()

@@ -30,7 +30,17 @@ namespace PSA.Server.Controllers
                 return null;
             }
 
-            Shared.Client? client = await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from user where email = '{value.Email}' and password = '{value.Password}'");
+            Shared.Client? client = null;
+
+            // Check if what is returned by db
+            try
+            {
+                client = await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from user where email = '{value.Email}' and password = '{value.Password}'");
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Errrrrrrr");
+            }
 
             if (client is not null)
             {

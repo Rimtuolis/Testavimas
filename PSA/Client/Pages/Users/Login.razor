@@ -1,5 +1,6 @@
 @page "/Login"
 @using PSA.Shared
+@inject IJSRuntime JS
 @inject HttpClient Http
 @inject NavigationManager NavManager
 
@@ -43,7 +44,7 @@
         </div>
     </section>
 }
-else{
+else {
     <p><em>Loading...</em></p>
 }
 @code {
@@ -60,9 +61,18 @@ else{
 
     public async Task OnLoginClicked()
     {
-        var response = await Http.PostAsJsonAsync("api/auth/login", loginDto);
-        CurrentUser? user = await response.Content.ReadFromJsonAsync<CurrentUser>();
-        if (user is not null)
-            NavManager.NavigateTo("/", forceLoad: true);
+        if (loginDto.Email == null || loginDto.Password == null)
+            await JS.InvokeVoidAsync("alert", "Your login information is incomplete");
+        else
+        {
+            var response = await Http.PostAsJsonAsync("api/auth/login", loginDto);
+            Console.WriteLine(response);
+            //if wrong info check it and alert
+            CurrentUser? user = await response.Content.ReadFromJsonAsync<CurrentUser>();
+            if (user is not null)
+                NavManager.NavigateTo("/", forceLoad: true);
+            else
+                await JS.InvokeVoidAsync("alert", "Yout email or password is incorrct");
+        }
     }
 }

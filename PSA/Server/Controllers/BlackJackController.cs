@@ -26,12 +26,6 @@ namespace PSA.Server.Controllers
             _blackJackService = blackJackService;
         }
 
-        // GET: api/<BlackJackController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
 
         [HttpGet("deck")]
         public List<Card> GetDeck(){
@@ -74,7 +68,7 @@ namespace PSA.Server.Controllers
             return _blackJackService.GetState();
         }
 
-        [HttpPost("gamestate")]
+        [HttpPost("gamestate")] 
         public void SetGameState([FromBody] bool state)
         {
             //Update database
