@@ -33,27 +33,28 @@ else
                                     <td>
                                         <div class="media">
                                             <div class="d-flex">
-                                                @*<img src="@product.Nuotrauka" alt="" />*@
+                                                <img src="@product.Picture" alt="" />
                                             </div>
                                             <div class="media-body">
-                                                @*<a href="/products/view/@product.Id_Preke">*@
-                                                    @*<p>@product.Pavadinimas</p>*@
-                                                @*</a>*@
+                                                <a href="/products/view/@product.Id">
+                                                    <p>@product.Name</p>
+                                                </a>
 
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        @*<h5>@product.Kaina€</h5>*@
+                                        <h5>@product.Price€</h5>
                                     </td>
                                     <td>
-                                        @*<p>@product.Kiekis</p>*@
+                                        <p>@product.Quantity</p>
                                     </td>
                                     <td>
-                                        @*<h5>@product.Kaina€</h5>*@
+                                        <h5>@product.Total€</h5>
                                     </td>
                                     <td>
-                                        <button @onclick="()=>RemoveFromCart(product)" class="btn_3">Remove from cart</button>
+                                        <button @onclick="()=>RemoveFromCart(product)" class="btn_3">Remove all from cart</button>
+                                        <button @onclick="()=>RemoveFromCartOneQuantity(product)" class="btn_3">Remove one piece</button>
                                     </td>
                                 </tr>
                             }
@@ -94,13 +95,18 @@ else
             return;
         }
 
-        //cost = products.Sum(x => x.Kaina * x.Kiekis ?? 0);
+        cost = products.Sum(x => x.Total ?? 0);
 
     }
 
     public async Task RemoveFromCart(Product product)
     {
         await Http.PostAsJsonAsync("/api/cart/removeall", product);
+        NavManager.NavigateTo("/cart", forceLoad: true);
+    }
+    public async Task RemoveFromCartOneQuantity(Product product)
+    {
+        await Http.PostAsJsonAsync("/api/cart/remove", product);
         NavManager.NavigateTo("/cart", forceLoad: true);
     }
 
