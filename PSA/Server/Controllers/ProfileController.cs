@@ -49,16 +49,15 @@ namespace PSA.Server.Controllers
         [HttpPost("edit")]
         public async void EditProfile([FromBody] ProfileCreation value)
         {   
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `klientas` SET `name`='{value.name}', `last_name` = '{value.last_name}',  `slaptazodis`='{value.password}', `gimimo_data`='{value.birthdate}', `miestas`='{value.city}', `email`='{value.email}', `pasto_kodas`='{value.post_code}' WHERE `nickname`='{value.nickname}'");
+            await _databaseOperationsService.ExecuteAsync($"UPDATE user SET name='{value.name}', last_name = '{value.last_name}',  password = '{value.password}', birthdate = '{value.birthdate}', city = '{value.city}', email = '{value.email}', post_code='{value.post_code}' WHERE `nickname`='{value.nickname}'");
         }
 
         // POST api/profiles/delete
         [HttpPost("delete")]
         public async void DeleteProfile([FromBody] ProfileCreation value)
         {
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `klientas` SET `nickname`='DELETED USER' WHERE `nickname`='{value.nickname}'");
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `sandelinkas` SET `nickname`='DELETED USER' WHERE `nickname`='{value.nickname}'");
-            await _databaseOperationsService.ExecuteAsync($"UPDATE `vadybininkas` SET `nickname`='DELETED USER' WHERE `nickname`='{value.nickname}'");
+            await _databaseOperationsService.ExecuteAsync($"DELETE FROM user WHERE nickname ='{value.nickname}'");
+            
 
         }
     }

@@ -10,7 +10,10 @@ namespace PSA.Shared
 
         public string? password { get; set; }
 
-        public string? birthdate { get; set; }
+        public DateTime? birthdate { get; set; }
+        public string? city { get; set; }
+
+        public string? post_code { get; set; }
 
     }
 }

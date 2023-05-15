@@ -50,6 +50,8 @@ namespace PSA.Server.Controllers
                     LoggedIn = true,
                     Email = client.email,
                     Username = client.nickname,
+                    Birthdate = client.birthdate,
+                    Password = client.password,
                     UserLevel = client.role,
                     balance = client.balance,
                 };

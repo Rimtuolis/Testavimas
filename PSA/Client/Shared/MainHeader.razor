@@ -112,10 +112,9 @@ else
                                                         <li><a href="profiles">Profiles</a></li>
                                                         <li><a href="profiles/balance" @onclick="OpenAddBalancePage">Add balance</a></li>
                                                     
-                                                        @if (@profile?.UserLevel == AccessLevelType.ADMIN)
-                                                        {
-                                                            <li><a href="profiles/view/@profile.Username">My Profile</a></li>
-                                                        }
+                                                        
+                                                        <li><a href="profiles/view/@profile.Username">My Profile</a></li>
+                                                        
 
                                                         <li><a href="" @onclick="@OnLogoutClicked">Log out</a></li>
                                                     }

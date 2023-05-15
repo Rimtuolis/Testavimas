@@ -23,7 +23,7 @@ else
 
                     </div>
                 </div>
-                @if (viewer?.UserLevel == AccessLevelType.ADMIN)
+                @if (viewer?.UserLevel == AccessLevelType.ADMIN || viewer?.UserLevel == AccessLevelType.CLIENT)
                 {
                     <a href="/profiles/edit/@profile.nickname">
                         <button class="btn_1 checkout_btn_1 center">Edit</button>
@@ -58,8 +58,12 @@ else
             
         var response = await Http.PostAsJsonAsync("api/profile/get", loginDto);
         profile = await response.Content.ReadFromJsonAsync<Profile>();
+        
         StateHasChanged();
+        
     }
+    
+
 
 
 }
