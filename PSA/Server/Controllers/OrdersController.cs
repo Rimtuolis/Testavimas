@@ -31,7 +31,7 @@ namespace PSA.Server.Controllers
         public async Task<IEnumerable<OrderDto>> Get()
         {
             // does not work by user yet - currently returns all
-            return await _databaseOperationsService.ReadListAsync<OrderDto>($"SELECT * FROM uzsakymas");
+            return await _databaseOperationsService.ReadListAsync<OrderDto>($"SELECT * FROM uzsakymas WHERE fk_user_id={_currentUserService.GetUser().Id}");
         }
 
         // gets info about order by ID
@@ -41,7 +41,7 @@ namespace PSA.Server.Controllers
         {
             return await _databaseOperationsService.ReadItemAsync<OrderDto>($"SELECT * FROM uzsakymas WHERE id_Uzsakymas={id}");
         }
-
+  
         // creates new order
         // POST api/<OrdersController>
         [HttpPost]
@@ -53,10 +53,10 @@ namespace PSA.Server.Controllers
             {
                 var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Uzsakymas) from uzsakymas");
                 index++;
-                var sandelininkuIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
-                var sandelininkas = sandelininkuIds[new Random().Next(0, sandelininkuIds.Count - 1)];
+                //var sandelininkuIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
+                //var sandelininkas = sandelininkuIds[new Random().Next(0, sandelininkuIds.Count - 1)];
 
-                await _databaseOperationsService.ExecuteAsync($"insert into uzsakymas(suma, data, busena, id_Uzsakymas, fk_Klientasid_User, fk_sandelininkas) values({total}, NOW(), {(int)OrderState.Nauja}, {index}, {_currentUserService.GetUser().Id}, {sandelininkas})");
+                await _databaseOperationsService.ExecuteAsync($"insert into uzsakymas(suma, data, busena, id_Uzsakymas, fk_user_id) values({total}, NOW(), {(int)OrderState.Patvirtintas}, {index}, {_currentUserService.GetUser().Id})");
 
                 //foreach (var product in cart)
                 //{
@@ -65,19 +65,19 @@ namespace PSA.Server.Controllers
                 //        await _databaseOperationsService.ExecuteAsync($"insert into prekes_uzakymas values({index}, {product.Id_Preke})");
                 //    }
                 //}
-                var contract_index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Sutartis) from sutartis");
-                contract_index++;
-                var ManagersIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
-                var managerID = ManagersIds[new Random().Next(0, ManagersIds.Count - 1)];
-                await _databaseOperationsService.ExecuteAsync($"insert into sutartis values(NOW(), {contract_index}, {index}, {managerID})");
-                await _databaseOperationsService.ExecuteAsync($"insert into email_saskaita(data, prekiu_skaicius, suma, " +
-                    $"papildoma_informacija, fk_Sandelinkasid_Sandelinkas, fk_Klientasid_User, fk_Sutartisid_Sutartis) " +
-                    $"values(NOW(), {cart.Count}, {total}, '-', {sandelininkas}, {_currentUserService.GetUser().Id}, {contract_index})");
-                Shared.Client? client = await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from klientas where id_User = {_currentUserService.GetUser().Id}");
-                Contract? contract = await _databaseOperationsService.ReadItemAsync<Contract>($"select * from sutartis where id_Sutartis = {contract_index}");
-                Manager? manager = await _databaseOperationsService.ReadItemAsync<Manager>($"select * from vadybininkas where id_Vadybininkas = {managerID}");
-                Worker? worker = await _databaseOperationsService.ReadItemAsync<Worker>($"select * from sandelinkas where id_Sandelinkas = {sandelininkas}");
-                await _mailService.SendInvoice(client, contract, manager, worker);
+                //var contract_index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Sutartis) from sutartis");
+                //contract_index++;
+                //var ManagersIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
+                //var managerID = ManagersIds[new Random().Next(0, ManagersIds.Count - 1)];
+               // await _databaseOperationsService.ExecuteAsync($"insert into sutartis values(NOW(), {contract_index}, {index}, {managerID})");
+                //await _databaseOperationsService.ExecuteAsync($"insert into email_saskaita(data, prekiu_skaicius, suma, " +
+                    //$"papildoma_informacija, fk_Sandelinkasid_Sandelinkas, fk_Klientasid_User, fk_Sutartisid_Sutartis) " +
+                    //$"values(NOW(), {cart.Count}, {total}, '-', {sandelininkas}, {_currentUserService.GetUser().Id}, {contract_index})");
+                //Shared.Client? client = await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from klientas where id_User = {_currentUserService.GetUser().Id}");
+                //Contract? contract = await _databaseOperationsService.ReadItemAsync<Contract>($"select * from sutartis where id_Sutartis = {contract_index}");
+                //Manager? manager = await _databaseOperationsService.ReadItemAsync<Manager>($"select * from vadybininkas where id_Vadybininkas = {managerID}");
+                //Worker? worker = await _databaseOperationsService.ReadItemAsync<Worker>($"select * from sandelinkas where id_Sandelinkas = {sandelininkas}");
+                //await _mailService.SendInvoice(client, contract, manager, worker);
                 _cartService.ClearCart();
             }
             catch (Exception ex)
@@ -90,7 +90,7 @@ namespace PSA.Server.Controllers
         public async Task Put([FromBody] OrderDto order)
         {
             await _databaseOperationsService.ExecuteAsync($"update uzsakymas set busena = {(int)order.Busena}, " +
-                $"fk_sandelininkas = {order.Fk_Sandelininkas}, data = NOW() where id_Uzsakymas = {order.Id_Uzsakymas}");
+                $" data = NOW() where id_Uzsakymas = {order.Id_Uzsakymas}");
         }
 
         // Deletes Order by ID

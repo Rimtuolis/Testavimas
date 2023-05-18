@@ -113,6 +113,6 @@ else
     public async Task CreateOrder()
     {
         await Http.PostAsJsonAsync("/api/orders", cost);
-        NavManager.NavigateTo("/cart", forceLoad: true);
+        NavManager.NavigateTo("/orders/vieworders", forceLoad: true);
     }
 }

@@ -2,9 +2,8 @@
 {
     public enum OrderState
     {
-        Nauja = 1,
-        GautasApmokejimas = 2,
-        Issiutas = 3,
-        Pristatyta = 4
+       Patvirtintas = 1,
+       Nepatvirtintas = 2,
+       Gautas = 3
     }
 }

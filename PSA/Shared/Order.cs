@@ -12,7 +12,6 @@ namespace PSA.Shared
         public double suma { get; set; }
         public DateTime data { get; set; }
         public OrderState busena { get; set; }
-        public int fk_Klientasid_User { get; set; }
-        public int fk_sandelininkas { get; set; }
+        public int fk_user_id { get; set; }
     }
 }

@@ -82,58 +82,25 @@ else
                             <tr>
                                 <td colspan="4">
                                     <div class="input-group mb-3">
-                                        <label class="input-group-text" for="WorkerSelect">Workers</label>
-                                        <select class="form-select" id="WorkerSelect" @bind="@WORKERID">
-                                            @if (_workers is not null)
-                                            {
-                                                @foreach (Worker worker in _workers)
-                                                {
-                                                    if (worker.id_Sandelinkas == _order?.Fk_Sandelininkas)
-                                                    {
-                                                        <option value="@worker.id_Sandelinkas" selected>@GetWorkerName(worker.id_Sandelinkas)</option>
-                                                    }
-                                                    else
-                                                    {
-                                                        <option value="@worker.id_Sandelinkas">@GetWorkerName(worker.id_Sandelinkas)</option>
-                                                    }
-                                                }
-                                            }
-                                        </select>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <tr>
-                                <td colspan="4">
-                                    <div class="input-group mb-3">
                                         <label class="input-group-text" for="StateSelect">States</label>
                                         <select class="form-select" id="StateSelect" @bind="@STATE">
                                             @switch (_order?.Busena)
                                             {
-                                                case OrderState.Nauja:
-                                                    <option value="@OrderState.Nauja" selected>@OrderState.Nauja</option>
-                                                    <option value="@OrderState.Issiutas">@OrderState.Issiutas</option>
-                                                    <option value="@OrderState.GautasApmokejimas">@OrderState.GautasApmokejimas</option>
-                                                    <option value="@OrderState.Pristatyta">@OrderState.Pristatyta</option>
+                                                case OrderState.Patvirtintas:
+                                                    <option value="@OrderState.Patvirtintas" selected>@OrderState.Patvirtintas</option>
+                                                    <option value="@OrderState.Nepatvirtintas">@OrderState.Nepatvirtintas</option>
+                                                    <option value="@OrderState.Gautas">@OrderState.Gautas</option>
                                                     break;
 
-                                                case OrderState.Issiutas:
-                                                    <option value="@OrderState.Nauja">@OrderState.Nauja</option>
-                                                    <option value="@OrderState.Issiutas selected">@OrderState.Issiutas</option>
-                                                    <option value="@OrderState.GautasApmokejimas">@OrderState.GautasApmokejimas</option>
-                                                    <option value="@OrderState.Pristatyta">@OrderState.Pristatyta</option>
+                                                case OrderState.Nepatvirtintas:
+                                                    <option value="@OrderState.Patvirtintas" selected>@OrderState.Patvirtintas</option>
+                                                    <option value="@OrderState.Nepatvirtintas">@OrderState.Nepatvirtintas</option>
+                                                    <option value="@OrderState.Gautas">@OrderState.Gautas</option>
                                                     break;
-                                                case OrderState.GautasApmokejimas:
-                                                    <option value="@OrderState.Nauja">@OrderState.Nauja</option>
-                                                    <option value="@OrderState.Issiutas">@OrderState.Issiutas</option>
-                                                    <option value="@OrderState.GautasApmokejimas" selected>@OrderState.GautasApmokejimas</option>
-                                                    <option value="@OrderState.Pristatyta">@OrderState.Pristatyta</option>
-                                                    break;
-                                                case OrderState.Pristatyta:
-                                                    <option value="@OrderState.Nauja">@OrderState.Nauja</option>
-                                                    <option value="@OrderState.Issiutas">@OrderState.Issiutas</option>
-                                                    <option value="@OrderState.GautasApmokejimas">@OrderState.GautasApmokejimas</option>
-                                                    <option value="@OrderState.Pristatyta" selected>@OrderState.Pristatyta</option>
+                                                case OrderState.Gautas:
+                                                    <option value="@OrderState.Patvirtintas" selected>@OrderState.Patvirtintas</option>
+                                                    <option value="@OrderState.Nepatvirtintas">@OrderState.Nepatvirtintas</option>
+                                                    <option value="@OrderState.Gautas">@OrderState.Gautas</option>
                                                     break;
                                             }
                                         </select>
@@ -206,12 +173,6 @@ else
 
         if(STATE is not null && _order is not null){
             _order.Busena = (OrderState)STATE;
-            edited = true;
-        }
-
-        if (WORKERID is not null && _order is not null)
-        {
-            _order.Fk_Sandelininkas = (int)WORKERID;
             edited = true;
         }
 

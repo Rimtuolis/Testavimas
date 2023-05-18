@@ -33,7 +33,7 @@ else
                                 <tr>
                                     <td>@order.Id_Uzsakymas</td>
                                     <td>@order.Suma</td>
-                                    <td>@GetClientName(order.Fk_Klientasid_User)</td>
+                                    <td>@GetClientName(order.fk_user_id)</td>
                                     <td>@order.Busena</td>
                                     <td>
                                         <a class="btn btn-primary" href="/orders/vieworder/@order.Id_Uzsakymas">View</a>
@@ -55,21 +55,23 @@ else
 }
 
 @code {
+    [Parameter]
+    public int? id { get; set; }
     private List<OrderDto>? _orders;
-    private List<Client>? _clients;
+    private CurrentUser? _cuser;
 
     protected override async Task OnInitializedAsync()
     {
-        _orders = await Http.GetFromJsonAsync<List<OrderDto>>("api/Orders");
-        _clients = await Http.GetFromJsonAsync<List<Client>>("api/Client");
+        _orders = await Http.GetFromJsonAsync<List<OrderDto>>($"api/orders");
+        _cuser = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
 
     }
 
-    public string GetClientName(int clientId)
+    public string GetClientName(int cuserId)
     {
-        Client? client = _clients?.FirstOrDefault(c => c.id_User == clientId);
-        if(client is not null)
-            return client.name + " " + client.last_name;
+        //CurrentUser? cuser = _cuser?.FirstOrDefault(c => c.Id == cuserId);
+        if (_cuser is not null)
+            return _cuser.Username + " " + _cuser.Email;
         return string.Empty;
     }
 
