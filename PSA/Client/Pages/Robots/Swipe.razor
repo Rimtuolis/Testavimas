@@ -1,0 +1,93 @@
+﻿@page "/robots/swipe"
+@using PSA.Shared
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>Robot swipe with love</PageTitle>
+
+@if (profile == null)
+{
+	<p><em>Loading...</em></p>
+}
+else
+{
+
+	<div class="swiper">
+
+
+		<div class="swipeCard">
+			@if (currentCard != null)
+			{
+				<img src="@currentCard.ImageUrl" draggable = "false" alt="Card Image" />
+				<button class="info-button" @onclick:stopPropagation @onclick="() => ShowDescription(currentCard)">i</button>
+				<div class="description" style="display: @(showDescription ? "block" : "none")">
+					<p>@currentCard.Description</p>
+				</div>
+				<div class="actions" draggable="false">
+					<button class="dislike-button" @onclick="Dislike">Dislike</button>
+					<button class="like-button" @onclick="Like">Like</button>
+				</div>
+			}
+			else
+			{
+				<p>No more cards available.</p>
+			}
+
+		</div>
+
+
+	</div>
+
+}
+
+@code {
+
+	private CurrentUser? profile;
+	private SwipeCard currentCard;
+	private bool showDescription;
+	private List<SwipeCard> allCards;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+		allCards = await Http.GetFromJsonAsync<List<SwipeCard>>("/card");
+		await LoadNextCard();
+		var lDotNetReference = DotNetObjectReference.Create(this);
+		JS.InvokeVoidAsync("GLOBAL.SetDotnetReference", lDotNetReference);
+
+		await JS.InvokeAsync<object>("tinderSwipe");
+	}
+	private async Task LoadNextCard()
+	{
+		currentCard = allCards.FirstOrDefault();
+		StateHasChanged();
+		showDescription = false;
+		if (currentCard != null)
+		{
+			allCards.Remove(currentCard);
+		}
+	}
+
+	private void ShowDescription(SwipeCard card)
+	{
+		showDescription = !showDescription;
+	}
+
+	[JSInvokable("Dislike")]
+	public async Task Dislike()
+	{
+		await Http.PostAsJsonAsync($"/card/swipe/{currentCard}?liked=false", currentCard);
+		await LoadNextCard();
+		StateHasChanged();
+	}
+	[JSInvokable("Like")]
+	public async Task Like()
+	{
+		await Http.PostAsync($"/card/swipe/{currentCard.Id}?liked=true", null);
+		await LoadNextCard();
+		StateHasChanged();
+	}
+}
+
