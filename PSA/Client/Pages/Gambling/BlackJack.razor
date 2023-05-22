@@ -22,7 +22,7 @@
 }
 else
 {
-    @if(Deck is null || Deck.Count == 0)
+    @if(blackJack is null || blackJack?.deck?.Count == 0)
     {
         <p>Loading...</p>
     }
@@ -50,20 +50,22 @@ else
                 <div class="row justify-content-center align-content-center">
                     <div class="col-2 d-inline-flex">
                         Total dealer: <br />
-                        @if(dealerCards is not null)
-                            @dealerCards.Sum(card => card.value)
+                        @if(blackJack?.dealerCards is not null)
+                            @blackJack.dealerCards.Sum(card => card.value)
+
                     </div>
                         <div class="col-2 d-inline-flex">
                             Total player: <br />
-                        @if(playerCards is not null)
-                            @playerCards.Sum(card => card.value)
+                            @if (blackJack?.playerCards is not null)
+                            @blackJack.playerCards.Sum(card => card.value)
+
                     </div>
                 </div>
                 <div class="col-6">
                     Dealer Hand: <br />
-                    @if (dealerCards is not null)
+                    @if (blackJack?.dealerCards is not null)
                     {
-                        @foreach (var card in dealerCards)
+                        @foreach (var card in blackJack.dealerCards)
                         {
                             @String.Format(@card.ToString() + " ")
                         }
@@ -71,9 +73,9 @@ else
                 </div>
                 <div class="col-6">
                     Player Hand: <br/>
-                    @if (playerCards is not null)
+                    @if (blackJack?.playerCards is not null)
                     {
-                        @foreach (var card in playerCards)
+                        @foreach (var card in blackJack.playerCards)
                         {
                             @String.Format(@card.ToString() + " ")
                         }
@@ -94,10 +96,8 @@ else
 }
 
 @code {
+    PSA.Shared.BlackJack? blackJack;
     private CurrentUser? currentUser;
-    private List<Card>? dealerCards = new List<Card>();
-    private List<Card>? playerCards = new List<Card>();
-    private List<Card>? Deck = new List<Card>();
     private bool finished = false;
     private bool hitDisabled = false;
     private bool doubleDisabled = false;
@@ -116,7 +116,7 @@ else
     {
         currentUser = await Http.GetFromJsonAsync<CurrentUser?>("api/currentuser");
         // Check for game in progress
-        playing = await Http.GetFromJsonAsync<bool>("api/blackjack/gamestate");
+        playing = await Http.GetFromJsonAsync<bool>($"api/blackjack/gamestate");
 
         if (playing)
         {
@@ -126,38 +126,44 @@ else
 
     private async void Playing()
     {
-        Deck = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/deck");
-        playerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/playercards");
-        dealerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/dealercards");
+
+        blackJack = await Http.GetFromJsonAsync<PSA.Shared.BlackJack>("api/blackjack/game");
+        if (blackJack is null)
+        {
+            await JS.InvokeVoidAsync("alert", "There has been an error loading the game");
+            return;
+        }
+        playing = true;
+        await Http.PostAsJsonAsync($"api/blackjack/gamestate/{blackJack?.Id}", playing);
+        blackJack.gameState = playing;
+        betAmount = blackJack.betAmount;
         //If player has 21 then we finish the game and disable all the buttons
-        if (playerCards?.Sum(card => card.value) == 21)
+        if (blackJack.playerCards?.Sum(card => card.value) == 21)
         {
             finished = true;
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if (currentUser is not null)
             {
                 currentUser.balance += betAmount*1.5;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
         }
 
         //If dealer has 21 then we finish the game and disable all the buttons
-        if (dealerCards?.Sum(card => card.value) == 21)
+        if (blackJack?.dealerCards?.Sum(card => card.value) == 21)
         {
             finished = true;
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if (currentUser is not null)
             {
                 currentUser.balance -= betAmount;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
         }
 
         //Player wins if he gets 21 instantly or loses if dealer has 21, but if neither have 21 then value remains null
-        var playerSum = playerCards?.Sum(card => card.value);
-        var dealerSum = dealerCards?.Sum(card => card.value);
+        var playerSum = blackJack?.playerCards?.Sum(card => card.value);
+        var dealerSum = blackJack?.dealerCards?.Sum(card => card.value);
         playerWon = playerSum == 21 ? true : dealerSum == 21 ? false : null;
 
         //Set the game message depending on the playerWon status
@@ -167,20 +173,19 @@ else
 
     public async Task HandleHit()
     {
-        playerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/hit");
-        var playerSum = playerCards?.Sum(card => card.value);
-        var dealerSum = dealerCards?.Sum(card => card.value);
+        blackJack.playerCards = await Http.GetFromJsonAsync<List<Card>>($"api/blackjack/hit/{blackJack?.Id}");
+        var playerSum = blackJack?.playerCards?.Sum(card => card.value);
+        var dealerSum = blackJack?.dealerCards?.Sum(card => card.value);
         if(playerSum > 21)
         {
             finished = true;
             playerWon = false;
             gameMessage = "You lost!";
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if (currentUser is not null)
             {
                 currentUser.balance -= betAmount;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
         } 
         else if(playerSum == 21)
@@ -190,7 +195,7 @@ else
                 await HandleStand();
             }
 
-            dealerSum = dealerCards?.Sum(card => card.value);
+            dealerSum = blackJack?.dealerCards?.Sum(card => card.value);
 
             if(playerSum > dealerSum)
             {
@@ -198,11 +203,10 @@ else
                 playerWon = true;
                 gameMessage = "You Won!";
                 DisableButtons();
-                await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
                 if (currentUser is not null)
                 {
                     currentUser.balance += betAmount;
-                    await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                    await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser); ;
                 }
             }
             else if(playerSum == dealerSum)
@@ -212,11 +216,10 @@ else
                 tied = true;
                 gameMessage = "You Tied!";
                 DisableButtons();
-                await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
                 if (currentUser is not null)
                 {
                     currentUser.balance -= betAmount;
-                    await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                    await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
                 }
             }
         }
@@ -226,15 +229,15 @@ else
 
     public async Task HandleStand()
     {
-        var dealerSum = dealerCards?.Sum(card => card.value);
+        var dealerSum = blackJack?.dealerCards?.Sum(card => card.value);
         while(dealerSum < 17)
         {
-            dealerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/hitdealer");
-            dealerSum = dealerCards?.Sum(card => card.value);
+            blackJack.dealerCards = await Http.GetFromJsonAsync<List<Card>>($"api/blackjack/hitdealer/{blackJack.Id}");
+            dealerSum = blackJack?.dealerCards?.Sum(card => card.value);
         }
 
-        dealerSum = dealerCards?.Sum(card => card.value);
-        var playerSum = playerCards?.Sum(card => card.value);
+        dealerSum = blackJack?.dealerCards?.Sum(card => card.value);
+        var playerSum = blackJack?.playerCards?.Sum(card => card.value);
 
         if (dealerSum > 21)
         {
@@ -242,11 +245,10 @@ else
             playerWon = true;
             gameMessage = "You Won!";
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if (currentUser is not null)
             {
                 currentUser.balance += betAmount;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
         } 
         else if(dealerSum == 21)
@@ -255,11 +257,10 @@ else
             playerWon = false;
             gameMessage = "You Lost!";
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if (currentUser is not null)
             {
                 currentUser.balance -= betAmount;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
         }
         else if(dealerSum > playerSum)
@@ -268,11 +269,10 @@ else
             playerWon = false;
             gameMessage = "You Lost!";
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if (currentUser is not null)
             {
                 currentUser.balance -= betAmount;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
         }
         else if(dealerSum < playerSum)
@@ -281,11 +281,10 @@ else
             playerWon = true;
             gameMessage = "You Won!";
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if (currentUser is not null)
             {
                 currentUser.balance += betAmount;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
         }
         else if(dealerSum == playerSum)
@@ -295,7 +294,7 @@ else
             tied = true;
             gameMessage = "You Tied!";
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
+            await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
         }
 
         StateHasChanged();
@@ -303,17 +302,16 @@ else
 
     public async Task HandleDouble()
     {
-        playerCards = await Http.GetFromJsonAsync<List<Card>>("api/blackjack/hit");
-        if (playerCards?.Sum(card => card.value) > 21)
+        blackJack.playerCards = await Http.GetFromJsonAsync<List<Card>>($"api/blackjack/hit/{blackJack.Id}");
+        if (blackJack?.playerCards?.Sum(card => card.value) > 21)
         {
             finished = true;
             playerWon = false;
             gameMessage = "You lost!";
             DisableButtons();
-            await Http.PostAsJsonAsync("api/blackjack/resetdeck", finished);
             if(currentUser is not null){
                 currentUser.balance -= betAmount;
-                await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+                await Http.PostAsJsonAsync($"api/blackjack/resetdeck/{blackJack?.Id}", currentUser);
             }
 
 
@@ -353,10 +351,11 @@ else
             }
             else
             {
-                //Change gamestate
-                playing = true;
-                await Http.PostAsJsonAsync("api/blackjack/gamestate", playing);
-                Playing();
+                HttpResponseMessage response = await Http.PostAsJsonAsync("api/blackjack/betamount", betAmount);
+                if (response.IsSuccessStatusCode)
+                {
+                    Playing();
+                }
             }
         }
     }

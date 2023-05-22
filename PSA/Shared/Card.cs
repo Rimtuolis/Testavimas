@@ -10,7 +10,7 @@ namespace PSA.Shared
     {
         public string Rank { get; }
         public string Suit { get; }
-        public int value { get; }
+        public int value { get; set; }
 
         public Card(string rank, string suit, int value)
         {
