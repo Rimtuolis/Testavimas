@@ -7,7 +7,7 @@
 <h1>Robots</h1>
 
 
-<h3>Select Robot or edit it's RoboSwipe card</h3>
+<h3>Select Robot or edit its RoboSwipe card</h3>
 
 @if (Cards.Count == 0) {
     <p>No robots available.</p>
@@ -34,17 +34,19 @@ else{
         List<Robot> robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robot");
         foreach (Robot robot in robots)
         {
-            
             if (robot != null)
             {
-                Console.WriteLine($"{robot.Nickname} ir {robot.Id}");
-
                 SwipeCard card = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
-                
-                if (card != null) {
+                if (card != null && !card.Description.Equals("Empty"))
+                {
                     card.Description = robot.Nickname;
                     Cards.Add(card);
-                    Console.WriteLine(card.Description);
+                }
+                else {
+                    await Http.PostAsJsonAsync<Robot>($"/card", robot);
+                    SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
+                    temp.Description = robot.Nickname;
+                    Cards.Add(temp);
                 }
 
                 
@@ -55,7 +57,7 @@ else{
     }
     private void EditCard(SwipeCard card)
     {
-        NavManager.NavigateTo($"/robots/edit/{card.fk_robot}", forceLoad: true);
+        NavManager.NavigateTo($"/card/edit/{card.fk_robot}", forceLoad: true);
     }
 
     private void Select(int robotId)
