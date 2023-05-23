@@ -1,0 +1,65 @@
+﻿@page "/robots"
+@using PSA.Shared
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<h1>Robots</h1>
+
+
+<h3>Select Robot or edit it's RoboSwipe card</h3>
+
+@if (Cards.Count == 0) {
+    <p>No robots available.</p>
+}
+else{
+    @foreach (var card in Cards)
+    {
+        <div class="swipeCard">
+            <img src="@card.ImageUrl" alt="Robot Image" />
+            <h2>@card.Description</h2>
+            <div>
+                <button @onclick="() => EditCard(card)">Edit</button>
+                <button @onclick="() => Select(card.fk_robot)">Select</button>
+            </div>
+        </div>
+    }
+}
+
+
+@code {
+    List<SwipeCard> Cards = new List<SwipeCard>();
+    protected override async Task OnInitializedAsync()
+    {
+        List<Robot> robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robot");
+        foreach (Robot robot in robots)
+        {
+            
+            if (robot != null)
+            {
+                Console.WriteLine($"{robot.Nickname} ir {robot.Id}");
+
+                SwipeCard card = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
+                
+                if (card != null) {
+                    card.Description = robot.Nickname;
+                    Cards.Add(card);
+                    Console.WriteLine(card.Description);
+                }
+
+                
+                
+            }
+        }
+        StateHasChanged();
+    }
+    private void EditCard(SwipeCard card)
+    {
+        NavManager.NavigateTo($"/robots/edit/{card.fk_robot}", forceLoad: true);
+    }
+
+    private void Select(int robotId)
+    {
+        NavManager.NavigateTo($"/robots/swipe/{robotId}", forceLoad: true);
+    }
+}

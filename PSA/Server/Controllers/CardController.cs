@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PSA.Server.Services;
 using PSA.Services;
 using PSA.Shared;
 
@@ -9,10 +10,14 @@ namespace PSA.Server.Controllers
     public class CardController : Controller
     {
         private readonly IDatabaseOperationsService _databaseOperationsService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly ILogger _logger;
 
-        public CardController(IDatabaseOperationsService databaseOperationsService)
+        public CardController(IDatabaseOperationsService databaseOperationsService, ICurrentUserService currentUserService, ILogger<AuthController> logger)
         {
             _databaseOperationsService = databaseOperationsService;
+            _currentUserService = currentUserService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -22,22 +27,26 @@ namespace PSA.Server.Controllers
             return await _databaseOperationsService.ReadListAsync<SwipeCard>($"select * from card");
         }
 
-        [HttpPost]
-        [Route("swipe/{card}")]
-        public ActionResult SwipeCard([FromQuery] bool liked)
+        [HttpGet("element/{robotId}")]
+        public async Task<SwipeCard> GetCard(int robotId)
         {
-            if (liked)
-            {
-                var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_User) from klientas");
-                index++;
-                await _databaseOperationsService.ExecuteAsync($"insert into klientas(name, last_name, nickname, " +
-                    $"slaptazodis, gimimo_data, miestas, email, pasto_kodas, id_User) " +
-                    $"values({client.name}, {client.last_name}, {client.nickname}, {client.password}, {client.birthdate}, {client.city}, " +
-                    $"{client.email}, {client.post_code}, {index})");
-                return Ok("ITS A MATCH");
-            }
+            ///TODO 
+            return await _databaseOperationsService.ReadItemAsync<SwipeCard>($"select * from card where fk_robot = {robotId}");
+        }
 
-            return Ok();
+        [HttpPost]
+        [Route("swipe/{id}")]
+        public async Task<bool> SwipeCard(int id, [FromBody] SwipeCard card)
+        {
+            
+            var index = await _databaseOperationsService.ReadItemAsync<int?>($"select COUNT(*) from matches where fk_robot_first = {card.fk_robot} AND fk_robot_second = {id}");
+
+            if (index == 0) {
+                await _databaseOperationsService.ExecuteAsync($"insert into matches(fk_robot_first, fk_robot_second" +
+                    $"values({id}, {card.fk_robot})");
+                return false;
+            }
+            return true;
         }
         public IActionResult Index()
         {

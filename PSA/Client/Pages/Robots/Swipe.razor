@@ -1,4 +1,4 @@
-﻿@page "/robots/swipe"
+﻿@page "/robots/swipe/{robotId:int}"
 @using PSA.Shared
 @inject HttpClient Http
 @inject IJSRuntime JS
@@ -41,53 +41,64 @@ else
 }
 
 @code {
+    [Parameter]
+    public int robotId { get; set; }
 
-	private CurrentUser? profile;
-	private SwipeCard currentCard;
-	private bool showDescription;
-	private List<SwipeCard> allCards;
+    private CurrentUser? profile;
+    private SwipeCard currentCard;
+    private bool showDescription;
+    private List<SwipeCard> allCards;
 
 
-	protected override async Task OnInitializedAsync()
-	{
+    protected override async Task OnInitializedAsync()
+    {
 
-		profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
-		allCards = await Http.GetFromJsonAsync<List<SwipeCard>>("/card");
-		await LoadNextCard();
-		var lDotNetReference = DotNetObjectReference.Create(this);
-		JS.InvokeVoidAsync("GLOBAL.SetDotnetReference", lDotNetReference);
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+        allCards = await Http.GetFromJsonAsync<List<SwipeCard>>("/card");
+        await LoadNextCard();
+        var lDotNetReference = DotNetObjectReference.Create(this);
+        JS.InvokeVoidAsync("GLOBAL.SetDotnetReference", lDotNetReference);
 
-		await JS.InvokeAsync<object>("tinderSwipe");
-	}
-	private async Task LoadNextCard()
-	{
-		currentCard = allCards.FirstOrDefault();
-		StateHasChanged();
-		showDescription = false;
-		if (currentCard != null)
-		{
-			allCards.Remove(currentCard);
-		}
-	}
+        await JS.InvokeAsync<object>("tinderSwipe");
+    }
+    private async Task LoadNextCard()
+    {
+        currentCard = allCards.FirstOrDefault();
+        StateHasChanged();
+        showDescription = false;
+        if (currentCard != null)
+        {
+            allCards.Remove(currentCard);
+        }
+    }
 
-	private void ShowDescription(SwipeCard card)
-	{
-		showDescription = !showDescription;
-	}
+    private void ShowDescription(SwipeCard card)
+    {
+        showDescription = !showDescription;
+    }
 
-	[JSInvokable("Dislike")]
-	public async Task Dislike()
-	{
-		await Http.PostAsJsonAsync($"/card/swipe/{currentCard}?liked=false", currentCard);
-		await LoadNextCard();
-		StateHasChanged();
-	}
-	[JSInvokable("Like")]
-	public async Task Like()
-	{
-		await Http.PostAsync($"/card/swipe/{currentCard.Id}?liked=true", null);
-		await LoadNextCard();
-		StateHasChanged();
-	}
+    [JSInvokable("Dislike")]
+    public async Task Dislike()
+    {
+        await LoadNextCard();
+        StateHasChanged();
+    }
+    [JSInvokable("Like")]
+    public async Task Like()
+    {
+        var response = await Http.PostAsJsonAsync($"api/swipe/{robotId}", currentCard);
+        if (response.IsSuccessStatusCode)
+        {
+            bool result = bool.Parse(await response.Content.ReadAsStringAsync());
+            if (result) {
+                Console.WriteLine("MATCH");
+            }
+
+        }
+        await LoadNextCard();
+        StateHasChanged();
+    }
+
+
 }
 

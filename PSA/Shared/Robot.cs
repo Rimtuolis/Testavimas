@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace PSA.Shared
 {
-    public class SwipeCard
+    public class Robot
     {
         public int Id { get; set; }
-        public int fk_robot { get; set; }
-        public string ImageUrl { get; set; }
-        public string Description { get; set; }
+        public string Nickname { get; set; }
+        public int Wins { get; set; }
+        public int Ties { get; set; }
+        public int Loses { get; set; }
     }
 }
