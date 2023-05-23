@@ -59,7 +59,12 @@
                     if (keep) {
                         event.target.style.transform = '';
                     } else {
-                        GLOBAL.DotNetReference.invokeMethodAsync('Like');
+                        if (event.deltaX >= 80 || event.velocityX >= 0.5) {
+                            GLOBAL.DotNetReference.invokeMethodAsync('Like');
+                        } else {
+                            GLOBAL.DotNetReference.invokeMethodAsync('Dislike');
+                        }
+                        
                         event.target.style.transform = 'translate(' + 0 + 'px, ' + 0 + 'px) rotate(' + 0 + 'deg)';
                     }
                 });

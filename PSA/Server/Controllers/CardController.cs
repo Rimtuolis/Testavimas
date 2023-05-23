@@ -20,11 +20,12 @@ namespace PSA.Server.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet()]
         public async Task<IEnumerable<SwipeCard>> GetCards()
         {
             ///TODO 
-            return await _databaseOperationsService.ReadListAsync<SwipeCard>($"select * from card");
+            return await _databaseOperationsService.ReadListAsync<SwipeCard>($"SELECT * FROM card where fk_robot not in (" +
+                $"SELECT Id from robotas where fk_user_id = {_currentUserService.GetUser().Id}); ");
         }
 
         [HttpGet("element/{robotId}")]
@@ -38,14 +39,16 @@ namespace PSA.Server.Controllers
         [Route("swipe/{id}")]
         public async Task<bool> SwipeCard(int id, [FromBody] SwipeCard card)
         {
+
+            Console.WriteLine("ASDASDASDSA");
             
-            var index = await _databaseOperationsService.ReadItemAsync<int?>($"select COUNT(*) from matches where fk_robot_first = {card.fk_robot} AND fk_robot_second = {id}");
+            long index = await _databaseOperationsService.ReadItemAsync<long>($"select COUNT(*) from matches where fk_robot_first = {card.fk_robot} AND fk_robot_second = {id}");
 
             if (index == 0) {
-                await _databaseOperationsService.ExecuteAsync($"insert into matches(fk_robot_first, fk_robot_second" +
-                    $"values({id}, {card.fk_robot})");
+                await _databaseOperationsService.ExecuteAsync($"insert into matches (fk_robot_first, fk_robot_second) values({id}, {card.fk_robot})");
                 return false;
             }
+            //DELETE MATCH
             return true;
         }
         public IActionResult Index()

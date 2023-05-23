@@ -86,7 +86,7 @@ else
     [JSInvokable("Like")]
     public async Task Like()
     {
-        var response = await Http.PostAsJsonAsync($"api/swipe/{robotId}", currentCard);
+        var response = await Http.PostAsJsonAsync($"card/swipe/{robotId}", currentCard);
         if (response.IsSuccessStatusCode)
         {
             bool result = bool.Parse(await response.Content.ReadAsStringAsync());
