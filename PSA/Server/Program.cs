@@ -17,6 +17,8 @@ builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 builder.Services.AddSingleton<IMailService, MailService>();
 builder.Services.AddSingleton<ICartService, CartService>();
 builder.Services.AddSingleton<IBlackJackService, BlackJackService>();
+builder.Services.AddSingleton<IManualBuildingService, ManualBuildingService>();
+builder.Services.AddSingleton<IAutoBuildingService, AutoBuildingService>();
 
 var app = builder.Build();
 

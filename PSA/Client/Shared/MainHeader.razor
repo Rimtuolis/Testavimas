@@ -94,6 +94,16 @@ else
                                                     </ul>
                                                 </li>
                                             }
+                                            @if (@profile?.LoggedIn == true)
+                                            {
+                                                <li>
+                                                    <a href="/orders/vieworders">Robot building</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/robot/manual">Manual building</a></li>
+                                                        <li><a href="/robot/automatic">Automatic building</a></li>
+                                                    </ul>
+                                                </li>
+                                            }
                                             @if (profile.LoggedIn == true)
                                             {
                                                 <li style="z-index: 10">

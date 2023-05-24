@@ -29,15 +29,16 @@ else
                                 @if (profile?.LoggedIn == true)
                                 {
                                     <button @onclick="()=>AddToCart(product)" class="btn_3">Add to cart</button>
+                                    <button @onclick="()=>AddToBuilder(product)" class="btn_3">Add to builder</button>
                                 }
                                 else
                                 {
                                     <a href="login" class="btn_3">Log in to add to cart</a>
-                                    
+
                                 }
                                 @if (@profile?.UserLevel == AccessLevelType.ADMIN)
                                 {
-                                   
+
                                     <a class="btn btn-primary" href="/products/edit/@product.Id">Edit</a>
                                     <a class="btn btn-primary" @onclick="() => RemoveProductFromDB(product.Id)">Remove</a>
 
@@ -73,7 +74,12 @@ else
         await Http.PostAsJsonAsync("/api/cart/add", product);
         NavManager.NavigateTo("/products/view/" + id, forceLoad: true);
     }
-  
+    public async Task AddToBuilder(Product product)
+    {
+        await Http.PostAsJsonAsync("/api/builder/add", product);
+        NavManager.NavigateTo("/robot/manual/", forceLoad: true);
+    }
+
     public async void RemoveProductFromDB(int id)
     {
         await Http.DeleteAsync($"api/products/{id}");
