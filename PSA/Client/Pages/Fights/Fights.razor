@@ -297,13 +297,13 @@ else
         await Http.PutAsJsonAsync($"api/fights/{id}", profile);
         StateHasChanged();
 
-        NavManager.NavigateTo($"/fights", forceLoad: true);
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
         
     }
     public async Task Decline(int id)
     {
         await Http.DeleteAsync($"api/fights/{id}");
-        NavManager.NavigateTo($"/fights", forceLoad: true);
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
         StateHasChanged();
 
     }

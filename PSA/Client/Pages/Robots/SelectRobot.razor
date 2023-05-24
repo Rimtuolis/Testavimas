@@ -30,13 +30,88 @@ else
             </div>
         }
     </div>
+    <div>
+
+    </div>
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Name</td>
+                    <td>Wins</td>
+                    <td>Losses</td>
+                    <td>Draws</td>
+                    <td>Statistics</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var robots1 in robotList)
+                {
+
+                    maxStats = robots1.Wins + robots1.Losses + robots1.Draws;
+                    stats = maxStats - robots1.Losses;
+                    stats = Math.Abs(stats);
+                    if (maxStats > 0)
+                    {
+                        CountedStats = (stats * 100) / maxStats;
+                    }
+                    else
+                    {
+                        CountedStats = 0;
+                    }
+
+                    <tr>
+                        <td>@robots1.Id</td>
+                        <td>@robots1.Nickname</td>
+                        <td>@robots1.Wins</td>
+                        <td>@robots1.Losses</td>
+                        <td>@robots1.Draws</td>
+                        @if (CountedStats == 0)
+                        {
+                            <td>No data</td>
+                        }
+                        else if (CountedStats <= 20)
+                        {
+                            <td>Terrible</td>
+                        }
+                        else if (CountedStats > 20 && CountedStats <= 50)
+                        {
+                            <td>Below Average</td>
+                        }
+                        else if (CountedStats > 50 && CountedStats <= 70)
+                        {
+                            <td>Very good</td>
+                        }
+                        else if (CountedStats > 70 && CountedStats <= 100)
+                        {
+                            <td>Perfect</td>
+                        }
+                    </tr>
+
+
+                }
+
+            </tbody>
+
+        </table>
+
+
+    </div>
 }
 
 
 @code {
+    public double CountedStats = 0;
+    double maxStats = 0;
+    double stats = 0;
+
     List<SwipeCard> Cards = new List<SwipeCard>();
+    List<Robot> robotList;
     protected override async Task OnInitializedAsync()
     {
+        robotList = await Http.GetFromJsonAsync<List<Robot>>($"api/robots");
         Console.WriteLine("Pirmas Robot");
         List<Robot> robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robots");
         foreach (Robot robot in robots)
@@ -51,15 +126,16 @@ else
                     card.Description = robot.Nickname;
                     Cards.Add(card);
                 }
-                else {
+                else
+                {
                     await Http.PostAsJsonAsync<Robot>($"/card", robot);
                     SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
                     temp.Description = robot.Nickname;
                     Cards.Add(temp);
                 }
 
-                
-                
+
+
             }
         }
         StateHasChanged();

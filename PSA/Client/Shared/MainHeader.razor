@@ -226,6 +226,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+       
 
     }
 
