@@ -14587,3 +14587,42 @@ input:focus {
     background-color: #74c69d;
     color: #fff;
 }
+
+.cardContainer {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Adjust the spacing between cards */
+}
+
+
+
+.buttonContainer {
+    margin-top: 10px; /* Adjust the spacing between buttons and content */
+    text-align: center;
+}
+
+.editButton,
+.selectButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-right: 5px; /* Adjust the spacing between buttons */
+}
+.selectButton {
+    background-color: #008CBA;
+}
+
+
+
+.modal-content {
+    border-radius: 0;
+}
+
+.modal-footer {
+    justify-content: space-between;
+}

@@ -2,6 +2,7 @@
 @using PSA.Shared
 @inject HttpClient Http
 @inject IJSRuntime JS
+@using Blazorise
 
 <PageTitle>Robot swipe with love</PageTitle>
 
@@ -34,7 +35,24 @@ else
 			}
 
 		</div>
+        <Modal @ref="modalRef">
+    <ModalContent Centered>
+        <ModalHeader>
+            <ModalTitle>IT IS A "MATCH"</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <Field>
+                <FieldLabel>Select date</FieldLabel>
+                        <DatePicker @bind-Date="@selectedDate" TValue="DateTime?" InputMode="DateInputMode.DateTime" Placeholder="@today" TimeAs24hr="true" SelectionMode="DateInputSelectionMode.Single" />
+            </Field>
 
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideModal">FIGHT</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
 
 	</div>
 
@@ -48,7 +66,15 @@ else
     private SwipeCard currentCard;
     private bool showDescription;
     private List<SwipeCard> allCards;
+    private Modal modalRef;
 
+    private DateTime? selectedDate;
+    private string today = DateTime.Now.AddDays(1).ToString();
+
+    private void OnDateSelected(DateTime value)
+    {
+        selectedDate = value;
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,15 +117,32 @@ else
         {
             bool result = bool.Parse(await response.Content.ReadAsStringAsync());
             if (result) {
-                //POP UP
-                Console.WriteLine("MATCH");
+
             }
 
         }
+        await modalRef.Show();
         await LoadNextCard();
         StateHasChanged();
     }
 
+    private async Task HideModal()
+    {
+        Console.WriteLine($"Antras: {selectedDate.ToString()}");
+        Fight fight = new Fight();
+        DateTime UpdatedTime = selectedDate ?? DateTime.Now.AddDays(1);
+        fight.date = UpdatedTime;
+        fight.fk_robot1 = robotId;
+        fight.fk_robot2 = currentCard.fk_robot;
+        fight.state = 1;
+        fight.winner = 0;
 
+        await Http.PostAsJsonAsync("api/fights", fight);
+
+        selectedDate = DateTime.Now.AddDays(1);
+
+
+        await modalRef.Hide();
+    }
 }
 

@@ -122,6 +122,15 @@ else
                                                     </ul>
                                                 </li>
                                             }
+                                            @if (@profile?.LoggedIn == true)
+                                            {
+                                                <li>
+                                                    <a href="/robots">Robots</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/">Robot matches</a></li>
+                                                    </ul>
+                                                </li>
+                                            }
                                             <li style="z-index: 10">
                                                 <a href="login">Account</a>
                                                 <ul class="submenu">
