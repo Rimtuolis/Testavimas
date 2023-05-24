@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Blazorise;
+using Microsoft.AspNetCore.Mvc;
 using PSA.Server.Services;
 using PSA.Services;
 using PSA.Shared;
@@ -32,7 +33,11 @@ namespace PSA.Server.Controllers
         {
             return await _databaseOperationsService.ReadListAsync<Robot?>($"SELECT * FROM robotas WHERE fk_user_id != {_currentUserService.GetUser().Id}");
         }
-
+		[HttpPut("{damage}")]
+		public async Task UpdateDamage(int damage, [FromBody] Robot robot)
+		{
+            await _databaseOperationsService.ExecuteAsync($"update roboto_detale set durability = durability - {damage} WHERE fk_robotas  = {robot.Id} ");
+        }
         /* [HttpPost]
          public async Task Create([FromBody] Fight fight)
          {
@@ -40,7 +45,7 @@ namespace PSA.Server.Controllers
          }*/
 
         // DELETE api/<FightsController>/5
-        [HttpDelete("{id}")]
+		[HttpDelete("{id}")]
         public async Task Delete(int id)
         {
             await _databaseOperationsService.ExecuteAsync($"delete from 'turnyro_kova' where 'fk_kova' = {id}");
