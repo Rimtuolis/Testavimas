@@ -209,14 +209,18 @@ else
                     if (rnd <= overall1)
                     {
                         fights.winner = 1;
+                        await WinLoseTieCondition(fights.fk_robot1, fights.fk_robot2);
                     }
                     else if (rnd > overall1 && rnd < tie)
                     {
                         fights.winner = 3;
+                        await TieCondition(fights.fk_robot2, fights.fk_robot1);
+
                     }
                     else if (rnd >= tie)
                     {
                         fights.winner = 2;
+                        await WinLoseTieCondition(fights.fk_robot2, fights.fk_robot1);
                     }
 
                 }
@@ -226,22 +230,26 @@ else
                     if (rnd <= overall1)
                     {
                         fights.winner = 1;
+                        await WinLoseTieCondition(fights.fk_robot1, fights.fk_robot2);
                     }
                     else if (rnd > overall1 && rnd < tie)
                     {
                         fights.winner = 3;
+                        await TieCondition(fights.fk_robot2, fights.fk_robot1);
                     }
                     else if (rnd >= tie)
                     {
                         fights.winner = 2;
+                        await WinLoseTieCondition(fights.fk_robot2, fights.fk_robot1);
                     }
 
                 }
-
+                Console.WriteLine(rnd.ToString());
                 if (fights.winner == 1)
                 {
                     await HandleDamage(fights.fk_robot1, 5);
                     await HandleDamage(fights.fk_robot2, 10);
+
                 }
                 else if (fights.winner == 2)
                 {
@@ -264,8 +272,18 @@ else
     private async Task HandleDamage(int robotId, int damage) { 
         Robot one_robot = await Http.GetFromJsonAsync<Robot>($"api/robots/{robotId}");
         await Http.PutAsJsonAsync($"api/robotPart/{damage}", one_robot);
-    }
 
+    }
+    private async Task WinLoseTieCondition(int id, int id2)
+    {
+        await Http.PutAsJsonAsync($"api/robots/win/{id}/{id2}", profile);
+        
+    }
+    private async Task TieCondition(int id, int id2)
+    {
+        await Http.PutAsJsonAsync($"api/robots/tie/{id}/{id2}", profile);
+
+    }
     public async Task HandleFinished(Fight fight)
     {
 
@@ -279,13 +297,13 @@ else
         await Http.PutAsJsonAsync($"api/fights/{id}", profile);
         StateHasChanged();
 
-        NavManager.NavigateTo("/fights", forceLoad: true);
+        NavManager.NavigateTo($"/fights", forceLoad: true);
         
     }
     public async Task Decline(int id)
     {
         await Http.DeleteAsync($"api/fights/{id}");
-        NavManager.NavigateTo("/fights", forceLoad: true);
+        NavManager.NavigateTo($"/fights", forceLoad: true);
         StateHasChanged();
 
     }

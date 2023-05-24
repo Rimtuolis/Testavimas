@@ -11,12 +11,12 @@ namespace PSA.Server.Controllers
     {
         private readonly ILogger<FightsController> _logger;
         private readonly IDatabaseOperationsService _databaseOperationsService;
-
-		public FightsController(ILogger<FightsController> logger, IDatabaseOperationsService databaseOperationsService)
+        private readonly ICurrentUserService _currentUserService;
+        public FightsController(ILogger<FightsController> logger, IDatabaseOperationsService databaseOperationsService, ICurrentUserService currentUserService)
         {
             _logger = logger;
             _databaseOperationsService = databaseOperationsService;
-
+            _currentUserService = currentUserService;
 		}
 
         // GET: api/<FightsController>

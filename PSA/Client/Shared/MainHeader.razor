@@ -107,9 +107,9 @@ else
                                             @if (profile.LoggedIn == true)
                                             {
                                                 <li style="z-index: 10">
-                                                    <a href="fights">Fights</a>
+                                                    <a href="fights/@profile.Id">Fights</a>
                                                     <ul class="submenu">
-                                                        <li><a href="/fights">Fights</a></li>
+                                                        <li><a href="/fights/@profile.Id">Fights</a></li>
                                                         <li><a href="/fights/create">Create fight</a></li>
                                                     </ul>
                                                 </li>
@@ -173,17 +173,24 @@ else
                                             <input type="text" name="Search" placeholder="Search products">
                                             <div class="search-icon">
                                                 <i class="fas fa-search special-tag"></i>
+                                             
                                             </div>
                                         </div>
                                     </li>
                                     @if (@profile?.LoggedIn == true)
                                     {
                                         <li>
-                                            <div class="shopping-card">
-                                                  
-                                                <a href="cart"><i class="fas fa-shopping-cart"></i></a>
+                                            <div class="logo">
+                                                <a href="/cart">
+                                                    <img src="assets/img/logo/cart2.jpg" style="width:50px;height:50px;" alt="">
+                                                    
+                                                </a>
+                                                
+
                                             </div>
+                                           
                                         </li>
+                                        <a href="" @onclick="@OnLogoutClicked">Log out</a>
                                         <li class="d-none d-xl-block">
                                             <div class="col-10">
                                                 Balance: <b>@profile.balance</b>

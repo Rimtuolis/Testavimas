@@ -75,7 +75,7 @@ namespace PSA.Server.Controllers
             index++;
             if (index == null) { index = 0; }
 
-            await _databaseOperationsService.ExecuteAsync($"INSERT INTO `robotas`(`Nickname`, `Wins`, `Losses`, `Draws`, `Id`, `fk_user_id`) values ('{robot.Nickname}',{index}, {0}, {0}, {0}, {_currentUserService.GetUser().Id})");
+            await _databaseOperationsService.ExecuteAsync($"INSERT INTO `robotas`(`Nickname`, `Wins`, `Losses`, `Draws`, `Id`, `fk_user_id`) values ('{robot.Nickname}',{0}, {0}, {0}, {0}, {_currentUserService.GetUser().Id})");
 
 
             await _databaseOperationsService.ExecuteAsync($"insert into " +
@@ -97,6 +97,20 @@ namespace PSA.Server.Controllers
                  $"roboto_detale(durability, fk_preke_id, fk_robotas)" +
                  $"values({100}, {robot.LeftLeg},{index})");
         }
+
+        [HttpPut("win/{id}/{id2}")]
+        public async Task Win(int id, int id2)
+        {
+            await _databaseOperationsService.ExecuteAsync($"update robotas set Wins = Wins + 1 WHERE Id  = {id} ");
+            await _databaseOperationsService.ExecuteAsync($"update robotas set Losses = Losses + 1 WHERE Id  = {id2} ");
+        }
+        [HttpPut("tie/{id}/{id2}")]
+        public async Task Tie(int id, int id2)
+        {
+            await _databaseOperationsService.ExecuteAsync($"update robotas set Draws = Draws + 1 WHERE Id  = {id} ");
+            await _databaseOperationsService.ExecuteAsync($"update robotas set Draws = Draws + 1 WHERE Id  = {id2} ");
+        }
+
         // Deletes tournament from DB by ID
         // DELETE api/<TournamentsController>/5
         [HttpDelete("{id}")]
