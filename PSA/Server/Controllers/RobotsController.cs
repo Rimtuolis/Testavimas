@@ -33,9 +33,28 @@ namespace PSA.Server.Controllers
         {
             return await _databaseOperationsService.ReadItemAsync<Robot?>($"SELECT * FROM robotas where Id = {id}");
         }
+        [HttpGet("parts")]
+        public async Task<IEnumerable<Robot>> GetParts()
+        {
+            return await _databaseOperationsService.ReadListAsync<Robot>($"SELECT * FROM preke");
+        }
+        //[HttpGet("{category}")]
+        //public async Task<IEnumerable<Product>> Get(string category)
+        //{
+        //    return await _databaseOperationsService.ReadListAsync<Product>($"SELECT * FROM preke WHERE Category={category}");
+        //}
+        // Gets product by ID
+        // GET api/<ProductsController>/5
+        [HttpGet("parts/{id}")]
+        public async Task<Product?> GetPartsW(int id)
+        {
+            //return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM preke where id_Preke = {id}");
+            //return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM robotas JOIN roboto_detale ON {id} = roboto_detale.fk_robotas JOIN preke ON preke_id = roboto_detale.fk_preke");
+            return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM preke WHERE id = {id}");
+        }
 
 
-		[HttpGet("component/mySelf")]
+        [HttpGet("component/mySelf")]
         public async Task<List<Robot?>> MySelf()
         {
             
@@ -52,7 +71,33 @@ namespace PSA.Server.Controllers
         [HttpPost]
         public async Task Create([FromBody] Robot robot)
         {
-            await _databaseOperationsService.ExecuteAsync($"insert into robotas(Nickname, Wins, Losses, Draws) values('{robot.Nickname}', '{robot.Wins}', '{robot.Losses}', '{robot.Draws}')");
+            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_robotas) from robotas");
+            index++;
+            if (index == null) { index = 0; }
+
+            await _databaseOperationsService.ExecuteAsync($"insert into " +
+                $"robotas(id_robotas, laimejimai, pralaimejimai, lygiosios, fk_user)" +
+                $"values({index}, {0}, {0}, {0}, {_currentUserService.GetUser().Id})");
+
+
+            await _databaseOperationsService.ExecuteAsync($"insert into " +
+                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"values({100}, {robot.Head},{index})");
+            await _databaseOperationsService.ExecuteAsync($"insert into " +
+                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"values({100}, {robot.Body},{index})");
+            await _databaseOperationsService.ExecuteAsync($"insert into " +
+                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"values({100}, {robot.RightArm},{index})");
+            await _databaseOperationsService.ExecuteAsync($"insert into " +
+                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"values({100}, {robot.LeftArm},{index})");
+            await _databaseOperationsService.ExecuteAsync($"insert into " +
+                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"values({100}, {robot.RightLeg},{index})");
+            await _databaseOperationsService.ExecuteAsync($"insert into " +
+                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"values({100}, {robot.LeftLeg},{index})");
         }
         // Deletes tournament from DB by ID
         // DELETE api/<TournamentsController>/5

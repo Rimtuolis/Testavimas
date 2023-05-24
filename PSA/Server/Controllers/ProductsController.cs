@@ -33,7 +33,11 @@ namespace PSA.Server.Controllers
             //return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM preke where id_Preke = {id}");
             return await _databaseOperationsService.ReadItemAsync<Product?>($"SELECT * FROM preke where Id = {id}");
         }
-
+        [HttpGet("get/{category}")]
+        public async Task<IEnumerable<Product>> Get(string category)
+        {
+            return await _databaseOperationsService.ReadListAsync<Product>($"SELECT * FROM preke WHERE `Category`={category}");
+        }
         // creates product in DB
         // POST api/<ProductsController>
         [HttpPost]
