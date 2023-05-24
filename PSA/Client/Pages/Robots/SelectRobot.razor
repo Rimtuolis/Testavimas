@@ -24,7 +24,8 @@ else
                 <h2>@card.Description</h2>
                 <div class="buttonContainer">
                     <button class="editButton" @onclick="() => EditCard(card)">Edit</button>
-                    <button class="selectButton" @onclick="() => Select(card.fk_robot)">Select</button>
+                    <button class="selectButton" @onclick="() => Swipe(card.fk_robot)">Swipe</button>
+                    <button class="selectButton" @onclick="() => Select(card.fk_robot)">View matches</button>
                 </div>
             </div>
         }
@@ -67,9 +68,12 @@ else
     {
         NavManager.NavigateTo($"/card/edit/{card.fk_robot}", forceLoad: true);
     }
-
-    private void Select(int robotId)
+    private void Swipe(int robotId)
     {
         NavManager.NavigateTo($"/robots/swipe/{robotId}", forceLoad: true);
+    }
+    private void Select(int robotId)
+    {
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
     }
 }

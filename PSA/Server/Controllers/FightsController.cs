@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PSA.Server.Services;
 using PSA.Services;
 using PSA.Shared;
 
@@ -11,17 +12,18 @@ namespace PSA.Server.Controllers
         private readonly ILogger<FightsController> _logger;
         private readonly IDatabaseOperationsService _databaseOperationsService;
 
-        public FightsController(ILogger<FightsController> logger, IDatabaseOperationsService databaseOperationsService)
+		public FightsController(ILogger<FightsController> logger, IDatabaseOperationsService databaseOperationsService)
         {
             _logger = logger;
             _databaseOperationsService = databaseOperationsService;
-        }
+
+		}
 
         // GET: api/<FightsController>
-        [HttpGet]
-        public async Task<IEnumerable<Fight>> Get()
+        [HttpGet("view/{robotId}")]
+        public async Task<IEnumerable<Fight>> GetRobotsFights(int robotId)
         {
-            return await _databaseOperationsService.ReadListAsync<Fight>($"select * from kova");
+            return await _databaseOperationsService.ReadListAsync<Fight>($"select * from kova where fk_robot1 = {robotId} or fk_robot2 = {robotId}");
         }
 
         [HttpGet("maxid")]
