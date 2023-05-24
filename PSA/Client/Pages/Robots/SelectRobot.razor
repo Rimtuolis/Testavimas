@@ -9,21 +9,25 @@
 
 <h3>Select Robot or edit its RoboSwipe card</h3>
 
-@if (Cards.Count == 0) {
+@if (Cards.Count == 0)
+{
     <p>No robots available.</p>
 }
-else{
-    @foreach (var card in Cards)
-    {
-        <div class="swipeCard">
-            <img src="@card.ImageUrl" alt="Robot Image" />
-            <h2>@card.Description</h2>
-            <div>
-                <button @onclick="() => EditCard(card)">Edit</button>
-                <button @onclick="() => Select(card.fk_robot)">Select</button>
+else
+{
+    <div class="cardContainer">
+        @foreach (var card in Cards)
+        {
+            <div class="swipeCard">
+                <img src="@card.ImageUrl" alt="Robot Image" />
+                <h2>@card.Description</h2>
+                <div class="buttonContainer">
+                    <button class="editButton" @onclick="() => EditCard(card)">Edit</button>
+                    <button class="selectButton" @onclick="() => Select(card.fk_robot)">Select</button>
+                </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 }
 
 
