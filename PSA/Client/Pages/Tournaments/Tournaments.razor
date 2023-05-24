@@ -1,0 +1,97 @@
+﻿@page "/tournaments"
+@inject HttpClient Http
+@using PSA.Shared
+
+<PageTitle>Tournaments</PageTitle>
+
+
+@if (_tournaments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Start date</td>
+                                <td>End date</td>
+                                <td>Name</td>
+                                <td>Prize</td>
+                                <td>Organiser</td>
+                                <td>Format</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @foreach(Tournament tournament in _tournaments)
+                            {
+                                <tr>
+                                    <td>@tournament.Id</td>
+                                    <td>@tournament.Start_date</td>
+                                    <td>@tournament.End_date</td>
+                                    <td>@tournament.Name</td>
+                                    <td>@tournament.Prize</td>
+                                    <td>@tournament.Organiser</td>
+                                    <td>@tournament.Format</td>
+                                    
+                                    <td>
+                                        <a class="btn btn-primary" href="/tournaments/viewtournament/@tournament.Id">View</a>
+                                    </td>
+                                    @if (@profile?.LoggedIn == true && @profile?.UserLevel == AccessLevelType.ADMIN)
+                                    {
+                                        <td>
+                                            <a class="btn btn-primary" href="/tournaments/edittournament/@tournament.Id">Edit</a>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" @onclick="() => RemoveTournament(tournament.Id)">Remove</button>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private List<Tournament>? _tournaments;
+    private CurrentUser? profile;
+    private DateTime dtStart, dtFinish;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tournaments = await Http.GetFromJsonAsync<List<Tournament>>("api/Tournaments");
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+        FixDate();
+
+    }
+    protected async void FixDate()
+    {
+        foreach(Tournament tournament in _tournaments)
+        {
+            dtStart = DateTime.Parse(tournament.Start_date);
+            tournament.Start_date = dtStart.ToString("yyyy-MM-dd");
+
+            dtFinish = DateTime.Parse(tournament.End_date);
+            tournament.End_date = dtFinish.ToString("yyyy-MM-dd");
+        }
+    }
+
+    public async Task RemoveTournament(int tournamentId)
+    {
+        await Http.DeleteAsync($"api/Tournaments/{tournamentId}");
+
+        _tournaments = _tournaments?.Where(tournament => tournament.Id != tournamentId).ToList();
+    }
+}

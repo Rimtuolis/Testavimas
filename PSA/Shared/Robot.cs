@@ -8,10 +8,11 @@ namespace PSA.Shared
 {
     public class Robot
     {
-        public int Id { get; set; }
         public string Nickname { get; set; }
         public int Wins { get; set; }
-        public int Ties { get; set; }
-        public int Loses { get; set; }
+        public int Losses { get; set; }
+        public int Draws { get; set; }
+        public int Id { get; set; }
+        public int fk_user_id { get; set; }
     }
 }

@@ -21,7 +21,12 @@
         public string? Description { get; set; }
         public double Price { get; set; }
         public string? Picture { get; set; }
-
+        public int? Category { get; set; }
+        public int Material { get; set; }
+        public int? Connection { get; set; }
+        public int Attack { get; set; }
+        public int Defense { get; set; }
+        public int Speed { get; set; }
         public int? Quantity { get; set; }
 
         public double? Total { get { return Quantity * Price; } }

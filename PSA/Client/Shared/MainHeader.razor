@@ -47,6 +47,18 @@ else
                                 <div class="main-menu f-right d-none d-lg-block">
                                     <nav>
                                         <ul id="navigation">
+												<li style ="z-index: 10">
+                                                    <a href="tournaments">Tournaments</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/tournaments/">View tournaments</a></li>
+                                                        @if (@profile?.LoggedIn == true && @profile?.UserLevel == AccessLevelType.ADMIN)
+                                                        {
+                                                            <li>
+                                                                <a href="/tournaments/create">Add Tournament</a>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </li>
                                             @if(profile.LoggedIn == true){
                                                 <li style ="z-index: 10">
                                                     <a href="products">Products</a>
@@ -82,6 +94,16 @@ else
                                                     </ul>
                                                 </li>
                                             }
+                                            @if (profile.LoggedIn == true)
+                                            {
+                                                <li style="z-index: 10">
+                                                    <a href="fights">Fights</a>
+                                                    <ul class="submenu">
+                                                        <li><a href="/fights">Fights</a></li>
+                                                        <li><a href="/fights/create">Create fight</a></li>
+                                                    </ul>
+                                                </li>
+                                            }
                                             @if (@profile?.LoggedIn == true)
                                             {
                                                 <li>
@@ -94,7 +116,7 @@ else
                                             @if (@profile?.LoggedIn == true)
                                             {
                                                 <li>
-                                                    <a>Gamble</a>
+                                                    <a href="/">Gamble</a>
                                                     <ul class="submenu">
                                                         <li><a href="Gambling/BlackJack">BlackJack</a></li>
                                                     </ul>
