@@ -14,7 +14,6 @@ namespace PSA.Shared
         public string? slaptazodis { get; set; }
         public string? email { get; set; }
         public DateTime isidarbinimo_data { get; set; }
-        public string? tel_nr { get; set; }
 
         public string? nickname { get; set; }
     }
