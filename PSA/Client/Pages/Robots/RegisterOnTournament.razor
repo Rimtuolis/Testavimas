@@ -1,0 +1,77 @@
+﻿@page "/robots/registerontournament/{tournamentId:int}"
+@using PSA.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Globalization;
+@using Microsoft.Extensions.Logging
+@inject IJSRuntime JS
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Register robot to a tournament</PageTitle>
+
+<EditForm Model="@fight" OnValidSubmit="@HandleValidSubmit">
+    <div class="mb-3 col-7">
+        <label for="End_date"><b>Your robot</b></label>
+        <InputSelect @bind-Value="tournamentRobot.fk_robotas">
+          
+            @foreach (Robot robot in robots){
+                <option value="@robot.Id">@robot.Nickname</option>
+            }
+         </InputSelect>
+        
+    </div>
+    <button type="submit" class="btn">Register</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int tournamentId { get; set; }
+
+    DateTime dt = new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified);
+    private Fight fight = new Fight();
+    private Tournament tournament = new Tournament();
+    private List<Robot> robots = new List<Robot>(); 
+    private TournamentRobot tournamentRobot = new TournamentRobot();
+    private List<TournamentRobot> _tournamentRobots = new List<TournamentRobot>();
+    private DateTime? prize;
+    private bool exists = false;
+    private bool existsByUser = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tournamentRobot.fk_turnyras = tournamentId;
+        tournamentRobot.turi_kova = 0;
+        tournament = await Http.GetFromJsonAsync<Tournament>($"api/Tournaments/{tournamentId}");
+        robots = await Http.GetFromJsonAsync<List<Robot>>("api/robots/component/mySelf");
+        if (robots == null)
+        {
+            return;
+        }
+    }
+    public async Task HandleValidSubmit()
+    {
+        exists = await Http.GetFromJsonAsync<bool>($"api/tournamentrobots/exists/{tournamentId}/{tournamentRobot.fk_robotas}");
+        existsByUser = await Http.GetFromJsonAsync<bool>($"api/tournamentrobots/existsUser/{tournamentId}");
+        if(DateTime.Today > DateTime.Parse(tournament.Start_date))
+        {
+            await JS.InvokeVoidAsync("alert", "Tournament already started.");
+        }
+        else if(exists)
+        {
+            await JS.InvokeVoidAsync("alert", "Robot is already registered.");
+        }
+        else if(existsByUser)
+        {
+            await JS.InvokeVoidAsync("alert", "You have already registered a robot in this tournament.");
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/tournamentrobots", tournamentRobot);
+        }
+      
+
+        NavManager.NavigateTo($"/tournaments/viewtournament/{tournamentId}", forceLoad: true);
+    }
+
+}

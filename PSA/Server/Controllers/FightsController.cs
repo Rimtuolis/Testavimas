@@ -38,6 +38,12 @@ namespace PSA.Server.Controllers
             Console.WriteLine("NIG");
             return await _databaseOperationsService.ReadItemAsync<Fight?>($"SELECT * FROM kova where id = {id}");
         }
+        [HttpGet("todaytournamentfights/{id}")]
+        public async Task<Fight?> Gettodaytournamentfights(int id)
+        {
+            Console.WriteLine("NIG");
+            return await _databaseOperationsService.ReadItemAsync<Fight?>($"SELECT kova FROM kova join turnyro_kova on kova.id = turnyro_kova.fk_kova where turnyro_kova.fk_turnyras = {id}");
+        }
         [HttpPut]
         public async Task Put([FromBody] Fight fight)
         {

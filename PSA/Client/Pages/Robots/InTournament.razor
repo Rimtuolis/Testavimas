@@ -1,0 +1,62 @@
+﻿@page "/robots/InTournament/{tournamentId:int}"
+@inject HttpClient Http
+@using PSA.Shared
+
+<PageTitle>Registered robots</PageTitle>
+
+
+<section class="cart_area section_padding">
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <td>Robot Id</td>
+                            <td>Has a fight</td>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                            @foreach (TournamentRobot _tournamentRobot in tournamentRobots)
+                            {
+                               <tr>
+                                   <td>
+                                       @_tournamentRobot.fk_robotas
+                                   </td>
+                                    @if(@_tournamentRobot.turi_kova == 0)
+                                    {
+                                        <td>Does not have a fight</td>
+                                    }
+                                    else
+                                    {
+                                        <td>Has a fight</td>
+                                    }
+                               </tr> 
+                            }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    [Parameter]
+    public int tournamentId { get; set; }
+
+    DateTime dt = new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified);
+    private Tournament tournament = new Tournament();
+    private List<TournamentRobot?> tournamentRobots = new List<TournamentRobot>();
+    private DateTime? prize;
+
+    protected override async Task OnInitializedAsync()
+    {
+        tournament = await Http.GetFromJsonAsync<Tournament>($"api/Tournaments/{tournamentId}");
+        tournamentRobots = await Http.GetFromJsonAsync<List<TournamentRobot?>>($"api/TournamentRobots/{tournamentId}");
+        if (tournamentRobots == null)
+        {
+            return;
+        }
+    }
+
+}
