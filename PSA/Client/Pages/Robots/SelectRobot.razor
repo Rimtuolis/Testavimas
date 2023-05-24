@@ -48,7 +48,7 @@ else
             </thead>
 
             <tbody>
-                @foreach (var robots1 in robotList)
+                @foreach (var robots1 in robots)
                 {
 
                     maxStats = robots1.Wins + robots1.Losses + robots1.Draws;
@@ -109,20 +109,16 @@ else
     double stats = 0;
 
     List<SwipeCard> Cards = new List<SwipeCard>();
-    List<Robot> robotList;
     List<RobotDto> robots = new List<RobotDto>();
     protected override async Task OnInitializedAsync()
     {
-        robotList = await Http.GetFromJsonAsync<List<Robot>>($"api/robots");
-        Console.WriteLine("Pirmas Robot");
+ 
         robots = await Http.GetFromJsonAsync<List<RobotDto>>($"api/robots");
         foreach (RobotDto robot in robots)
         {
             if (robot != null)
             {
-                Console.WriteLine("Antras Robot");
                 SwipeCard card = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
-                Console.WriteLine("Trecias Robot");
                 if (card != null && !card.Description.Equals("Empty"))
                 {
                     card.Description = robot.Nickname;
@@ -130,8 +126,7 @@ else
                 }
                 else
                 {
-                    await Http.PostAsJsonAsync<Robot>($"/card", robot);
-                    await Http.PostAsJsonAsync<RobotDto>($"/card", robot);
+                    await Http.PostAsJsonAsync<RobotDto>($"/card", robot); //robotDTO in controller
                     SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
                     temp.Description = robot.Nickname;
                     Cards.Add(temp);
