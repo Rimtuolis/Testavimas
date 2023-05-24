@@ -52,7 +52,10 @@ namespace PSA.Server.Controllers
         [HttpDelete("{id}")]
         public async Task Delete(int id)
         {
-            await _databaseOperationsService.ExecuteAsync($"delete from turnyras where Id = {id}");
+            await _databaseOperationsService.ExecuteAsync($"delete kova from kova join turnyro_kova on kova.id = turnyro_kova.fk_kova join turnyras on turnyras.id = turnyro_kova.fk_turnyras where turnyras.id = {id}");
+            await _databaseOperationsService.ExecuteAsync($"delete turnyro_robotas from turnyro_robotas where fk_turnyras = {id}");
+            await _databaseOperationsService.ExecuteAsync($"delete turnyro_kova from turnyro_kova join turnyras on turnyras.id = turnyro_kova.fk_turnyras where turnyras.id = {id}");
+            await _databaseOperationsService.ExecuteAsync($"delete turnyras from turnyras where Id = {id}");
         }
     }
 }

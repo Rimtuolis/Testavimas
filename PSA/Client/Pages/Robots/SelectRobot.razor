@@ -26,6 +26,7 @@ else
                     <button class="editButton" @onclick="() => EditCard(card)">Edit</button>
                     <button class="selectButton" @onclick="() => Swipe(card.fk_robot)">Swipe</button>
                     <button class="selectButton" @onclick="() => Select(card.fk_robot)">View matches</button>
+                    <button class="editPartsButton" @onclick="() => EditParts(card.fk_robot)">Edit parts</button>
                 </div>
             </div>
         }
@@ -109,12 +110,13 @@ else
 
     List<SwipeCard> Cards = new List<SwipeCard>();
     List<Robot> robotList;
+    List<RobotDto> robots = new List<RobotDto>();
     protected override async Task OnInitializedAsync()
     {
         robotList = await Http.GetFromJsonAsync<List<Robot>>($"api/robots");
         Console.WriteLine("Pirmas Robot");
-        List<Robot> robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robots");
-        foreach (Robot robot in robots)
+        robots = await Http.GetFromJsonAsync<List<RobotDto>>($"api/robots");
+        foreach (RobotDto robot in robots)
         {
             if (robot != null)
             {
@@ -129,6 +131,7 @@ else
                 else
                 {
                     await Http.PostAsJsonAsync<Robot>($"/card", robot);
+                    await Http.PostAsJsonAsync<RobotDto>($"/card", robot);
                     SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
                     temp.Description = robot.Nickname;
                     Cards.Add(temp);
@@ -151,5 +154,19 @@ else
     private void Select(int robotId)
     {
         NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
+    }
+    public async Task EditParts(int id)
+    {
+        List<RobotPart> robotParts = await Http.GetFromJsonAsync<List<RobotPart>>($"api/robotDto/{id}");
+        foreach (var robot in robots)
+        {
+            if (robot.Id == id)
+            {
+                robot.Parts = robotParts;
+                NavManager.NavigateTo($"/robot/Edit/{id}", forceLoad: true);
+            }
+
+        }
+
     }
 }

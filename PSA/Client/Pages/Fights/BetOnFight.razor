@@ -30,7 +30,7 @@
                                 Coefficient
                             </td>
                         </tr>
-                        @for (int i = 0; i<2; i++)
+                        @*@for (int i = 0; i<2; i++)
                         {
                             <tr>
                                 <td>
@@ -47,6 +47,26 @@
                                 </td>
                                 <td>
                                     @coefficients.ElementAt(i)
+                                </td>
+                            </tr> 
+                        }*@
+                        @foreach(Robot robot in robots)
+                        {
+                            <tr>
+                                <td>
+                                    @robot.Nickname
+                                </td>
+                                <td>
+                                    @robot.Wins
+                                </td>
+                                <td>
+                                    @robot.Losses
+                                </td>
+                                <td>
+                                    @robot.Draws
+                                </td>
+                                <td>
+                                    
                                 </td>
                             </tr> 
                         }
@@ -87,6 +107,7 @@
     private Robot? robot1, robot2;
     private List<Robot> robots = new List<Robot>();
     private Fight? fight;
+    private int? counter = 0;
 
     protected override async Task OnInitializedAsync()
     {
