@@ -309,7 +309,7 @@ else
     }
     public async Task AddToCart()
     {
-        await Http.PostAsJsonAsync<Robot>("api/robot/", robotParts);
+        await Http.PostAsJsonAsync<Robot>("api/robots/", robotParts);
         if (robotParts.Body != 0)
         {
             await Http.PostAsJsonAsync("/api/cart/add", GetRobotPart(robotParts.Body));

@@ -77,7 +77,7 @@ else
 
     public async Task RemoveOrder(int orderId)
     {
-        await Http.DeleteAsync($"api/Client/{orderId}");
+        await Http.DeleteAsync($"api/Orders/{orderId}");
 
         _orders = _orders?.Where(order => order.Id_Uzsakymas != orderId).ToList();
     }

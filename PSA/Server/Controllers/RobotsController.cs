@@ -71,32 +71,30 @@ namespace PSA.Server.Controllers
         [HttpPost]
         public async Task Create([FromBody] Robot robot)
         {
-            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_robotas) from robotas");
+            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(Id) from robotas");
             index++;
             if (index == null) { index = 0; }
 
-            await _databaseOperationsService.ExecuteAsync($"insert into " +
-                $"robotas(id_robotas, laimejimai, pralaimejimai, lygiosios, fk_user)" +
-                $"values({index}, {0}, {0}, {0}, {_currentUserService.GetUser().Id})");
+            await _databaseOperationsService.ExecuteAsync($"INSERT INTO `robotas`(`Nickname`, `Wins`, `Losses`, `Draws`, `Id`, `fk_user_id`) values ('{robot.Nickname}',{index}, {0}, {0}, {0}, {_currentUserService.GetUser().Id})");
 
 
             await _databaseOperationsService.ExecuteAsync($"insert into " +
-                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"roboto_detale(durability, fk_preke_id, fk_robotas)" +
                  $"values({100}, {robot.Head},{index})");
             await _databaseOperationsService.ExecuteAsync($"insert into " +
-                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"roboto_detale(durability, fk_preke_id, fk_robotas)" +
                  $"values({100}, {robot.Body},{index})");
             await _databaseOperationsService.ExecuteAsync($"insert into " +
-                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"roboto_detale(durability, fk_preke_id, fk_robotas)" +
                  $"values({100}, {robot.RightArm},{index})");
             await _databaseOperationsService.ExecuteAsync($"insert into " +
-                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"roboto_detale(durability, fk_preke_id, fk_robotas)" +
                  $"values({100}, {robot.LeftArm},{index})");
             await _databaseOperationsService.ExecuteAsync($"insert into " +
-                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"roboto_detale(durability, fk_preke_id, fk_robotas)" +
                  $"values({100}, {robot.RightLeg},{index})");
             await _databaseOperationsService.ExecuteAsync($"insert into " +
-                 $"roboto_detale(bukle, fk_preke, fk_robotas)" +
+                 $"roboto_detale(durability, fk_preke_id, fk_robotas)" +
                  $"values({100}, {robot.LeftLeg},{index})");
         }
         // Deletes tournament from DB by ID

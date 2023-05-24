@@ -53,25 +53,30 @@ namespace PSA.Server.Controllers
 		[HttpPut("{id}")]
         public async Task Update(int id)
         {
+            Console.WriteLine("Pirmas");
             await _databaseOperationsService.ExecuteAsync($"update kova set state = 2 WHERE id = {id}");
         }
 
         [HttpPut("no/{id}")]
         public async Task Update2(int id)
         {
+            Console.WriteLine("Antras");
+
             await _databaseOperationsService.ExecuteAsync($"update kova set state = 3 WHERE id = {id}");
         }
-        [HttpPut("win/{id}")]
-        public async Task Update3(int id,[FromBody] Fight fight)
+        [HttpPut("win/mhm/")]
+        public async Task Update3([FromBody] Fight fight)
         {
-            await _databaseOperationsService.ExecuteAsync($"update kova set state = 3, winner = {fight.winner} WHERE id = {id}");
+            Console.WriteLine("Trecias");
+
+            await _databaseOperationsService.ExecuteAsync($"update kova set state = 3, winner = {fight.winner} WHERE id = {fight.id}");
         }
         // DELETE api/<FightsController>/5
         // DELETE api/<FightsController>/5
         [HttpDelete("{id}")]
         public async Task Delete(int id)
         {
-            await _databaseOperationsService.ExecuteAsync($"delete from 'turnyro_kova' where 'fk_kova' = {id}");
+            //await _databaseOperationsService.ExecuteAsync($"delete from 'turnyro_kova' where 'fk_kova' = {id}");
             await _databaseOperationsService.ExecuteAsync($"DELETE FROM kova WHERE id={id}");
         }
     }

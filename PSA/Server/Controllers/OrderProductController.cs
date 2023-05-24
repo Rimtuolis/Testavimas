@@ -26,14 +26,14 @@ namespace PSA.Server.Controllers
         [HttpGet("{id}")]
         public async Task<IEnumerable<OrderProductDto>> Get(int id)
         {
-            return await _databaseOperationsService.ReadListAsync<OrderProductDto>($"select * from prekes_uzakymas where fk_uzsakymas = {id}");
+            return await _databaseOperationsService.ReadListAsync<OrderProductDto>($"select * from prekes_uzsakymas where fk_uzsakymas = {id}");
         }
 
         // POST api/<OrderProductController>
         [HttpPost]
         public async Task Post([FromBody] OrderProductDto op)
         {
-            await _databaseOperationsService.ExecuteAsync($"insert into prekes_uzakymas(fk_uzsakymas, fk_preke) values({op.fk_uzsakymas}, {op.fk_preke})");
+            await _databaseOperationsService.ExecuteAsync($"insert into prekes_uzsakymas(fk_uzsakymas, fk_preke) values({op.fk_uzsakymas}, {op.fk_preke})");
         }
     }
 }

@@ -10,7 +10,7 @@ namespace PSA.Shared
 {
     public class Fight
     {
-
+        
         public DateTime date { get; set; }
         public int winner { get; set; }
         public int id { get; set; }

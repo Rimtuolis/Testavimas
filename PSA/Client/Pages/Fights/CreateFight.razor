@@ -4,6 +4,7 @@
 @using System.Text.Json.Serialization
 @using System.Globalization;
 @using Microsoft.Extensions.Logging
+@inject IJSRuntime JS
 @inject HttpClient Http
 @inject NavigationManager NavManager
 
@@ -16,7 +17,7 @@ else{
 <EditForm Model="@fight" OnValidSubmit="@HandleValidSubmit">
     <div class="mb-3 col-7">
         <label for="Start"><b>Fight datetime</b></label>
-            <input class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm}" data-val="true" id="DateTime" @bind="@fight.date" asp-for="DateTime" required>
+            <input class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm:ss}" data-val="true" id="DateTime" @bind="@fight.date"  asp-for="DateTime" required>
         
     </div>
     <div class="mb-3 col-7">
@@ -39,7 +40,7 @@ else{
         </InputSelect>
 
     </div>
-    <button type="submit" class="btn">Kurti turnyrą</button>
+    <button type="submit" class="btn">Kurti kova</button>
 </EditForm>
 
 
@@ -54,6 +55,7 @@ else{
     private DateTime? prize;
     protected override async Task OnInitializedAsync()
     {
+
         robots = await Http.GetFromJsonAsync<List<Robot>?>("api/robots/component/mySelf");
         robots1 = await Http.GetFromJsonAsync<List<Robot>?>("api/robots/component/getOponent");
         if (robots == null)
@@ -67,8 +69,15 @@ else{
     }
     public async Task HandleValidSubmit()
     {
-       
-        await Http.PostAsJsonAsync("api/fights", fight);
+        if(fight.date <= DateTime.Now)
+        {
+            await JS.InvokeVoidAsync("alert", "Enter upcoming date not past.");
+        }
+        else
+        {
+            await Http.PostAsJsonAsync("api/fights", fight);
+        }
+      
 
         NavManager.NavigateTo("/fights", forceLoad: true);
     }

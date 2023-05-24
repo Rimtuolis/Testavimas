@@ -36,7 +36,7 @@ namespace PSA.Server.Controllers
             return await _databaseOperationsService.ReadItemAsync<Worker>($"select * from sandelinkas where id_Sandelinkas = {id}");
         }
 
-        // POST api/<WorkerController>
+        /*// POST api/<WorkerController>
         [HttpPost]
         public async Task Post([FromBody] Worker worker)
         {
@@ -47,7 +47,7 @@ namespace PSA.Server.Controllers
                 $"{worker.name}, {worker.last_name}, {worker.slaptazodis}, {worker.isidarbinimo_data}, {worker.tel_nr}, " +
                 $"{worker.email}, {index}, {worker.nickname})");
         }
-
+*/
         // DELETE api/<WorkerController>/5
         [HttpDelete("{id}")]
         public async Task Delete(int id)

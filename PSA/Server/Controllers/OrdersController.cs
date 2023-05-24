@@ -53,6 +53,10 @@ namespace PSA.Server.Controllers
             try
             {
                 var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Uzsakymas) from uzsakymas");
+                if (index is null)
+                {
+                    index = 0;
+                }
                 index++;
                 //var sandelininkuIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
                 //var sandelininkas = sandelininkuIds[new Random().Next(0, sandelininkuIds.Count - 1)];
