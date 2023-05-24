@@ -53,9 +53,10 @@ else{
     private List<Robot>? robots;
     private List<Robot>? robots1;
     private DateTime? prize;
+    private CurrentUser? currentUser;
     protected override async Task OnInitializedAsync()
     {
-
+        currentUser = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
         robots = await Http.GetFromJsonAsync<List<Robot>?>("api/robots/component/mySelf");
         robots1 = await Http.GetFromJsonAsync<List<Robot>?>("api/robots/component/getOponent");
         if (robots == null)
@@ -79,7 +80,7 @@ else{
         }
       
 
-        NavManager.NavigateTo("/fights", forceLoad: true);
+        NavManager.NavigateTo($"/fights/{currentUser.Id}", forceLoad: true);
     }
 
 

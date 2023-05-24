@@ -11,12 +11,12 @@ namespace PSA.Server.Controllers
     {
         private readonly ILogger<FightsController> _logger;
         private readonly IDatabaseOperationsService _databaseOperationsService;
-
-		public FightsController(ILogger<FightsController> logger, IDatabaseOperationsService databaseOperationsService)
+        private readonly ICurrentUserService _currentUserService;
+        public FightsController(ILogger<FightsController> logger, IDatabaseOperationsService databaseOperationsService, ICurrentUserService currentUserService)
         {
             _logger = logger;
             _databaseOperationsService = databaseOperationsService;
-
+            _currentUserService = currentUserService;
 		}
 
         // GET: api/<FightsController>
@@ -39,6 +39,12 @@ namespace PSA.Server.Controllers
         {
             Console.WriteLine("NIG");
             return await _databaseOperationsService.ReadItemAsync<Fight?>($"SELECT * FROM kova where id = {id}");
+        }
+        [HttpGet("todaytournamentfights/{id}")]
+        public async Task<Fight?> Gettodaytournamentfights(int id)
+        {
+            Console.WriteLine("NIG");
+            return await _databaseOperationsService.ReadItemAsync<Fight?>($"SELECT kova FROM kova join turnyro_kova on kova.id = turnyro_kova.fk_kova where turnyro_kova.fk_turnyras = {id}");
         }
         [HttpPut]
         public async Task Put([FromBody] Fight fight)

@@ -52,7 +52,7 @@ else
 
             </ModalBody>
             <ModalFooter>
-                <Button Color="Color.Primary" Clicked="@HideModal">FIGHT</Button>
+            <Button Color="Color.Primary" Clicked="@HideModal">FIGHT</Button>
             </ModalFooter>
         </ModalContent>
     </Modal>
@@ -67,7 +67,7 @@ else
     public int robotId { get; set; }
 
     private CurrentUser? profile;
-    private SwipeCard currentCard;
+    public SwipeCard currentCard;
     private bool showDescription;
     private List<SwipeCard> allCards;
     private Modal modalRef;
@@ -122,22 +122,29 @@ else
             bool result = bool.Parse(await response.Content.ReadAsStringAsync());
             if (result)
             {
-
+                await modalRef.Show();
+                await CreateFight();
             }
 
         }
-        await modalRef.Show();
+
         await LoadNextCard();
         StateHasChanged();
     }
 
-    private async Task HideModal()
+    private Task HideModal()
+    {
+        return modalRef.Hide();
+    }
+    private async Task CreateFight()
     {
         Console.WriteLine($"Antras: {selectedDate.ToString()}");
         Fight fight = new Fight();
         DateTime UpdatedTime = selectedDate ?? DateTime.Now.AddDays(1);
         fight.date = UpdatedTime;
         fight.fk_robot1 = robotId;
+
+        
         fight.fk_robot2 = currentCard.fk_robot;
         fight.state = 1;
         fight.winner = 0;
@@ -145,9 +152,6 @@ else
         await Http.PostAsJsonAsync("api/fights", fight);
 
         selectedDate = DateTime.Now.AddDays(1);
-
-
-        await modalRef.Hide();
     }
 }
 
