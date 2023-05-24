@@ -1,64 +1,68 @@
 ﻿@page "/robots/swipe/{robotId:int}"
+@using Blazorise
 @using PSA.Shared
 @inject HttpClient Http
 @inject IJSRuntime JS
-@using Blazorise
 
 <PageTitle>Robot swipe with love</PageTitle>
 
 @if (profile == null)
 {
-	<p><em>Loading...</em></p>
+    <p><em>Loading...</em></p>
 }
 else
 {
 
-	<div class="swiper">
+    <div class="swiper">
 
 
-		<div class="swipeCard">
-			@if (currentCard != null)
-			{
-				<img src="@currentCard.ImageUrl" draggable = "false" alt="Card Image" />
-				<button class="info-button" @onclick:stopPropagation @onclick="() => ShowDescription(currentCard)">i</button>
-				<div class="description" style="display: @(showDescription ? "block" : "none")">
-					<p>@currentCard.Description</p>
-				</div>
-				<div class="actions" draggable="false">
-					<button class="dislike-button" @onclick="Dislike">Dislike</button>
-					<button class="like-button" @onclick="Like">Like</button>
-				</div>
-			}
-			else
-			{
-				<p>No more cards available.</p>
-			}
+        <div class="swipeCard">
+            @if (currentCard != null)
+            {
+                <img src="@currentCard.ImageUrl" draggable="false" alt="Card Image" />
+                <button class="info-button" @onclick:stopPropagation @onclick="() => ShowDescription(currentCard)">i</button>
+                <div class="description" style="display: @(showDescription ? "block" : "none")">
+                    <p>@currentCard.Description</p>
+                </div>
+                <div class="actions" draggable="false">
+                    <button class="dislike-button" @onclick="Dislike">Dislike</button>
+                    <button class="like-button" @onclick="Like">Like</button>
+                </div>
+            }
+            else
+            {
+                <p>No more cards available.</p>
+            }
 
-		</div>
-        <Modal @ref="modalRef">
-    <ModalContent Centered>
-        <ModalHeader>
-            <ModalTitle>IT IS A "MATCH"</ModalTitle>
-            <CloseButton />
-        </ModalHeader>
-        <ModalBody>
-            <Field>
-                <FieldLabel>Select date</FieldLabel>
-                        <DatePicker @bind-Date="@selectedDate" TValue="DateTime?" InputMode="DateInputMode.DateTime" Placeholder="@today" TimeAs24hr="true" SelectionMode="DateInputSelectionMode.Single" />
-            </Field>
+        </div>
 
-        </ModalBody>
-        <ModalFooter>
-            <Button Color="Color.Secondary" Clicked="@HideModal">FIGHT</Button>
-        </ModalFooter>
-    </ModalContent>
-</Modal>
 
-	</div>
+    </div>
+    <Modal @ref="modalRef">
+        <ModalContent Centered>
+            <ModalHeader>
+                <ModalTitle>IT IS A "MATCH"</ModalTitle>
+                <CloseButton />
+            </ModalHeader>
+            <ModalBody>
+                <Field>
+                    <FieldLabel>Select date</FieldLabel>
+                    <DatePicker @bind-Date="@selectedDate" TValue="DateTime?" InputMode="DateInputMode.DateTime" Placeholder="@today" TimeAs24hr="true" SelectionMode="DateInputSelectionMode.Single" />
+                </Field>
+
+            </ModalBody>
+            <ModalFooter>
+                <Button Color="Color.Primary" Clicked="@HideModal">FIGHT</Button>
+            </ModalFooter>
+        </ModalContent>
+    </Modal>
 
 }
 
+
+
 @code {
+
     [Parameter]
     public int robotId { get; set; }
 
@@ -116,7 +120,8 @@ else
         if (response.IsSuccessStatusCode)
         {
             bool result = bool.Parse(await response.Content.ReadAsStringAsync());
-            if (result) {
+            if (result)
+            {
 
             }
 

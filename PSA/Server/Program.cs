@@ -3,6 +3,9 @@ using PSA.Services;
 using PSA.Shared;
 using MySqlConnector;
 using System.Text;
+using Blazorise;
+using Blazorise.Bootstrap;
+using Blazorise.Icons.FontAwesome;
 
 var builder = WebApplication.CreateBuilder(args);
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
@@ -19,6 +22,14 @@ builder.Services.AddSingleton<ICartService, CartService>();
 builder.Services.AddSingleton<IBlackJackService, BlackJackService>();
 builder.Services.AddSingleton<IManualBuildingService, ManualBuildingService>();
 builder.Services.AddSingleton<IAutoBuildingService, AutoBuildingService>();
+
+builder.Services
+	.AddBlazorise(options =>
+	{
+		options.Immediate = true;
+	})
+	.AddBootstrapProviders()
+	.AddFontAwesomeIcons();
 
 var app = builder.Build();
 

@@ -4,6 +4,7 @@
 @inject HttpClient Http
 @inject IJSRuntime JS
 
+
 <h1>Robots</h1>
 
 
@@ -35,12 +36,15 @@ else
     List<SwipeCard> Cards = new List<SwipeCard>();
     protected override async Task OnInitializedAsync()
     {
-        List<Robot> robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robot");
+        Console.WriteLine("Pirmas Robot");
+        List<Robot> robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robots");
         foreach (Robot robot in robots)
         {
             if (robot != null)
             {
+                Console.WriteLine("Antras Robot");
                 SwipeCard card = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
+                Console.WriteLine("Trecias Robot");
                 if (card != null && !card.Description.Equals("Empty"))
                 {
                     card.Description = robot.Nickname;
