@@ -223,6 +223,7 @@ else if (!robotParts.Nickname.Equals("Unable"))
         <div class="mb-3">
             <label for="Nickname"><b>Robot Name</b></label>
             <input class="form-control" id="Nickname" @bind="@robotParts.Nickname" placeholder="Robot" type="text" name="Nickname">
+            <p>Total cost : @prices.Sum() €</p>
         </div>
         <a class="btn btn-primary" @onclick="() => AddToCart()">Buy and Build</a>
     </div>
@@ -265,6 +266,7 @@ else
     private String[]? pictures = { "", "", "", "", "", "", "", "", "" };
     private String[]? names = { "", "", "", "", "", "", "", "", "" };
     private Double[]? prices = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private int[] connections = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
 
@@ -277,18 +279,13 @@ else
         }
         //Console.WriteLine(products);
         //Console.WriteLine(products.Length);
-        GetRobotPart(robotParts.Body);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.RightArm);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.LeftLeg);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.LeftArm);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.RightLeg);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.Head);
-        Thread.Sleep(350);
+        await GetRobotPart(robotParts.Body);
+        
+        await GetRobotPart(robotParts.RightArm);
+        await GetRobotPart(robotParts.LeftLeg);
+        await GetRobotPart(robotParts.LeftArm);
+        await GetRobotPart(robotParts.RightLeg);
+        await GetRobotPart(robotParts.Head);
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
     }
     protected async Task GetSpecificProductAsync(string category)
@@ -303,6 +300,7 @@ else
             pictures[(int)selectedProduct.Category] = selectedProduct.Picture;
             names[(int)selectedProduct.Category] = selectedProduct.Name;
             prices[(int)selectedProduct.Category] = selectedProduct.Price;
+
             await Task.Yield();
         }
 

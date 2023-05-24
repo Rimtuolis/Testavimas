@@ -1,4 +1,6 @@
-﻿namespace PSA.Shared
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PSA.Shared
 {
     public class Product
     {
@@ -17,15 +19,29 @@
         //public int Fk_Tiekejasid_Tiekejas { get; set; }
 
         public int Id { get; set; }
+        [Required]
         public string? Name { get; set; }
+        [Required]
         public string? Description { get; set; }
+        [Required]
+        [Range(0, double.MaxValue, ErrorMessage = "Please enter valid double Number")]
         public double Price { get; set; }
+        [Required]
         public string? Picture { get; set; }
+        [Required]
         public int? Category { get; set; }
+        [Required]
         public int Material { get; set; }
+        [Required]
         public int? Connection { get; set; }
+        [Required]
+        [Range(0, 10, ErrorMessage = "Please enter valid integer Number")]
         public int Attack { get; set; }
+        [Required]
+        [Range(0, 10, ErrorMessage = "Please enter valid integer Number")]
         public int Defense { get; set; }
+        [Required]
+        [Range(0, 10, ErrorMessage = "Please enter valid integer Number")]
         public int Speed { get; set; }
         public int? Quantity { get; set; }
 

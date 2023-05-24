@@ -5,6 +5,7 @@
 @using Microsoft.Extensions.Logging
 @inject HttpClient Http
 @inject NavigationManager NavManager
+@inject IJSRuntime JS
 
 <PageTitle>Product Creation</PageTitle>
 
@@ -27,6 +28,57 @@
         <label for="Picture"><b>Product picture</b></label>
         <input class="form-control" id="Picture" @bind="@product.Picture" placeholder="Picture" type="text" name="Picture">
     </div>
+    <div>
+        <label>
+            Material:
+            <InputSelect @bind-Value="product.Material">
+                <option selected="selected" value="">Select a Material</option>
+                <option value="1">Steel</option>
+                <option value="2">Aluminum</option>
+                <option value="4">Polycarbonate</option>
+                <option value="5">PVC</option>
+                <option value="6">Titanium</option>
+            </InputSelect>
+        </label>
+    </div>
+    <div>
+        <label>
+            Connection:
+            <InputSelect @bind-Value="product.Connection">
+                <option selected="selected" value="">Select a Connection</option>
+                <option value="1">A</option>
+                <option value="2">B</option>
+                <option value="3">C</option>
+                <option value="4">D</option>
+            </InputSelect>
+        </label>
+    </div>
+    <div>
+        <label>
+            Category:
+            <InputSelect @bind-Value="product.Category">
+                <option selected="selected" value="">Select a Category</option>
+                <option value="2">Right Leg</option>
+                <option value="3">Head</option>
+                <option value="4">Left Arm</option>
+                <option value="5">Right Arm</option>
+                <option value="6">Left Leg</option>
+                <option value="7">Body</option>
+            </InputSelect>
+        </label>
+    </div>
+    <div class="col-2">
+        <label for="Attack"><b>Attack</b></label>
+        <input type="text" @bind="@product.Attack" class="form-control" id="Attack" placeholder="Attack">
+    </div>
+    <div class="col-2">
+        <label for="Defense"><b>Defense</b></label>
+        <input type="text" @bind="@product.Defense" class="form-control" id="Defense" placeholder="Defense">
+    </div>
+    <div class="col-2">
+        <label for="Speed"><b>Speed</b></label>
+        <input type="text" @bind="@product.Speed" class="form-control" id="Speed" placeholder="Speed">
+    </div>
     <button type="submit" class="btn">Kurti produktą</button>
 </EditForm>
 
@@ -40,6 +92,12 @@
 
     public async Task HandleValidSubmit()
     {
+        bool result = !price.Any(x => char.IsLetter(x));
+        if (!result)
+        {
+            await JS.InvokeVoidAsync("alert", "Invalid form");          
+            NavManager.NavigateTo("/products", forceLoad: true);
+        }
         product.Price = Convert.ToDouble(price);
         await Http.PostAsJsonAsync("api/Products", product);
         NavManager.NavigateTo("/products", forceLoad: true);
