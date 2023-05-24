@@ -1,0 +1,84 @@
+﻿@page "/orders/vieworders"
+@inject HttpClient Http
+@using PSA.Shared
+
+<PageTitle>Active Orders</PageTitle>
+
+
+@if (_orders == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Price</td>
+                                <td>Client</td>
+                                <td>Order state</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @foreach(OrderDto order in _orders)
+                            {
+                                <tr>
+                                    <td>@order.Id_Uzsakymas</td>
+                                    <td>@order.Suma</td>
+                                    <td>@GetClientName(order.fk_user_id)</td>
+                                    <td>@order.Busena</td>
+                                    <td>
+                                        <a class="btn btn-primary" href="/orders/vieworder/@order.Id_Uzsakymas">View</a>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-primary" href="/orders/editorder/@order.Id_Uzsakymas">Edit</a>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary" @onclick="() => RemoveOrder(order.Id_Uzsakymas)">Remove</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public int? id { get; set; }
+    private List<OrderDto>? _orders;
+    private CurrentUser? _cuser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _orders = await Http.GetFromJsonAsync<List<OrderDto>>($"api/orders");
+        _cuser = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+
+    }
+
+    public string GetClientName(int cuserId)
+    {
+        //CurrentUser? cuser = _cuser?.FirstOrDefault(c => c.Id == cuserId);
+        if (_cuser is not null)
+            return _cuser.Username + " " + _cuser.Email;
+        return string.Empty;
+    }
+
+    public async Task RemoveOrder(int orderId)
+    {
+        await Http.DeleteAsync($"api/Client/{orderId}");
+
+        _orders = _orders?.Where(order => order.Id_Uzsakymas != orderId).ToList();
+    }
+}

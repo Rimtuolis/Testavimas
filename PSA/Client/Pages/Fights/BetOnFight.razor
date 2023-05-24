@@ -1,0 +1,121 @@
+﻿@page "/fights/betonfight/{fightId:int}"
+@using PSA.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Globalization;
+@using Microsoft.Extensions.Logging
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<section class="cart_area section_padding">
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <td>
+                                Nickname
+                            </td>
+                            <td>
+                                Wins
+                            </td>
+                            <td>
+                                Losses
+                            </td>
+                            <td>
+                                Draws
+                            </td>
+                            <td>
+                                Coefficient
+                            </td>
+                        </tr>
+                        @for (int i = 0; i<2; i++)
+                        {
+                            <tr>
+                                <td>
+                                    @robots.ElementAt(i).Nickname
+                                </td>
+                                <td>
+                                    @robots.ElementAt(i).Wins
+                                </td>
+                                <td>
+                                    @robots.ElementAt(i).Losses
+                                </td>
+                                <td>
+                                    @robots.ElementAt(i).Draws
+                                </td>
+                                <td>
+                                    @coefficients.ElementAt(i)
+                                </td>
+                            </tr> 
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<EditForm Model="@bet" OnValidSubmit="@HandleValidSubmit">
+    <div class="container">
+        <div class="cart_inner">
+            <div class="mb-3 col-7">
+                <label for="amount"><b>Amount</b></label>
+                <input class="form-control" id="amount" @bind="@bet.Amount" name="amount" type="number" required>
+            </div>
+            <div>
+                <label for="robots"><b>Choose robot</b></label>
+                <select name="robots" id="robots">
+                  <option value="@fight.fk_robot1">@robot1.Nickname</option>
+                  <option value="@fight.fk_robot2">@robot2.Nickname</option>
+                </select>
+            </div>
+            <button type="submit" class="btn">Bet</button>
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public int fightId { get; set; }
+
+    private List<Double> coefficients = new List<Double>();
+    public double coefficient1, coefficient2;
+    private Bet bet = new Bet();
+    private Robot? robot1, robot2;
+    private List<Robot> robots = new List<Robot>();
+    private Fight? fight;
+
+    protected override async Task OnInitializedAsync()
+    {
+        fight =  await Http.GetFromJsonAsync<Fight>($"api/Fights/{fightId}");
+        if (fight is not null)
+        {
+            robot1 = await Http.GetFromJsonAsync<Robot>($"api/Robots/{fight.fk_robot1}");
+            robot2 = await Http.GetFromJsonAsync<Robot>($"api/Robots/{fight.fk_robot2}");
+            if(robot1 is not null)
+            {
+                robots.Add(robot1);
+                coefficient1 = ((double)robot1.Wins / (double)robot1.Losses);
+                coefficients.Add(coefficient1);
+            }
+            if(robot2 is not null)
+            {
+                robots.Add(robot2);
+                coefficient2 = ((double)robot2.Wins / (double)robot2.Losses);
+                coefficients.Add(coefficient2);
+            }
+        }
+
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        bet.fk_fight = fightId;
+        await Http.PostAsJsonAsync("api/Bets", bet);
+        NavManager.NavigateTo("/Tournaments", forceLoad: true);
+    }
+}
+

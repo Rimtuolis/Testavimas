@@ -1,0 +1,66 @@
+﻿@page "/products/create"
+@using PSA.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Microsoft.Extensions.Logging
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Product Creation</PageTitle>
+
+
+
+<EditForm Model="@product" OnValidSubmit="@HandleValidSubmit">
+    <div class="mb-3 col-7">
+        <label for="Name"><b>Product name</b></label>
+        <input class="form-control" id="Name" @bind="@product.Name" placeholder="Name" type="text" name="Name" required>
+    </div>
+    <div class="mb-3">
+        <label for="Description"><b>Product description</b></label>
+        <textarea class="form-control" id="Description" @bind="@product.Description" placeholder="Description" name="Description" required></textarea>
+    </div>
+    <div class="col-2">
+        <label for="Price"><b>Price</b></label>
+        <input type="text" @bind="@price" class="form-control" id="Price" placeholder="Price">
+    </div>
+    <div class="mb-3">
+        <label for="Picture"><b>Product picture</b></label>
+        <input class="form-control" id="Picture" @bind="@product.Picture" placeholder="Picture" type="text" name="Picture">
+    </div>
+    <button type="submit" class="btn">Kurti produktą</button>
+</EditForm>
+
+
+
+
+
+@code {
+    private Product product = new Product();
+    private string price = "";
+
+    public async Task HandleValidSubmit()
+    {
+        product.Price = Convert.ToDouble(price);
+        await Http.PostAsJsonAsync("api/Products", product);
+        NavManager.NavigateTo("/products", forceLoad: true);
+    }
+
+
+    //private void HandleValidSubmit()
+    //{
+    //    PrettyWrite(product, product.title + ".json");
+    //}
+
+    //private static readonly JsonSerializerOptions _options =
+    //new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+    //public static void PrettyWrite(object obj, string fileName)
+    //{
+    //    var options = new JsonSerializerOptions(_options)
+    //    {
+    //        WriteIndented = true
+    //    };
+    //    var jsonString = JsonSerializer.Serialize(obj, options);
+    //    File.WriteAllText(fileName, jsonString);
+    //}
+}

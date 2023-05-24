@@ -1,0 +1,52 @@
+﻿@page "/profiles/balance"
+@inject IJSRuntime JS
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@using PSA.Shared
+<PageTitle>Add balance</PageTitle>
+
+<div class="row justify-content-center align-content-center">
+    <div class="col-lg-8">
+        <div class="mb-3">
+            <label for="balance"><b>Add funds</b></label>
+            <input class="form-control" @bind="@num" placeholder="Enter value" name="balance" required>
+        </div>
+
+        <button class="btn btn-primary" @onclick="HandleBalance">Add balance</button>
+    </div>
+</div>
+
+@code {
+    //USE OF API?
+    private CurrentUser? currentUser;
+    private string num = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await Http.GetFromJsonAsync<CurrentUser?>("api/currentuser");
+    }
+
+    public async void HandleBalance()
+    {
+        double val = 0;
+        bool err = false;
+        try
+        {
+            val = Convert.ToDouble(num);
+        }
+        catch (Exception)
+        {
+            err = true;
+            //Write to index.html
+            await JS.InvokeVoidAsync("useAlert", "Not a valid number!");
+        }
+
+        if (!err && currentUser is not null)
+        {
+            currentUser.balance += val;
+            await Http.PutAsJsonAsync($"api/balance/{currentUser.Id}", currentUser);
+            await JS.InvokeVoidAsync("useAlert", $"Your balance has been updated\nNew balance: {currentUser.balance}");
+            NavManager.NavigateTo("/profiles/balance", forceLoad: true);
+        }
+    }
+}
