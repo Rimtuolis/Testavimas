@@ -1,0 +1,126 @@
+﻿@page "/fightsHistory"
+@using PSA.Shared
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+
+<h1>All Robot fights</h1>
+
+
+@if (robots == null)
+{
+    <p>No robots available.</p>
+}
+else
+{
+    <br>
+    <div class="BUTTON">
+        @if (!statistics)
+        {
+            <button class="editPartsButton" @onclick="() => ShowStatistics()">Show Statistics</button>
+        }
+        else
+        {
+            <button class="editPartsButton" @onclick="() => HideStatistics()">Hide Statistics</button>
+        }
+    </div>
+
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Name</td>
+                    <td>Wins</td>
+                    <td>Losses</td>
+                    <td>Draws</td>
+                    @if (statistics)
+                    {
+                        <td>Statistics</td>
+                    }
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (Robot robot in robots)
+                {
+
+                    maxStats = robot.Wins + robot.Losses + robot.Draws;
+                    stats = maxStats - robot.Losses;
+                    stats = Math.Abs(stats);
+                    if (maxStats > 0)
+                    {
+                        CountedStats = (stats * 100) / maxStats;
+                    }
+                    else
+                    {
+                        CountedStats = 0;
+                    }
+
+                    <tr>
+                        <td>@robot.Id</td>
+                        <td>@robot.Nickname</td>
+                        <td>@robot.Wins</td>
+                        <td>@robot.Losses</td>
+                        <td>@robot.Draws</td>
+                        @if (statistics)
+                        {
+                            @if (CountedStats == 0)
+                            {
+                                <td>No data</td>
+                            }
+                            else if (CountedStats <= 20)
+                            {
+                                <td>Terrible</td>
+                            }
+                            else if (CountedStats > 20 && CountedStats <= 50)
+                            {
+                                <td>Below Average</td>
+                            }
+                            else if (CountedStats > 50 && CountedStats <= 70)
+                            {
+                                <td>Very good</td>
+                            }
+                            else if (CountedStats > 70 && CountedStats <= 100)
+                            {
+                                <td>Perfect</td>
+                            }
+                        }
+                    </tr>
+
+
+                }
+
+            </tbody>
+
+        </table>
+
+
+    </div>
+}
+
+
+@code {
+    public double CountedStats = 0;
+    double maxStats = 0;
+    double stats = 0;
+    bool statistics = false;
+    private List<Robot>? robots;
+    protected override async Task OnInitializedAsync()
+    {
+        robots = await Http.GetFromJsonAsync<List<Robot>?>($"api/robots/get/getAll");
+        
+        StateHasChanged();
+    }
+    public void ShowStatistics()
+    {
+        statistics = true;
+
+    }
+    public void HideStatistics()
+    {
+        statistics = false;
+
+    }
+}

@@ -22,9 +22,7 @@ else
                                 <td>Price</td>
                                 <td>Client</td>
                                 <td>Order state</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                            
                             </tr>
                         </thead>
                         <tbody class="table-group-divider">
@@ -35,7 +33,7 @@ else
                                     <td>@order.Suma</td>
                                     <td>@GetClientName(order.fk_user_id)</td>
                                     <td>@order.Busena</td>
-                                    <td>
+                                    @*<td>
                                         <a class="btn btn-primary" href="/orders/vieworder/@order.Id_Uzsakymas">View</a>
                                     </td>
                                     <td>
@@ -43,7 +41,7 @@ else
                                     </td>
                                     <td>
                                         <button class="btn btn-primary" @onclick="() => RemoveOrder(order.Id_Uzsakymas)">Remove</button>
-                                    </td>
+                                    </td>*@
                                 </tr>
                             }
                         </tbody>
