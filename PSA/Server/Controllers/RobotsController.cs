@@ -26,6 +26,11 @@ namespace PSA.Server.Controllers
         {
 			return await _databaseOperationsService.ReadListAsync<Robot>($"SELECT * FROM robotas WHERE fk_user_id = {_currentUserService.GetUser().Id}");
 		}
+        [HttpGet("reikia/id")]
+        public async Task<Robot?> Getid(int id)
+        {
+            return await _databaseOperationsService.ReadItemAsync<Robot?>($"SELECT * FROM robotas where fk_user_id = {_currentUserService.GetUser().Id}");
+        }
         // Gets tournament by ID
         // GET api/<TournamentsController>/5
         [HttpGet("{id}")]
