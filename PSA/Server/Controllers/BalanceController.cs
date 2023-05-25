@@ -26,7 +26,7 @@ namespace PSA.Server.Controllers
         [HttpPut("{id}")]
         public async void Put(int id, [FromBody] CurrentUser user)
         {
-            await _databaseOperationsService.ExecuteAsync($"update user set balance = {user.balance} where id_User = {id}");
+            await _databaseOperationsService.ExecuteAsync($"update user set balance = '{user.balance}' where id_User = {id}");
             _currentUserService.SetUser(user);
         }
 

@@ -1,5 +1,200 @@
-﻿<h3>Betting</h3>
+﻿@page "/betting"
+@using PSA.Shared
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<h3>Betting</h3>
+
+@if (swipeFights != null) {
+    <h1 style="text-align: center">Fights from swipe</h1>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table table-striped" width='100%'>
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <td>
+                                Date
+                            </td>
+                            <td>
+                                First robot name
+                            </td>
+                            <td>
+                                Coef. 1
+                            </td>
+                            <td>
+                                Coef. 2
+                            </td>
+                            <td>
+                                Second robot name
+                            </td>
+                        </tr>
+
+                        @foreach (Fight fight in swipeFights)
+                        {
+                            <tr>
+                                <td>
+                                    @fight.date
+                                </td>
+                                <td>
+                                    @GetName(fight.fk_robot1)
+                                </td>
+                                <td>
+                                    <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot1)">@CalculateCoef(fight, fight.fk_robot1)</button>
+                                </td>
+                                <td>
+                                    <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot1)">@CalculateCoef(fight, fight.fk_robot2)</button>
+                                </td>
+                                <td>
+                                    @GetName(fight.fk_robot2)
+                                </td>
+                                <td>
+                                </td>
+                            </tr>
+                            <tr>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+@if (tournaments != null) { 
+    @foreach (var tourney in tournaments) { 
+        <h1 style="text-align: center">@tourney.Name</h1>
+        <h2 style ="text-align: center">@tourney.Prize €</h2>
+        <h3 style="text-align: center">@tourney.Organiser</h3>
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table table-striped" width='100%'>
+                        <tbody class="table-group-divider">
+                            <tr>
+                                <td>
+                                    Date
+                                </td>
+                                <td>
+                                    First robot name
+                                </td>
+                                <td>
+                                    Coef. 1
+                                </td>
+                                <td>
+                                    Coef. 2
+                                </td>
+                                <td>
+                                    Second robot name
+                                </td>
+                            </tr>
+
+
+                            @foreach (Fight fight in tournamentFights[tourney.Id])
+                            {
+                                <tr>
+                                    <td>
+                                        @fight.date
+                                    </td>
+                                    <td>
+                                        @GetName(fight.fk_robot1)
+                                    </td>
+                                    <td>
+                                        <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot1)">@CalculateCoef(fight, fight.fk_robot1)</button>
+                                    </td>
+                                    <td>
+                                        <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot1)">@CalculateCoef(fight, fight.fk_robot2)</button>
+                                    </td>
+                                    <td>
+                                        @GetName(fight.fk_robot2)
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                                <tr>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+    }
+
+
+}
+
+
+
+
+
 
 @code {
 
+    private List<Fight> swipeFights;
+    private List<Robot> robots;
+    private List<Tournament> tournaments;
+    private Dictionary<int, List<Fight>> tournamentFights = new Dictionary<int, List<Fight>>();
+    private List<Bet> allBets;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        swipeFights = await Http.GetFromJsonAsync<List<Fight>>($"api/fights/swipefights");
+        robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robots/allrobots");
+        tournaments = await Http.GetFromJsonAsync<List<Tournament>>("api/Tournaments");
+        allBets = await Http.GetFromJsonAsync<List<Bet>>("api/bets/active");
+        await LoadFights();
+        StateHasChanged();
+    }
+
+    private string GetName(int fk_robot) {
+        foreach (var robot in robots)
+        {
+            if (robot.Id == fk_robot) {
+                return robot.Nickname;
+            }
+        }
+        return "No name";
+    }
+
+    private async Task LoadFights()
+    {
+        foreach (Tournament tournament in tournaments)
+        {
+            List<Fight> fights = await Http.GetFromJsonAsync<List<Fight>>($"api/fights/tourneyfights/{tournament.Id}");
+            tournamentFights[tournament.Id] = fights;
+        }
+    }
+    private void GoToBet(Fight fight, int fk_robot) {
+        string temp = CalculateCoef(fight, fk_robot);
+        double coef = Double.Parse(temp);
+
+        NavManager.NavigateTo($"/betting/{fight.id}/{fk_robot}/{coef}", forceLoad: true);
+    }
+    private string CalculateCoef(Fight fight, int fk_robot) {
+        double all_sum = 0;
+        double sum = 0;
+        double coef = 2;
+        foreach (var bet in allBets) {
+            if (bet.fk_fight_id == fight.id) {
+                all_sum += bet.Amount;
+                if (bet.fk_robot_id == fk_robot) {
+                    sum += bet.Amount;
+                }
+            }
+        }
+
+        if (sum == 0) {
+            sum += 1;
+        }
+        if (all_sum == 0) {
+            all_sum += 2;
+        }
+        coef = all_sum / sum;
+        Console.WriteLine($"{coef}");
+        return coef.ToString();
+    }
 }

@@ -1,5 +1,16 @@
-﻿<h3>ViewBets</h3>
+﻿@page "/betting/bets"
+
+<h3>ViewBets</h3>
+
+
 
 @code {
 
+
+    protected override async Task OnInitializedAsync()
+    {
+
+
+        StateHasChanged();
+    }
 }

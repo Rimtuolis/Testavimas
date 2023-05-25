@@ -25,8 +25,7 @@ namespace PSA.Server.Controllers
         {
             return await _databaseOperationsService.ReadListAsync<Fight>($"select * from kova where fk_robot1 = {robotId} or fk_robot2 = {robotId}");
         }
-
-        [HttpGet("maxid")]
+		[HttpGet("maxid")]
         public async Task<int?> GetMaxId()
         {
             return await _databaseOperationsService.ReadItemAsync<int?>($"select max(id) from kova");
@@ -47,7 +46,19 @@ namespace PSA.Server.Controllers
             return await _databaseOperationsService.ReadListAsync<Fight?>($"SELECT kova.date, kova.winner, kova.id, kova.state, kova.fk_robot1, kova.fk_robot2 FROM kova join turnyro_kova on kova.id = turnyro_kova.fk_kova where turnyro_kova.fk_turnyras = {id} and kova.date <= '{myDateTimeString}'");
         }
 
-        [HttpPut]
+		[HttpGet("swipefights")]
+		public async Task<IEnumerable<Fight>?> GetSwipeFights()
+		{
+			return await _databaseOperationsService.ReadListAsync<Fight?>($"SELECT * FROM kova where id not in (select fk_kova from turnyro_kova) and state = 2");
+		}
+
+		[HttpGet("tourneyfights/{id}")]
+		public async Task<IEnumerable<Fight>?> GetTournamentFights(int id)
+		{
+            Console.WriteLine("KEK ");
+			return await _databaseOperationsService.ReadListAsync<Fight?>($"SELECT kova.date, kova.winner, kova.id, kova.state, kova.fk_robot1, kova.fk_robot2 FROM kova join turnyro_kova on kova.id = turnyro_kova.fk_kova where turnyro_kova.fk_turnyras = {id} and kova.state = 2");
+		}
+		[HttpPut]
         public async Task Put([FromBody] Fight fight)
         {
             await _databaseOperationsService.ExecuteAsync($"update kova set state = {fight.state}, winner = {fight.winner} where id = {fight.id}");
