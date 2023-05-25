@@ -14597,25 +14597,62 @@ input:focus {
 
 
 
-.buttonContainer {
-    margin-top: 10px; /* Adjust the spacing between buttons and content */
-    text-align: center;
+
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px; /* Optional: Adds spacing between button rows */
 }
 
-.editButton,
+
+
 .selectButton {
-    background-color: #4CAF50;
+    background-color: #187db0;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 10px 10px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     font-size: 16px;
     margin-right: 5px; /* Adjust the spacing between buttons */
 }
-.selectButton {
-    background-color: #008CBA;
+
+.editButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-right: 5px; /* Adjust the spacing between buttons */
+}
+
+.editPartsButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-right: 5px; /* Adjust the spacing between buttons */
+}
+
+.viewButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline;
+    font-size: 14px;
+/* Adjust the spacing between buttons */
 }
 
 

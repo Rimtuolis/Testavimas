@@ -55,7 +55,7 @@ namespace PSA.Server.Controllers
         [HttpPost]
         public async Task Create([FromBody] Fight fight)
         {
-			string myDateTimeString = fight.date.ToString("yyyy-MM-dd hh:mm:ss");
+			string myDateTimeString = fight.date.ToString("yyyy-MM-dd HH:mm:ss");
             await _databaseOperationsService.ExecuteAsync($"insert into kova(date, winner, state, fk_robot1, fk_robot2) values('{myDateTimeString}',0, 1, '{fight.fk_robot1}', '{fight.fk_robot2}')");
         }
 		[HttpPut("{id}")]
