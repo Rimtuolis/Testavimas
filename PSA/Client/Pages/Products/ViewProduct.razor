@@ -23,7 +23,32 @@ else
                         <p>@product.Description</p>
                         <div class="card_area">
                             <div class="product_count_area">
-                                <p>@product.Price</p>
+                                <p>Price  : </p>
+                                <p>@product.Price € </p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Material  : </p>
+                                <p>@_materials[(int)product.Material]</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Category  : </p>
+                                <p>@_categories[(int)product.Category]</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Connection  : </p>
+                                <p>@_connections[(int)product.Connection]</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Attack  : </p>
+                                <p>@product.Attack</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Defense : </p>
+                                <p>@product.Defense</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Speed : </p>
+                                <p>@product.Speed</p>
                             </div>
                             <div class="add_to_cart">
                                 @if (profile?.LoggedIn == true)
@@ -62,6 +87,9 @@ else
 
     private Product? product;
     private CurrentUser? profile;
+    private string[] _categories = { "a", "bim", "Right Leg", "Head", "Left Arm", "Right Arm", "Left Leg", "Body" };
+    private string[] _materials = { "a", "Steel", "Aluminum", "b", "Polycarbonate", "PVC", "Titanium" };
+    private string[] _connections = { "X", "A", "B", "C" };
 
     protected override async Task OnInitializedAsync()
     {

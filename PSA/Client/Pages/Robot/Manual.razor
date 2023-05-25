@@ -5,6 +5,7 @@
 @using Microsoft.Extensions.Logging
 @inject HttpClient Http
 @inject NavigationManager NavManager
+@inject IJSRuntime JS
 
 <PageTitle>Robot Manual Creation</PageTitle>
 
@@ -223,6 +224,7 @@ else
         <div class="mb-3">
             <label for="Nickname"><b>Robot Name</b></label>
             <input class="form-control" id="Nickname" @bind="@robotParts.Nickname" placeholder="Robot" type="text" name="Nickname">
+            <p>Total cost : @prices.Sum() €</p>
         </div>
         <a class="btn btn-primary" @onclick="() => AddToCart()">Buy and Build</a>
     </div>
@@ -261,6 +263,7 @@ else
     private String[]? pictures = { "", "", "", "", "", "", "", "", "" };
     private String[]? names = { "", "", "", "", "", "", "", "", "" };
     private Double[]? prices = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private int[] connections = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 
 
@@ -273,18 +276,14 @@ else
         }
         //Console.WriteLine(products);
         //Console.WriteLine(products.Length);
-        GetRobotPart(robotParts.Body);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.RightArm);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.LeftLeg);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.LeftArm);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.RightLeg);
-        Thread.Sleep(350);
-        GetRobotPart(robotParts.Head);
-        Thread.Sleep(350);
+        await GetRobotPart(robotParts.Body);
+
+        await GetRobotPart(robotParts.RightArm);
+
+        await GetRobotPart(robotParts.LeftLeg);
+        await GetRobotPart(robotParts.LeftArm);
+        await GetRobotPart(robotParts.RightLeg);
+        await GetRobotPart(robotParts.Head);
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
     }
     protected async Task GetSpecificProductAsync(string category)
@@ -299,44 +298,59 @@ else
             pictures[(int)selectedProduct.Category] = selectedProduct.Picture;
             names[(int)selectedProduct.Category] = selectedProduct.Name;
             prices[(int)selectedProduct.Category] = selectedProduct.Price;
+            connections[(int)selectedProduct.Category] = (int)selectedProduct.Connection;
         }
 
     }
     public async Task AddToCart()
     {
-        await Http.PostAsJsonAsync<Robot>("api/robots/", robotParts);
-        Thread.Sleep(150);
-        if (robotParts.Body != 0)
+        if (robotParts.Body != 0 && robotParts.Head != 0 && robotParts.LeftArm != 0 && robotParts.RightArm != 0 && robotParts.LeftLeg != 0 && robotParts.RightLeg != 0)
         {
-            await Http.PostAsJsonAsync("/api/cart/add", GetRobotPart(robotParts.Body));
+            if (connections[2] == connections[3] && connections[2] == connections[4] && connections[2] == connections[5] && connections[2] == connections[6] && connections[2] == connections[7])
+            {
+                await Http.PostAsJsonAsync<Robot>("api/robots/", robotParts);
+                if (robotParts.Body != 0)
+                {
+                    selectedProduct = await Http.GetFromJsonAsync<Product>($"api/robots/parts/{robotParts.Body}");
+                    await Http.PostAsJsonAsync("/api/cart/add", selectedProduct);
+                }
+
+                if (robotParts.Head != 0)
+                {
+                    selectedProduct = await Http.GetFromJsonAsync<Product>($"api/robots/parts/{robotParts.Head}");
+                    await Http.PostAsJsonAsync("/api/cart/add", selectedProduct);
+                }
+                if (robotParts.LeftArm != 0)
+                {
+                    selectedProduct = await Http.GetFromJsonAsync<Product>($"api/robots/parts/{robotParts.LeftArm}");
+                    await Http.PostAsJsonAsync("/api/cart/add", selectedProduct);
+                }
+                if (robotParts.RightArm != 0)
+                {
+                    selectedProduct = await Http.GetFromJsonAsync<Product>($"api/robots/parts/{robotParts.RightArm}");
+                    await Http.PostAsJsonAsync("/api/cart/add", selectedProduct);
+                }
+                if (robotParts.LeftLeg != 0)
+                {
+                    selectedProduct = await Http.GetFromJsonAsync<Product>($"api/robots/parts/{robotParts.LeftLeg}");
+                    await Http.PostAsJsonAsync("/api/cart/add", selectedProduct);
+                }
+                if (robotParts.RightLeg != 0)
+                {
+                    selectedProduct = await Http.GetFromJsonAsync<Product>($"api/robots/parts/{robotParts.RightLeg}");
+                    await Http.PostAsJsonAsync("/api/cart/add", selectedProduct);
+                }
+                NavManager.NavigateTo("/cart/", forceLoad: true);
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("alert", "Connection doesn't match");
+            }
         }
-        Thread.Sleep(150);
-        if (robotParts.Head != 0)
+        else
         {
-            await Http.PostAsJsonAsync("/api/cart/add", GetRobotPart(robotParts.Head));
+            await JS.InvokeVoidAsync("alert", "Not all parts were selected");
         }
-         Thread.Sleep(150);
-        if (robotParts.LeftArm != 0)
-        {
-            await Http.PostAsJsonAsync("/api/cart/add", GetRobotPart(robotParts.LeftArm));
-        }
-        Thread.Sleep(150);
-        if (robotParts.RightArm != 0)
-        {
-            await Http.PostAsJsonAsync("/api/cart/add", GetRobotPart(robotParts.RightArm));
-        }
-        Thread.Sleep(150);
-        if (robotParts.LeftLeg != 0)
-        {
-            await Http.PostAsJsonAsync("/api/cart/add", GetRobotPart(robotParts.LeftLeg));
-        }
-        Thread.Sleep(150);
-        if (robotParts.RightLeg != 0)
-        {
-            await Http.PostAsJsonAsync("/api/cart/add", GetRobotPart(robotParts.RightLeg));
-        }
-        Thread.Sleep(150);
-        NavManager.NavigateTo("/cart/", forceLoad: true);
     }
     //public async Task HandleValidSubmit()
     //{

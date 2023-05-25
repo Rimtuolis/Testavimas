@@ -25,41 +25,115 @@ else
                 <div class="buttonContainer">
                     <button class="editButton" @onclick="() => EditCard(card)">Edit</button>
                     <button class="selectButton" @onclick="() => Swipe(card.fk_robot)">Swipe</button>
-                    <button class="selectButton" @onclick="() => Select(card.fk_robot)">View matches</button>
+                    <button class="viewButton" @onclick="() => Select(card.fk_robot)">View <br>matches</button>
+                    <button class="editPartsButton" @onclick="() => EditParts(card.fk_robot)">Edit parts</button>
                 </div>
             </div>
         }
+    </div>
+   
+        <br>
+    
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Name</td>
+                    <td>Wins</td>
+                    <td>Losses</td>
+                    <td>Draws</td>
+                    <td>Statistics</td>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var robots1 in robots)
+                {
+
+                    maxStats = robots1.Wins + robots1.Losses + robots1.Draws;
+                    stats = maxStats - robots1.Losses;
+                    stats = Math.Abs(stats);
+                    if (maxStats > 0)
+                    {
+                        CountedStats = (stats * 100) / maxStats;
+                    }
+                    else
+                    {
+                        CountedStats = 0;
+                    }
+
+                    <tr>
+                        <td>@robots1.Id</td>
+                        <td>@robots1.Nickname</td>
+                        <td>@robots1.Wins</td>
+                        <td>@robots1.Losses</td>
+                        <td>@robots1.Draws</td>
+                        @if (CountedStats == 0)
+                        {
+                            <td>No data</td>
+                        }
+                        else if (CountedStats <= 20)
+                        {
+                            <td>Terrible</td>
+                        }
+                        else if (CountedStats > 20 && CountedStats <= 50)
+                        {
+                            <td>Below Average</td>
+                        }
+                        else if (CountedStats > 50 && CountedStats <= 70)
+                        {
+                            <td>Very good</td>
+                        }
+                        else if (CountedStats > 70 && CountedStats <= 100)
+                        {
+                            <td>Perfect</td>
+                        }
+                    </tr>
+
+
+                }
+
+            </tbody>
+
+        </table>
+
+
     </div>
 }
 
 
 @code {
+    public double CountedStats = 0;
+    double maxStats = 0;
+    double stats = 0;
+
     List<SwipeCard> Cards = new List<SwipeCard>();
+    List<RobotDto> robots = new List<RobotDto>();
     protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine("Pirmas Robot");
-        List<Robot> robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robots");
-        foreach (Robot robot in robots)
+ 
+        robots = await Http.GetFromJsonAsync<List<RobotDto>>($"api/robots");
+        foreach (RobotDto robot in robots)
         {
             if (robot != null)
             {
-                Console.WriteLine("Antras Robot");
                 SwipeCard card = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
-                Console.WriteLine("Trecias Robot");
                 if (card != null && !card.Description.Equals("Empty"))
                 {
                     card.Description = robot.Nickname;
                     Cards.Add(card);
                 }
-                else {
-                    await Http.PostAsJsonAsync<Robot>($"/card", robot);
+                else
+                {
+                    await Http.PostAsJsonAsync<RobotDto>($"/card", robot); //robotDTO in controller
                     SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
                     temp.Description = robot.Nickname;
                     Cards.Add(temp);
                 }
 
-                
-                
+
+
             }
         }
         StateHasChanged();
@@ -75,5 +149,19 @@ else
     private void Select(int robotId)
     {
         NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
+    }
+    public async Task EditParts(int id)
+    {
+        List<RobotPart> robotParts = await Http.GetFromJsonAsync<List<RobotPart>>($"api/robotDto/{id}");
+        foreach (var robot in robots)
+        {
+            if (robot.Id == id)
+            {
+                robot.Parts = robotParts;
+                NavManager.NavigateTo($"/robot/Edit/{id}", forceLoad: true);
+            }
+
+        }
+
     }
 }

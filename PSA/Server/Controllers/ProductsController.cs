@@ -53,7 +53,7 @@ namespace PSA.Server.Controllers
             //    $"{index}, {product.Fk_Tiekejasid_Tiekejas})");
             if (string.IsNullOrEmpty(product.Picture))
                 product.Picture = "https://t4.ftcdn.net/jpg/04/70/29/97/360_F_470299797_UD0eoVMMSUbHCcNJCdv2t8B2g1GVqYgs.jpg";
-            await _databaseOperationsService.ExecuteAsync($"insert into preke(Name, Description, Price, Picture) values('{product.Name}', '{product.Description}', {product.Price}, '{product.Picture}')");
+            await _databaseOperationsService.ExecuteAsync($"insert into preke(Name, Description, Price, Picture, Material, Connection, Category, Attack, Defense, Speed) values('{product.Name}', '{product.Description}', {product.Price}, '{product.Picture}',{product.Material}, {product.Connection}, {product.Category}, {product.Attack}, {product.Defense}, {product.Speed})");
         }
 
         // updates record of product in DB by ID

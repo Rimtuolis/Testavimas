@@ -38,24 +38,68 @@ else
 
 
     </div>
-    <Modal @ref="modalRef">
+@*    <Modal @ref="modalRef">
         <ModalContent Centered>
             <ModalHeader>
                 <ModalTitle>IT IS A "MATCH"</ModalTitle>
                 <CloseButton />
             </ModalHeader>
             <ModalBody>
-                <Field>
-                    <FieldLabel>Select date</FieldLabel>
-                    <DatePicker @bind-Date="@selectedDate" TValue="DateTime?" InputMode="DateInputMode.DateTime" Placeholder="@today" TimeAs24hr="true" SelectionMode="DateInputSelectionMode.Single" />
-                </Field>
+                <Validations @ref="validations" Mode="ValidationMode.Manual" ValidateOnLoad="false">
+                    <Validation Validator="@ValidationRule.IsNotEmpty">
+                        <Field>
+                            <FieldLabel>Select match date</FieldLabel>
+                            <FieldBody>
+                                <DatePicker @bind-Date="@selectedDate" TimeAs24hr="true">
+                                    <Feedback>
+                                        <ValidationError />
+                                    </Feedback>
+                                </DatePicker>
+                            </FieldBody>
+                        </Field>
+                    </Validation>
+                    <Button Color="Color.Primary" Clicked="@CreateFight">Submit</Button>
+                </Validations>
 
             </ModalBody>
-            <ModalFooter>
-            <Button Color="Color.Primary" Clicked="@HideModal">FIGHT</Button>
-            </ModalFooter>
+
         </ModalContent>
-    </Modal>
+    </Modal>*@
+            <Modal @ref="modalRef">
+            <ModalContent Centered>
+                <ModalHeader>
+                    <ModalTitle>IT IS A "MATCH"</ModalTitle>
+                    <CloseButton />
+                </ModalHeader>
+                <ModalBody>
+                    <Validations @ref="validations" Mode="ValidationMode.Manual" ValidateOnLoad="false">
+                    <Validation Validator="ValidateCheck">
+                            <Field>
+                                <FieldLabel>Select match date</FieldLabel>
+                                <FieldBody>
+                                    <DatePicker @bind-Date="@selectedDate" TValue="DateTime?" InputMode="DateInputMode.DateTime" Placeholder="@today" TimeAs24hr="true">
+                                        <Feedback>
+                                            <ValidationError />
+                                        </Feedback>
+                                    </DatePicker>
+                                </FieldBody>
+                            </Field>
+                        </Validation>
+                        <Button Color="Color.Primary" Clicked="@CreateFight">Submit</Button>
+                    </Validations>
+
+                </ModalBody>
+
+            </ModalContent>
+        </Modal>
+
+
+
+
+    //CUSTOM VALIDATOR
+    //PATTERN
+    //AUTO
+    //Model
 
 }
 
@@ -71,6 +115,8 @@ else
     private bool showDescription;
     private List<SwipeCard> allCards;
     private Modal modalRef;
+    private Validations validations;
+    bool test = true;
 
     private DateTime? selectedDate;
     private string today = DateTime.Now.AddDays(1).ToString();
@@ -79,7 +125,17 @@ else
     {
         selectedDate = value;
     }
+    void ValidateCheck(ValidatorEventArgs e)
+    {
+        Console.WriteLine($"Data pagal validation:  {e.Value.ToString()}");
 
+        e.Status = string.IsNullOrEmpty(Convert.ToString(e.Value))
+     ? ValidationStatus.Error
+     : ValidationStatus.Success;
+
+
+
+    }
     protected override async Task OnInitializedAsync()
     {
 
@@ -123,35 +179,49 @@ else
             if (result)
             {
                 await modalRef.Show();
-                await CreateFight();
+                test = false;
             }
 
         }
-
-        await LoadNextCard();
-        StateHasChanged();
+        if (test)
+        {
+            await LoadNextCard();
+            StateHasChanged();
+        }
     }
 
-    private Task HideModal()
-    {
-        return modalRef.Hide();
-    }
     private async Task CreateFight()
     {
-        Console.WriteLine($"Antras: {selectedDate.ToString()}");
-        Fight fight = new Fight();
-        DateTime UpdatedTime = selectedDate ?? DateTime.Now.AddDays(1);
-        fight.date = UpdatedTime;
-        fight.fk_robot1 = robotId;
+        if (await validations.ValidateAll())
+        {
+            Console.WriteLine($"Data pagal selected: {selectedDate.ToString()}");
 
+            DateTime UpdatedTime = selectedDate ?? DateTime.Now.AddDays(1);
+            Console.WriteLine($"Data pagal selected to string: {UpdatedTime}");
+
+            Fight fight = new Fight();
+            
+            fight.date = UpdatedTime;
+            fight.fk_robot1 = robotId;
+
+            fight.fk_robot2 = currentCard.fk_robot;
+            fight.state = 1;
+            fight.winner = 0;
+
+            await Http.PostAsJsonAsync("api/fights", fight);
+
+            selectedDate = DateTime.Now.AddDays(1);
+
+            await validations.ClearAll();
+            await modalRef.Hide();
+            test = true;
+            await LoadNextCard();
+            StateHasChanged();
+        }
         
-        fight.fk_robot2 = currentCard.fk_robot;
-        fight.state = 1;
-        fight.winner = 0;
 
-        await Http.PostAsJsonAsync("api/fights", fight);
 
-        selectedDate = DateTime.Now.AddDays(1);
+
     }
 }
 

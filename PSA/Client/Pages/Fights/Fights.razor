@@ -28,8 +28,8 @@ else
                             <td>Fight date</td>
                             <td>State</td>
                             <td>Winner</td>
-                            <td>Your Robot</td>
-                            <td>Opponent robot</td>
+                            <td>Robot 1</td>
+                            <td>Robot 2</td>
                                 <td></td>
                             <td></td>
 
@@ -48,12 +48,15 @@ else
                                         <td>@fights.winner</td>
                                         <td>@fights.fk_robot1</td>
                                         <td>@fights.fk_robot2</td>
-                                        <td>
-                                            <button class="btn btn-primary" @onclick="() => HandleState(fights.id)">Accept</button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-primary" @onclick="() => Decline(fights.id)">Decline</button>
-                                        </td>
+                                       
+                                        @if(rototobas.fk_user_id == profile.Id && robotId == fights.fk_robot2){
+                                            <td>
+                                                <button class="btn btn-primary" @onclick="() => HandleState(fights.id)">Accept</button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-primary" @onclick="() => Decline(fights.id)">Decline</button>
+                                            </td>
+                                        }
                                     </tr>
                                   
                                 
@@ -73,8 +76,9 @@ else
                                 <td>Fight date</td>
                                 <td>State</td>
                                 <td>Winner</td>
-                                <td>Your Robot</td>
-                                <td>Opponent robot</td>
+                                <td>Robot 1</td>
+                                <td>Robot 2</td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </thead>
@@ -108,8 +112,9 @@ else
                                 <td>Fight date</td>
                                 <td>State</td>
                                 <td>Winner</td>
-                                <td>Your Robot</td>
-                                <td>Opponent robot</td>
+                                <td>Robot 1</td>
+                                <td>Robot 2</td>
+                                <td></td>
                                 <td></td>
                             </tr>
                         </thead>
@@ -145,6 +150,7 @@ else
     public int robotId { get; set; }
 
     private List<Fight>? fight;
+    private Robot rototobas;
     private List<Robot>? robot;
     private CurrentUser? profile;
     private List<RobotPart>? robotPart;
@@ -153,11 +159,12 @@ else
     {
         fight = await Http.GetFromJsonAsync<List<Fight>?>($"api/fights/view/{robotId}");
         robot = await Http.GetFromJsonAsync<List<Robot>?>("api/robots");
+        rototobas = await Http.GetFromJsonAsync<Robot?>("api/robots/reikia/id");
         robotPart = await Http.GetFromJsonAsync<List<RobotPart>?>("api/robotPart");
         product = await Http.GetFromJsonAsync<List<Product>?>("api/products");
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
 
-
+        
 
         foreach (Fight fights in fight)
         {
@@ -294,13 +301,13 @@ else
         await Http.PutAsJsonAsync($"api/fights/{id}", profile);
         StateHasChanged();
 
-        NavManager.NavigateTo($"/fights", forceLoad: true);
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
         
     }
     public async Task Decline(int id)
     {
         await Http.DeleteAsync($"api/fights/{id}");
-        NavManager.NavigateTo($"/fights", forceLoad: true);
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
         StateHasChanged();
 
     }
