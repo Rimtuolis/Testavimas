@@ -157,6 +157,10 @@ namespace PSA.Server.Controllers
                                 robot.Nickname = "Unable";
                             }
                         }
+                        else
+                        {
+                            robot.Nickname = "Unable";
+                        }
                     }
                     else
                     {
@@ -265,6 +269,10 @@ namespace PSA.Server.Controllers
                             {
                                 robot.Nickname = "Unable";
                             }
+                        }
+                        else
+                        {
+                            robot.Nickname = "Unable";
                         }
                     }
                     else
@@ -448,6 +456,10 @@ namespace PSA.Server.Controllers
                                 robot.Nickname = "Unable";
                             }
                         }
+                        else
+                        {
+                            robot.Nickname = "Unable";
+                        }
                     }
                     else
                     {
@@ -517,6 +529,10 @@ namespace PSA.Server.Controllers
                             {
                                 robot.Nickname = "Unable";
                             }
+                        }
+                        else
+                        {
+                            robot.Nickname = "Unable";
                         }
                     }
                     else
@@ -620,6 +636,10 @@ namespace PSA.Server.Controllers
                             {
                                 robot.Nickname = "Unable";
                             }
+                        }
+                        else
+                        {
+                            robot.Nickname = "Unable";
                         }
                     }
                     else
