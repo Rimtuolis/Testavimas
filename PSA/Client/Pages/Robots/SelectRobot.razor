@@ -33,7 +33,16 @@ else
     </div>
    
         <br>
-    
+    <div class="BUTTON">
+        @if (!statistics){
+            <button class="editPartsButton" @onclick="() => ShowStatistics()">Show Statistics</button>
+        }
+        else
+        {
+            <button class="editPartsButton" @onclick="() => HideStatistics()">Hide Statistics</button>
+        }
+    </div>
+
     <div>
         <table class="table table-striped">
             <thead>
@@ -43,7 +52,10 @@ else
                     <td>Wins</td>
                     <td>Losses</td>
                     <td>Draws</td>
-                    <td>Statistics</td>
+                    @if (statistics)
+                    {
+                        <td>Statistics</td>
+                    }
                 </tr>
             </thead>
 
@@ -69,25 +81,27 @@ else
                         <td>@robots1.Wins</td>
                         <td>@robots1.Losses</td>
                         <td>@robots1.Draws</td>
-                        @if (CountedStats == 0)
-                        {
-                            <td>No data</td>
-                        }
-                        else if (CountedStats <= 20)
-                        {
-                            <td>Terrible</td>
-                        }
-                        else if (CountedStats > 20 && CountedStats <= 50)
-                        {
-                            <td>Below Average</td>
-                        }
-                        else if (CountedStats > 50 && CountedStats <= 70)
-                        {
-                            <td>Very good</td>
-                        }
-                        else if (CountedStats > 70 && CountedStats <= 100)
-                        {
-                            <td>Perfect</td>
+                        @if (statistics){
+                            @if (CountedStats == 0)
+                            {
+                                <td>No data</td>
+                            }
+                            else if (CountedStats <= 20)
+                            {
+                                <td>Terrible</td>
+                            }
+                            else if (CountedStats > 20 && CountedStats <= 50)
+                            {
+                                <td>Below Average</td>
+                            }
+                            else if (CountedStats > 50 && CountedStats <= 70)
+                            {
+                                <td>Very good</td>
+                            }
+                            else if (CountedStats > 70 && CountedStats <= 100)
+                            {
+                                <td>Perfect</td>
+                            }
                         }
                     </tr>
 
@@ -107,12 +121,12 @@ else
     public double CountedStats = 0;
     double maxStats = 0;
     double stats = 0;
-
+    bool statistics= false;
     List<SwipeCard> Cards = new List<SwipeCard>();
     List<RobotDto> robots = new List<RobotDto>();
     protected override async Task OnInitializedAsync()
     {
- 
+
         robots = await Http.GetFromJsonAsync<List<RobotDto>>($"api/robots");
         foreach (RobotDto robot in robots)
         {
@@ -162,6 +176,16 @@ else
             }
 
         }
+
+    }
+    public void ShowStatistics()
+    {
+        statistics = true;
+
+    }
+    public void HideStatistics()
+    {
+        statistics = false;
 
     }
 }
