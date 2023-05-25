@@ -164,7 +164,7 @@ else
         product = await Http.GetFromJsonAsync<List<Product>?>("api/products");
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
 
-        
+
 
         foreach (Fight fights in fight)
         {
@@ -251,12 +251,22 @@ else
                 Console.WriteLine(rnd.ToString());
                 if (fights.winner == 1)
                 {
+                    Bet bet = new Bet();
+                    bet.fk_user_id = profile.Id;
+                    bet.fk_fight_id = fights.id;
+
+                    await Http.PostAsJsonAsync($"api/Bets/{fights.fk_robot1}", bet);
                     await HandleDamage(fights.fk_robot1, 5);
                     await HandleDamage(fights.fk_robot2, 10);
 
                 }
                 else if (fights.winner == 2)
                 {
+                    Bet bet = new Bet();
+                    bet.fk_user_id = profile.Id;
+                    bet.fk_fight_id = fights.id;
+
+                    await Http.PostAsJsonAsync($"api/Bets/{fights.fk_robot2}", bet);
                     await HandleDamage(fights.fk_robot1, 10);
                     await HandleDamage(fights.fk_robot2, 5);
                 }

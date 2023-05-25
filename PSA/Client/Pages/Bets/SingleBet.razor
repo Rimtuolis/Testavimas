@@ -1,4 +1,4 @@
-﻿@page "/betting/{fightId:int}/{robotId:int}/{coef:double}"
+﻿@page "/betting/{fightId:int}/{robotId:int}"
 
 
 @using PSA.Shared
@@ -20,6 +20,9 @@
     </div>
 
 }
+else{
+    <p>Not logged in</p>
+}
 
 
 
@@ -29,9 +32,9 @@
     public int fightId { get; set; }
     [Parameter]
     public int robotId { get; set; }
-    [Parameter]
-    public double coef { get; set; }
 
+    private List<Bet> allBets;
+    double coef = 1;
     private string bet = "";
     private CurrentUser? currentUser;
     private double betAmount = 0;
@@ -39,7 +42,38 @@
     protected override async Task OnInitializedAsync()
     {
         currentUser = await Http.GetFromJsonAsync<CurrentUser?>("api/currentuser");
+        allBets = await Http.GetFromJsonAsync<List<Bet>>("api/bets/active");
+        coef = CalculateCoef(fightId, robotId);
         StateHasChanged();
+    }
+
+    private double CalculateCoef(int fight_id, int fk_robot)
+    {
+        double all_sum = 0;
+        double sum = 0;
+        double coefic = 2;
+        foreach (var bet in allBets)
+        {
+            if (bet.fk_fight_id == fight_id)
+            {
+                all_sum += bet.Amount;
+                if (bet.fk_robot_id == fk_robot)
+                {
+                    sum += bet.Amount;
+                }
+            }
+        }
+
+        if (sum == 0)
+        {
+            sum += 1;
+        }
+        if (all_sum == 0)
+        {
+            all_sum += 2;
+        }
+        coefic = all_sum / sum;
+        return coefic;
     }
 
     public async void HandleBet()
@@ -70,17 +104,13 @@
                 bet.Amount = betAmount;
                 bet.Coefficient = coef;
                 bet.state = 1;
-                HttpResponseMessage response = await Http.PostAsJsonAsync("api/Bets", bet);
+                await Http.PostAsJsonAsync("api/Bets", bet);
+                Console.WriteLine("SEDIM CIA");
+                currentUser.balance -= betAmount;
+                Console.WriteLine($"SEDIM CIA {currentUser.balance}");
+                await Http.PutAsJsonAsync($"api/Bets/balance", currentUser);
+                NavManager.NavigateTo("/betting/bets", forceLoad: true);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    if (currentUser is not null)
-                    {
-                        currentUser.balance -= betAmount;
-                        await Http.PostAsJsonAsync($"api/betting/balance", currentUser);
-                    }
-                    NavManager.NavigateTo("/betting/bets", forceLoad: true);
-                }
             }
         }
     }

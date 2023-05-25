@@ -18,9 +18,13 @@ namespace PSA.Server.Controllers
             _databaseOperationsService = databaseOperationsService;
             _currentUserService = currentUserService;
 		}
-
-        // GET: api/<FightsController>
-        [HttpGet("view/{robotId}")]
+        [HttpGet]
+        public async Task<IEnumerable<Fight>> GetAllCompletedFights (int robotId)
+		{
+			return await _databaseOperationsService.ReadListAsync<Fight>($"select * from kova where state = 3");
+		}
+		// GET: api/<FightsController>
+		[HttpGet("view/{robotId}")]
         public async Task<IEnumerable<Fight>> GetRobotsFights(int robotId)
         {
             return await _databaseOperationsService.ReadListAsync<Fight>($"select * from kova where fk_robot1 = {robotId} or fk_robot2 = {robotId}");
@@ -36,7 +40,6 @@ namespace PSA.Server.Controllers
         [HttpGet("{id}")]
         public async Task<Fight?> Get(int id)
         {
-            Console.WriteLine("NIG");
             return await _databaseOperationsService.ReadItemAsync<Fight?>($"SELECT * FROM kova where id = {id}");
         }
         [HttpGet("todaytournamentfights/{id}")]
@@ -55,7 +58,6 @@ namespace PSA.Server.Controllers
 		[HttpGet("tourneyfights/{id}")]
 		public async Task<IEnumerable<Fight>?> GetTournamentFights(int id)
 		{
-            Console.WriteLine("KEK ");
 			return await _databaseOperationsService.ReadListAsync<Fight?>($"SELECT kova.date, kova.winner, kova.id, kova.state, kova.fk_robot1, kova.fk_robot2 FROM kova join turnyro_kova on kova.id = turnyro_kova.fk_kova where turnyro_kova.fk_turnyras = {id} and kova.state = 2");
 		}
 		[HttpPut]
