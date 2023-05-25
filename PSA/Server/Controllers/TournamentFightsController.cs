@@ -33,6 +33,12 @@ namespace PSA.Server.Controllers
             return await _databaseOperationsService.ReadListAsync<TournamentFight>($"select * from turnyro_kova where fk_turnyras = {id}");
         }
 
+        [HttpGet("getlastfight/{id}")]
+        public async Task<TournamentFight> GetLastFight(int id)
+        {
+            return await _databaseOperationsService.ReadItemAsync<TournamentFight>($"select * from turnyro_kova where fk_turnyras = {id} and id = (SELECT max(id) FROM turnyro_kova where fk_turnyras = {id})");
+        }
+
         // POST api/<TournamentFightsController>
         [HttpPost]
         public async Task Post([FromBody] TournamentFight op)

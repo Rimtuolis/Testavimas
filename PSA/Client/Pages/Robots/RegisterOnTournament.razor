@@ -13,8 +13,8 @@
 <EditForm Model="@fight" OnValidSubmit="@HandleValidSubmit">
     <div class="mb-3 col-7">
         <label for="End_date"><b>Your robot</b></label>
-        <InputSelect @bind-Value="tournamentRobot.fk_robotas">
-          
+        <InputSelect @bind-Value="id">
+                <option value="0"  >--------</option>
             @foreach (Robot robot in robots){
                 <option value="@robot.Id">@robot.Nickname</option>
             }
@@ -37,6 +37,7 @@
     private DateTime? prize;
     private bool exists = false;
     private bool existsByUser = false;
+    private int id;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,6 +52,7 @@
     }
     public async Task HandleValidSubmit()
     {
+        tournamentRobot.fk_robotas = id;
         exists = await Http.GetFromJsonAsync<bool>($"api/tournamentrobots/exists/{tournamentId}/{tournamentRobot.fk_robotas}");
         existsByUser = await Http.GetFromJsonAsync<bool>($"api/tournamentrobots/existsUser/{tournamentId}");
         if(DateTime.Today > DateTime.Parse(tournament.Start_date))
@@ -64,6 +66,10 @@
         else if(existsByUser)
         {
             await JS.InvokeVoidAsync("alert", "You have already registered a robot in this tournament.");
+        }
+        else if(id==0)
+        {
+            await JS.InvokeVoidAsync("alert", "You need to click on a robot you want to choose");
         }
         else
         {
