@@ -23,13 +23,7 @@ builder.Services.AddSingleton<IBlackJackService, BlackJackService>();
 builder.Services.AddSingleton<IManualBuildingService, ManualBuildingService>();
 builder.Services.AddSingleton<IAutoBuildingService, AutoBuildingService>();
 
-builder.Services
-	.AddBlazorise(options =>
-	{
-		options.Immediate = true;
-	})
-	.AddBootstrapProviders()
-	.AddFontAwesomeIcons();
+
 
 var app = builder.Build();
 

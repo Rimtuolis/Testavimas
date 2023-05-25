@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PSA.Server.Services;
 using PSA.Services;
 using PSA.Shared;
 
@@ -10,8 +11,9 @@ namespace PSA.Server.Controllers
     public class BetsController : ControllerBase
     {
         private readonly ILogger<BetsController> _logger;
-        private readonly IDatabaseOperationsService _databaseOperationsService;
-        public BetsController(ILogger<BetsController> logger, IDatabaseOperationsService databaseOperationsService)
+		private readonly ICurrentUserService _currentUserService;
+		private readonly IDatabaseOperationsService _databaseOperationsService;
+        public BetsController(ILogger<BetsController> logger, ICurrentUserService currentUserService, IDatabaseOperationsService databaseOperationsService)
         {
             _logger = logger;
             _databaseOperationsService = databaseOperationsService;
@@ -22,11 +24,16 @@ namespace PSA.Server.Controllers
         [HttpGet]
         public async Task<IEnumerable<Bet>> Get()
         {
-            return await _databaseOperationsService.ReadListAsync<Bet>($"SELECT * FROM statymas");
+            return await _databaseOperationsService.ReadListAsync<Bet>($"SELECT * FROM statymas where fk_user_id = {_currentUserService.GetUser().Id} and state = 0");
         }
-        // Gets tournament by ID
-        // GET api/<TournamentsController>/5
-        [HttpGet("{id}")]
+		[HttpGet("/history")]
+		public async Task<IEnumerable<Bet>> GetHistory()
+		{
+			return await _databaseOperationsService.ReadListAsync<Bet>($"SELECT * FROM statymas where fk_user_id = {_currentUserService.GetUser().Id} and state = 1");
+		}
+		// Gets tournament by ID
+		// GET api/<TournamentsController>/5
+		[HttpGet("{id}")]
         public async Task<Bet?> Get(int id)
         {
             return await _databaseOperationsService.ReadItemAsync<Bet?>($"SELECT * FROM statymas where Id = {id}");
@@ -37,14 +44,8 @@ namespace PSA.Server.Controllers
         [HttpPost]
         public async Task Create([FromBody] Bet bet)
         {
-            await _databaseOperationsService.ExecuteAsync($"insert into statymas(Amount, Coefficient, fk_robot, fk_fight) values('{bet.Amount}', '{bet.Coefficient}', '{bet.fk_robot}', '{bet.fk_fight}')");
+            await _databaseOperationsService.ExecuteAsync($"insert into statymas(Amount, Coefficient, fk_robot_id, fk_fight_id, fk_user_id, state ) values({bet.Amount}, {bet.Coefficient}, {bet.fk_robot_id}, {bet.fk_fight_id}, {bet.fk_user_id}, {bet.state})");
         }
-        // Deletes tournament from DB by ID
-        // DELETE api/<TournamentsController>/5
-        [HttpDelete("{id}")]
-        public async Task Delete(int id)
-        {
-            await _databaseOperationsService.ExecuteAsync($"delete from statymas where Id = {id}");
-        }
+
     }
 }

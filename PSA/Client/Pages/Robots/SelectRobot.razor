@@ -25,7 +25,7 @@ else
                 <div class="buttonContainer">
                     <button class="editButton" @onclick="() => EditCard(card)">Edit</button>
                     <button class="selectButton" @onclick="() => Swipe(card.fk_robot)">Swipe</button>
-                    <button class="selectButton" @onclick="() => Select(card.fk_robot)">View matches</button>
+                    <button class="viewButton" @onclick="() => Select(card.fk_robot)">View <br>matches</button>
                     <button class="editPartsButton" @onclick="() => EditParts(card.fk_robot)">Edit parts</button>
                 </div>
             </div>

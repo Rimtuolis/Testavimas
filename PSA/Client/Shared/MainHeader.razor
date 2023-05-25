@@ -75,20 +75,6 @@ else
                                             </li>
                                             @if (@profile?.LoggedIn == true)
                                             {
-                                                <li style ="z-index: 10">
-                                                    <a href="/contracts/">Contracts</a>
-                                                    <ul class="submenu">
-                                                        <li><a href="/contracts/">View contracts</a></li>
-                                                        @if (@profile?.UserLevel == AccessLevelType.ADMIN)
-                                                        {
-                                                            @*if user is logged in and admin*@
-                                                            <li><a href="/contracts/create">Add contract</a></li>
-                                                        }
-                                                    </ul>
-                                                </li>
-                                            }
-                                            @if (@profile?.LoggedIn == true)
-                                            {
                                                 <li>
                                                     <a href="/orders/vieworders">Orders</a>
                                                     <ul class="submenu">
@@ -104,25 +90,6 @@ else
                                                     <ul class="submenu">
                                                         <li><a href="/robot/manual">Manual building</a></li>
                                                         <li><a href="/robot/automatic">Automatic building</a></li>
-                                                    </ul>
-                                                </li>
-                                            }
-                                            @if (profile.LoggedIn == true)
-                                            {
-                                                <li style="z-index: 10">
-                                                    <a href="fights/@profile.Id">Fights</a>
-                                                    <ul class="submenu">
-                                                        <li><a href="/fights/@profile.Id">Fights</a></li>
-                                                        <li><a href="/fights/create">Create fight</a></li>
-                                                    </ul>
-                                                </li>
-                                            }
-                                            @if (@profile?.LoggedIn == true)
-                                            {
-                                                <li>
-                                                    <a href="/suppliers/">Suppliers</a>
-                                                    <ul class="submenu">
-                                                        <li><a href="/suppliers/">Edit Suppliers</a></li>
                                                     </ul>
                                                 </li>
                                             }

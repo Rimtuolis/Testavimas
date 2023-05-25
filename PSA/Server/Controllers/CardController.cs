@@ -66,7 +66,7 @@ namespace PSA.Server.Controllers
 			return false;
 		}
 		[HttpPost]
-		public async Task AddCard([FromBody] Robot robot)
+		public async Task AddCard([FromBody] RobotDto robot)
 		{
             Console.WriteLine($"{robot.Id} + {robot.Nickname}");
 			string defaultString = "https://img.freepik.com/premium-vector/robot-silhouette-icon-illustration-template-many-purpose-isolated-white-background_625349-837.jpg";
