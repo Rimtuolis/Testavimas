@@ -12,11 +12,13 @@ namespace PSA.Server.Controllers
     {
         private readonly IDatabaseOperationsService _databaseOperationsService;
         private readonly ILogger<TournamentRobotsController> _logger;
+        private readonly ICurrentUserService _currentUserService;
         // GET: TournamentFightsController
-        public TournamentRobotsController(IDatabaseOperationsService databaseOperationsService, ILogger<TournamentRobotsController> logger)
+        public TournamentRobotsController(IDatabaseOperationsService databaseOperationsService, ILogger<TournamentRobotsController> logger, ICurrentUserService currentUserService)
         {
             _databaseOperationsService = databaseOperationsService;
             _logger = logger;
+            _currentUserService = currentUserService;
         }
 
         // GET: api/<TournamentsController>
@@ -55,7 +57,7 @@ namespace PSA.Server.Controllers
         [HttpGet("existsUser/{tournamentId}")]
         public async Task<bool> GetExistingByUser(int tournamentId)
         {
-            var index = await _databaseOperationsService.ReadItemAsync<int?>($"select robotas.id from robotas JOIN turnyro_robotas ON robotas.id = turnyro_robotas.fk_robotas && turnyro_robotas.fk_turnyras = {tournamentId}");
+            var index = await _databaseOperationsService.ReadItemAsync<int?>($"select robotas.id from robotas JOIN turnyro_robotas ON robotas.id = turnyro_robotas.fk_robotas && turnyro_robotas.fk_turnyras = {tournamentId} && robotas.fk_user_id = {_currentUserService.GetUser().Id}");
             if (index == null)
             {
                 return false;

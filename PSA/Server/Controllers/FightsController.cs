@@ -41,11 +41,12 @@ namespace PSA.Server.Controllers
             return await _databaseOperationsService.ReadItemAsync<Fight?>($"SELECT * FROM kova where id = {id}");
         }
         [HttpGet("todaytournamentfights/{id}")]
-        public async Task<Fight?> Gettodaytournamentfights(int id)
+        public async Task<IEnumerable<Fight>?> Gettodaytournamentfights(int id)
         {
-            Console.WriteLine("NIG");
-            return await _databaseOperationsService.ReadItemAsync<Fight?>($"SELECT kova FROM kova join turnyro_kova on kova.id = turnyro_kova.fk_kova where turnyro_kova.fk_turnyras = {id}");
+            string myDateTimeString = (DateTime.Now).ToString("yyyy-MM-dd HH:mm:ss");
+            return await _databaseOperationsService.ReadListAsync<Fight?>($"SELECT kova.date, kova.winner, kova.id, kova.state, kova.fk_robot1, kova.fk_robot2 FROM kova join turnyro_kova on kova.id = turnyro_kova.fk_kova where turnyro_kova.fk_turnyras = {id} and kova.date <= '{myDateTimeString}'");
         }
+
         [HttpPut]
         public async Task Put([FromBody] Fight fight)
         {

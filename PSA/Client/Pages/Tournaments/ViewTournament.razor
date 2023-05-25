@@ -1,5 +1,7 @@
 ﻿@page "/tournaments/viewtournament/{tournamentid:int}"
 @inject HttpClient Http
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
 @using PSA.Shared
 
 <PageTitle>View Tournament</PageTitle>
@@ -104,6 +106,15 @@
                                     }
                                </tr> 
                             }
+                            @if(DateTime.Today >= DateTime.Parse(@_tournament.End_date))
+                            {
+                                <tr>
+                                    <td colspan="7">Laimetojas</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7">@winner</td>
+                                </tr>
+                            }
                     </tbody>
                 </table>
             </div>
@@ -128,6 +139,8 @@ else{
     private TournamentRobot prevTournamentrobot, noFightsTournamentRobot;
     private Robot? robot1, robot2;
     private Robot? newRobot, prevRobot;
+    private TournamentFight? lastFight;
+    private int winner;
     private string? busena;
     private long robotsCount = 0;
     private long robotsCountNoFights = 0;
@@ -184,16 +197,32 @@ else{
                     robot2 = await Http.GetFromJsonAsync<Robot>($"api/Robots/{fight.fk_robot2}");
                     _fights.Add(fight);
                 }
-                if (fight.date < DateTime.Today && fight.winner != null && _prevFight != null && (fight.state == 2 && _prevFight.state == 2))
+                if (fight.date < DateTime.Today && fight.winner != 0 && _prevFight != null && (fight.state == 3 && _prevFight.state == 3))
                 {
-                    fight.state = 3;
-                    _prevFight.state = 3;
+                    fight.state = 4;
+                    _prevFight.state = 4;
                     await Http.PutAsJsonAsync<Fight>($"api/Fights/", fight);
                     await Http.PutAsJsonAsync<Fight>($"api/Fights/", _prevFight);
 
                     _newFight = new Fight();
-                    _newFight.fk_robot1 = fight.winner;
-                    _newFight.fk_robot2 = _prevFight.winner;
+                    if(fight.winner == 1)
+                    {
+                        _newFight.fk_robot1 = fight.fk_robot1;
+                    }
+                    else if(fight.winner == 2)
+                    {
+                        _newFight.fk_robot1 = fight.fk_robot2;
+                    }
+
+                    if(_prevFight.winner == 1)
+                    {
+                        _newFight.fk_robot2 = _prevFight.fk_robot1;
+                    }
+                    else if(_prevFight.winner == 2)
+                    {
+                        _newFight.fk_robot2 = _prevFight.fk_robot2;
+                    }
+
                     _newFight.date = fight.date.AddDays(1);
                     _newFight.state = 2;
                     await Http.PostAsJsonAsync<Fight>($"api/Fights/", _newFight);
@@ -210,17 +239,18 @@ else{
             }
         }
         robotsCount         = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcount/{tournamentId}");
-        if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCount < 15)
-        {
-            await Http.DeleteAsync($"api/Tournaments/{tournamentId}");
-            return;
-
-        }
+        //if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCount < 15)
+        //{
+        //    await Http.DeleteAsync($"api/Tournaments/{tournamentId}");
+        //    StateHasChanged();
+        //    NavManager.NavigateTo("/tournaments", forceLoad: true);
+        //    await JS.InvokeVoidAsync("alert", "Not enough participants registered, tournament removed");
+        //}
 
 
         robotsCountNoFights = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcountnofights/{tournamentId}");
 
-        if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCountNoFights > 0 && robotsCount == 15)
+        if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCountNoFights > 0 /* && robotsCount == 15*/)
         {
             noFightsTournamentRobot = await Http.GetFromJsonAsync<TournamentRobot>($"api/tournamentrobots/existsnofight/{tournamentId}");
             Fight _newFight = new Fight();
@@ -228,7 +258,7 @@ else{
             _newFight.fk_robot2 = noFightsTournamentRobot.fk_robotas;
             _newFight.date = DateTime.Parse(_tournament.Start_date);
             _newFight.state = 3;
-            _newFight.winner = noFightsTournamentRobot.fk_robotas;
+            _newFight.winner = 1;
             await Http.PostAsJsonAsync<Fight>($"api/Fights/", _newFight);
 
             TournamentFight _emptyTournamentFight = new TournamentFight();
@@ -243,14 +273,22 @@ else{
             await Http.PutAsJsonAsync<TournamentRobot>($"api/tournamentrobots", noFightsTournamentRobot);
             StateHasChanged();
         }
-        if(DateTime.Today == DateTime.Parse(_tournament.Start_date) && robotsCount >= 15)
-        {
-            todaysFights = await Http.GetFromJsonAsync<List<Fight>>($"api/fights/todaytournamentfights/{tournamentId}");
-        }
 
-        if(_prevFight == null)
+
+        if(DateTime.Today >= DateTime.Parse(_tournament.End_date))
         {
-            
+            lastFight = await Http.GetFromJsonAsync<TournamentFight>($"api/tournamentfights/getlastfight/{tournamentId}");
+            int lastfightid = lastFight.fk_kova;
+            Fight fightkek = await Http.GetFromJsonAsync<Fight>($"api/Fights/{lastfightid}");
+            if(fightkek.winner == 1)
+            {
+                winner = fightkek.fk_robot1;
+            }
+            else if(fightkek.winner == 2)
+            {
+                winner = fightkek.fk_robot2;
+            }
+            await JS.InvokeVoidAsync("alert", "Won the tournament");
         }
         this.checkDates();
     }

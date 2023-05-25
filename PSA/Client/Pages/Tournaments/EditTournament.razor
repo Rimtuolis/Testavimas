@@ -1,0 +1,66 @@
+﻿@page "/tournaments/edittournament/{tournamentId:int}"
+@using PSA.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Globalization;
+@using Microsoft.Extensions.Logging
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Edit tournament</PageTitle>
+
+
+@if (tournament is not null)
+{
+    <EditForm Model="@tournament" OnValidSubmit="@HandleValidSubmit">
+        <div class="mb-3 col-7">
+            <label for="Start"><b>Start date</b></label>
+            <b>@tournament.Start_date</b>
+        </div>
+        <div class="mb-3 col-7">
+            <label for="End_date"><b>End date</b></label>
+            <b>@tournament.End_date</b>
+        </div>
+        <div class="mb-3 col-7">
+            <label for="Name"><b>Tournament name</b></label>
+            <input class="form-control" @bind="@tournament.Name" placeholder="@tournament.Name" type="text" required>
+        </div>
+        <div class="mb-3">
+            <label for="Prize"><b>Prize</b></label>
+            <input class="form-control" id="Prize" @bind="@tournament.Prize" placeholder="@tournament.Prize" type="number" step="0.01" name="Prize" required></input>
+        </div>
+        <div class="mb-3 col-7">
+            <label for="Organiser"><b>Organiser</b></label>
+            <input class="form-control" id="Organiser" @bind="@tournament.Organiser" placeholder="@tournament.Organiser" type="text" name="Organiser" required>
+        </div>
+        <div class="mb-3">
+            <label for="Picture"><b>Format</b></label>
+            <input class="form-control" id="Format" @bind="@tournament.Format" placeholder="@tournament.Format" type="text" name="Format">
+        </div>
+        <button type="submit" class="btn">Edit tournament</button>
+    </EditForm>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+@code {
+    [Parameter]
+    public int tournamentId { get; set; }
+
+    private Tournament? tournament;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        tournament = await Http.GetFromJsonAsync<Tournament>($"api/Tournaments/{tournamentId}");
+
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        await Http.PutAsJsonAsync("api/Tournaments/edited", tournament);
+        NavManager.NavigateTo("/tournaments", forceLoad: true);
+    }
+}

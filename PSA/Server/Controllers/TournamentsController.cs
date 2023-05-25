@@ -47,6 +47,13 @@ namespace PSA.Server.Controllers
                 $"set Name = '{tournament.Name}', Prize = '{tournament.Prize}', Start_date = '{tournament.Start_date}'," +
                 $"Organiser = '{tournament.Organiser}', Format = '{tournament.Format}', End_date = '{tournament.End_date}' where Id = {tournament.Id}");
         }
+        [HttpPut("edited")]
+        public async Task EditTournament([FromBody] Tournament tournament)
+        {
+            await _databaseOperationsService.ExecuteAsync($"update turnyras " +
+                $"set Name = '{tournament.Name}', Prize = '{tournament.Prize}'," +
+                $"Organiser = '{tournament.Organiser}', Format = '{tournament.Format}' where Id = {tournament.Id}");
+        }
         // Deletes tournament from DB by ID
         // DELETE api/<TournamentsController>/5
         [HttpDelete("{id}")]
