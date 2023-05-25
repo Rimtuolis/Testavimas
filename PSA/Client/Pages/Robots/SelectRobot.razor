@@ -140,6 +140,7 @@ else
                 }
                 else
                 {
+                    robot.Parts = new List<RobotPart>();
                     await Http.PostAsJsonAsync<RobotDto>($"/card", robot); //robotDTO in controller
                     SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
                     temp.Description = robot.Nickname;

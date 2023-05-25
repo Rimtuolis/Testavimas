@@ -70,7 +70,7 @@ namespace PSA.Server.Controllers
 		{
             Console.WriteLine($"{robot.Id} + {robot.Nickname}");
 			string defaultString = "https://img.freepik.com/premium-vector/robot-silhouette-icon-illustration-template-many-purpose-isolated-white-background_625349-837.jpg";
-			await _databaseOperationsService.ExecuteAsync($"insert into card (fk_robot, ImageUrl, Description) values({robot.Id}, '{defaultString}', '{robot.Nickname}')");
+			await _databaseOperationsService.ExecuteAsync($"insert into card (fk_robot, ImageUrl, Description) values('{robot.Id}', '{defaultString}', '{robot.Nickname}')");
 
 		}
 		[HttpPut]

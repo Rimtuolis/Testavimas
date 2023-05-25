@@ -5,7 +5,7 @@
 @using Microsoft.Extensions.Logging
 @inject HttpClient Http
 @inject NavigationManager NavManager
-
+@inject IJSRuntime JS
 <PageTitle>Robot Automatic Creation</PageTitle>
 
 <EditForm Model="@_autoGenerator" OnValidSubmit="@HandleValidSubmit">
@@ -51,7 +51,7 @@
         <label>
             Zodiac:
             <InputSelect @bind-Value="_autoGenerator.Zodiac">
-                <option selected="selected" value="">Select a sign</option>
+                <option selected="selected" value="">Select a sign </option>
                 <option value="1">Taurus</option>
                 <option value="2">Aries</option>
                 <option value="3">Gemini</option>
@@ -104,8 +104,15 @@
     }
     private async Task HandleValidSubmit()
     {
-        await Http.PostAsJsonAsync<AutoGenerator?>("api/autobuilder", _autoGenerator);
-        //profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
-        NavManager.NavigateTo("/robot/automatic/generated", forceLoad: true);
+        if (_autoGenerator.Zodiac >= 1 && _autoGenerator.Material >= 1 && _autoGenerator.Fighting_Style >= 1 && _autoGenerator.Budget >= 1)
+        {
+            await Http.PostAsJsonAsync<AutoGenerator?>("api/autobuilder", _autoGenerator);
+            //profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+            NavManager.NavigateTo("/robot/automatic/generated", forceLoad: true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Not all parts were selected");
+        }
     }
 }
