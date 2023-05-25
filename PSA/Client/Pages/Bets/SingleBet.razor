@@ -1,0 +1,87 @@
+﻿@page "/betting/{fightId:int}/{robotId:int}/{coef:double}"
+
+
+@using PSA.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Globalization;
+@inject IJSRuntime JS
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+@if (currentUser != null) {
+    <div class="row justify-content-center align-content-center">
+        <div class="mb-3">
+            <p>Coef: @coef</p>
+            <label for="bet"><b>Enter your bet</b></label>
+            <input class="form-control col-5" placeholder="Enter bet amount" name="bet" @bind="@bet" required>
+        </div>
+        <button class="btn btn-primary col-3" @onclick="HandleBet">Confirm bet</button>
+    </div>
+
+}
+
+
+
+
+@code {
+    [Parameter]
+    public int fightId { get; set; }
+    [Parameter]
+    public int robotId { get; set; }
+    [Parameter]
+    public double coef { get; set; }
+
+    private string bet = "";
+    private CurrentUser? currentUser;
+    private double betAmount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentUser = await Http.GetFromJsonAsync<CurrentUser?>("api/currentuser");
+        StateHasChanged();
+    }
+
+    public async void HandleBet()
+    {
+        bool err = false;
+        try
+        {
+            betAmount = Convert.ToDouble(bet);
+        }
+        catch (Exception)
+        {
+            err = true;
+            await JS.InvokeVoidAsync("alert", "Bet has to be a numeric value");
+        }
+
+        if (!err)
+        {
+            if (betAmount > currentUser?.balance)
+            {
+                await JS.InvokeVoidAsync("alert", "Bet cannot exceed your balance");
+            }
+            else
+            {
+                Bet bet = new Bet();
+                bet.fk_user_id = currentUser.Id;
+                bet.fk_fight_id = fightId;
+                bet.fk_robot_id = robotId;
+                bet.Amount = betAmount;
+                bet.Coefficient = coef;
+                bet.state = 1;
+                HttpResponseMessage response = await Http.PostAsJsonAsync("api/Bets", bet);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    if (currentUser is not null)
+                    {
+                        currentUser.balance -= betAmount;
+                        await Http.PostAsJsonAsync($"api/betting/balance", currentUser);
+                    }
+                    NavManager.NavigateTo("/betting/bets", forceLoad: true);
+                }
+            }
+        }
+    }
+}

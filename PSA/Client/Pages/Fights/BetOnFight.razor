@@ -147,7 +147,7 @@
 
     public async Task HandleValidSubmit()
     {
-        bet.fk_fight = fightId;
+        bet.fk_fight_id = fightId;
         await Http.PostAsJsonAsync("api/Bets", bet);
         NavManager.NavigateTo("/Tournaments", forceLoad: true);
     }
