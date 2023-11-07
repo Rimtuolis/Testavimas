@@ -1,0 +1,74 @@
+﻿@page "/tournaments/create"
+@using PSA.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using System.Globalization;
+@using Microsoft.Extensions.Logging
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Tournament Creation</PageTitle>
+
+
+
+<EditForm Model="@tournament" OnValidSubmit="@HandleValidSubmit">
+    <div class="mb-3 col-7">
+        <label for="Start"><b>Start date</b></label>
+        <input class="form-control" id="Start" @bind="@tournament.Start_date" format-value="yyyy-MM-dd" name="Start" placeholder="Tournament start date yyyy-MM-dd" required>
+    </div>
+    <div class="mb-3 col-7">
+        <label for="End_date"><b>End date</b></label>
+        <input class="form-control" id="End_date" @bind="@tournament.End_date" format-value="yyyy-MM-dd" name="End_date" placeholder="Tournament end date yyyy-MM-dd" required>
+    </div>
+    <div class="mb-3 col-7">
+        <label for="Name"><b>Tournament name</b></label>
+        <input class="form-control" id="Name" @bind="@tournament.Name" placeholder="Name" type="text" name="Name" required>
+    </div>
+    <div class="mb-3">
+        <label for="Prize"><b>Prize</b></label>
+        <input class="form-control" id="Prize" @bind="@tournament.Prize" type="number" step="0.01" name="Prize" required></input>
+    </div>
+    <div class="mb-3 col-7">
+        <label for="Organiser"><b>Organiser</b></label>
+        <input class="form-control" id="Organiser" @bind="@tournament.Organiser" placeholder="Organiser" type="text" name="Organiser" required>
+    </div>
+    <div class="mb-3">
+        <label for="Picture"><b>Format</b></label>
+        <input class="form-control" id="Format" @bind="@tournament.Format" placeholder="Format" type="text" name="Format">
+    </div>
+    <button type="submit" class="btn">Kurti turnyrą</button>
+</EditForm>
+
+
+
+
+
+@code {
+    private Tournament tournament = new Tournament();
+    private DateTime? prize;
+
+    public async Task HandleValidSubmit()
+    {
+        await Http.PostAsJsonAsync("api/Tournaments", tournament);
+        NavManager.NavigateTo("/tournaments", forceLoad: true);
+    }
+
+
+    //private void HandleValidSubmit()
+    //{
+    //    PrettyWrite(product, product.title + ".json");
+    //}
+
+    //private static readonly JsonSerializerOptions _options =
+    //new() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
+
+    //public static void PrettyWrite(object obj, string fileName)
+    //{
+    //    var options = new JsonSerializerOptions(_options)
+    //    {
+    //        WriteIndented = true
+    //    };
+    //    var jsonString = JsonSerializer.Serialize(obj, options);
+    //    File.WriteAllText(fileName, jsonString);
+    //}
+}

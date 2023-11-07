@@ -1,0 +1,100 @@
+﻿@page "/profiles/edit/{username}"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using PSA.Shared
+@using Microsoft.Extensions.Logging
+
+
+
+
+<PageTitle>Profile Editing</PageTitle>
+
+
+
+<EditForm Model="@profile" OnValidSubmit="@HandleValidSubmit">
+
+    @if (viewer?.UserLevel == AccessLevelType.ADMIN || viewer?.UserLevel == AccessLevelType.CLIENT || viewer?.Username == @profile.nickname)
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="custom-file">
+                    <div class="single_product_text text-center">
+                        <label for="uname"><b>@profile.nickname</b></label>
+                    </div>
+                    <div class="single_product_text text-center">
+                        <label for="name"><b>Name</b></label>
+                        <input @bind="@profile.name" placeholder="Enter Name" name="name" required>
+                    </div>
+                    <div class="single_product_text text-center">
+                        <label for="name"><b>Lastname</b></label>
+                        <input @bind="@profile.last_name" placeholder="Enter Last Name" name="last_name" required>
+                    </div>
+                    @if (viewer?.Username == @profile.nickname)
+                    {
+                        <div class="single_product_text text-center">
+                            <label for="password"><b>Password</b></label>
+                            <input @bind="@profile.password" placeholder="Enter Password" name="password" required>
+                        </div>
+                    }
+                    <div class="single_product_text text-center">
+                        <label for="contact"><b>Post Code</b></label>
+                        <input @bind="@profile.post_code" placeholder="Enter Post Code" name="post_code" required>
+                    </div>
+                    <div class="single_product_text text-center">
+                        <label for="contact"><b>City</b></label>
+                        <input @bind="@profile.city" placeholder="Enter City" name="city" required>
+                    </div>
+                    <div class="single_product_text text-center">
+                        <label for="contact"><b>Birthdate</b></label>
+                        <input type="date" @bind="@profile.birthdate" id="birthdate" placeholder="2023-05-15" name="birthdate" required >
+                        
+                    </div>
+                    <br>
+                    <div class="single_product_text text-center">
+
+                        <button type="submit" class="btn">Submit Edit</button>
+
+
+                    </div>
+                    <br>
+                </div>
+            </div>
+        </div>
+    }
+</EditForm>
+
+
+
+
+
+@code {
+    public Profile profile = new();
+
+    [Parameter]
+    public string? Username { get; set; }
+
+    public CurrentUser? viewer = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        profile.nickname = Username;
+
+        viewer = await Http.GetFromJsonAsync<CurrentUser>("/api/currentuser");
+        var response = await Http.PostAsJsonAsync<Profile>("/api/profile/get", profile);
+        profile = await response.Content.ReadFromJsonAsync<Profile>();
+
+        if (viewer?.LoggedIn == false)
+            NavManager.NavigateTo("/");
+        StateHasChanged();
+
+    }
+
+    public async Task HandleValidSubmit()
+    {
+        var response = await Http.PostAsJsonAsync("api/profile/edit", profile);
+        NavManager.NavigateTo("/", forceLoad: true);
+    }
+
+}

@@ -1,0 +1,325 @@
+﻿@page "/fights/{robotId:int}"
+
+@inject HttpClient Http
+
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using PSA.Shared
+@using Microsoft.Extensions.Logging
+@inject NavigationManager NavManager
+<PageTitle>Fights</PageTitle>
+
+
+@if (fight == null)
+{
+<p><em>neveikia:(</em></p>
+}
+else
+{
+<section class="cart_area section_padding">
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                    <h3>Waiting for response</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td>ID</td>
+                            <td>Fight date</td>
+                            <td>State</td>
+                            <td>Winner</td>
+                            <td>Robot 1</td>
+                            <td>Robot 2</td>
+                                <td></td>
+                            <td></td>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (Fight fights in fight)
+                        {
+                                if (fights.state == 1)
+                                {
+                                    <tr>
+                                        <td>@fights.id</td>
+                                        <td>@fights.date</td>
+                                        <td>Waiting for response</td>
+                                        <td>@fights.winner</td>
+                                        <td>@fights.fk_robot1</td>
+                                        <td>@fights.fk_robot2</td>
+                                       
+                                        @if(rototobas.fk_user_id == profile.Id && robotId == fights.fk_robot2){
+                                            <td>
+                                                <button class="btn btn-primary" @onclick="() => HandleState(fights.id)">Accept</button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-primary" @onclick="() => Decline(fights.id)">Decline</button>
+                                            </td>
+                                        }
+                                    </tr>
+                                  
+                                
+                                }
+
+                        }
+
+                    </tbody>
+
+                </table>
+                <h3></h3>
+                <h3>Upcoming matches</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Fight date</td>
+                                <td>State</td>
+                                <td>Winner</td>
+                                <td>Robot 1</td>
+                                <td>Robot 2</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (Fight fights in fight)
+                            {
+                                if (fights.state == 2)
+                                {
+                                    <tr>
+                                        <td>@fights.id</td>
+                                        <td>@fights.date</td>
+                                        <td>Not started</td>
+                                        <td>@fights.winner</td>
+                                        <td>@fights.fk_robot1</td>
+                                        <td>@fights.fk_robot2</td>
+                                    </tr>
+                                }
+
+                            }
+
+                        </tbody>
+
+                    </table>
+                    <h3></h3>
+                    <h3>History of matches</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Fight date</td>
+                                <td>State</td>
+                                <td>Winner</td>
+                                <td>Robot 1</td>
+                                <td>Robot 2</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (Fight fights in fight)
+                            {
+                                if (fights.state == 3)
+                                {
+                                    <tr>
+                                        <td>@fights.id</td>
+                                        <td>@fights.date</td>
+                                        <td>Finished</td>
+                                        <td>@fights.winner</td>
+                                        <td>@fights.fk_robot1</td>
+                                        <td>@fights.fk_robot2</td>
+                                    </tr>
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+            </div>
+        </div>
+    </div>
+</section>
+}
+
+
+@code {
+    [Parameter]
+    public int robotId { get; set; }
+
+    private List<Fight>? fight;
+    private Robot rototobas;
+    private List<Robot>? robot;
+    private CurrentUser? profile;
+    private List<RobotPart>? robotPart;
+    private List<Product>? product;
+    protected override async Task OnInitializedAsync()
+    {
+        fight = await Http.GetFromJsonAsync<List<Fight>?>($"api/fights/view/{robotId}");
+        robot = await Http.GetFromJsonAsync<List<Robot>?>("api/robots");
+        rototobas = await Http.GetFromJsonAsync<Robot?>("api/robots/reikia/id");
+        robotPart = await Http.GetFromJsonAsync<List<RobotPart>?>("api/robotPart");
+        product = await Http.GetFromJsonAsync<List<Product>?>("api/products");
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+
+
+
+        foreach (Fight fights in fight)
+        {
+            if (DateTime.Now >= fights.date && fights.state == 2)
+            {
+                int overall1 = 0;
+                int overall2 = 0;
+                fights.state = 3;
+                foreach(RobotPart robotParts in robotPart)
+                {
+                    foreach(Product products in product){
+                        if (robotParts.fk_robotas == fights.fk_robot1)
+                        {
+                            if(robotParts.fk_preke_id == products.Id && robotParts.Durability > 0)
+                            {
+                                overall1 += products.Material;
+                                overall1 += products.Attack;
+                                overall1 += products.Defense;
+                                overall1 += products.Speed;
+                            }
+                        }
+                        if (robotParts.fk_robotas == fights.fk_robot2 && robotParts.Durability > 0)
+                        {
+                            if (robotParts.fk_preke_id == products.Id)
+                            {
+                                overall2 += products.Material;
+                                overall2 += products.Attack;
+                                overall2 += products.Defense;
+                                overall2 += products.Speed;
+                            }
+                        }
+
+
+
+                    }
+
+                }
+                overall1 = overall1 * 10;
+                overall2 = overall2 * 10;
+                int max = overall1 + overall2 + 10;
+                int tie = overall1 + 10;
+                Random random = new Random();
+                int rnd = random.Next(0, max);
+                if (overall1 != overall2)
+                {
+                    if (rnd <= overall1)
+                    {
+                        fights.winner = 1;
+                        await WinLoseTieCondition(fights.fk_robot1, fights.fk_robot2);
+                    }
+                    else if (rnd > overall1 && rnd < tie)
+                    {
+                        fights.winner = 3;
+                        await TieCondition(fights.fk_robot2, fights.fk_robot1);
+
+                    }
+                    else if (rnd >= tie)
+                    {
+                        fights.winner = 2;
+                        await WinLoseTieCondition(fights.fk_robot2, fights.fk_robot1);
+                    }
+
+                }
+                else
+                {
+                    tie = overall1 + 40;
+                    if (rnd <= overall1)
+                    {
+                        fights.winner = 1;
+                        await WinLoseTieCondition(fights.fk_robot1, fights.fk_robot2);
+                    }
+                    else if (rnd > overall1 && rnd < tie)
+                    {
+                        fights.winner = 3;
+                        await TieCondition(fights.fk_robot2, fights.fk_robot1);
+                    }
+                    else if (rnd >= tie)
+                    {
+                        fights.winner = 2;
+                        await WinLoseTieCondition(fights.fk_robot2, fights.fk_robot1);
+                    }
+
+                }
+                Console.WriteLine(rnd.ToString());
+                if (fights.winner == 1)
+                {
+                    Bet bet = new Bet();
+                    bet.fk_user_id = profile.Id;
+                    bet.fk_fight_id = fights.id;
+
+                    await Http.PostAsJsonAsync($"api/Bets/{fights.fk_robot1}", bet);
+                    await HandleDamage(fights.fk_robot1, 5);
+                    await HandleDamage(fights.fk_robot2, 10);
+
+                }
+                else if (fights.winner == 2)
+                {
+                    Bet bet = new Bet();
+                    bet.fk_user_id = profile.Id;
+                    bet.fk_fight_id = fights.id;
+
+                    await Http.PostAsJsonAsync($"api/Bets/{fights.fk_robot2}", bet);
+                    await HandleDamage(fights.fk_robot1, 10);
+                    await HandleDamage(fights.fk_robot2, 5);
+                }
+                else { 
+                    await HandleDamage(fights.fk_robot1, 20);
+                    await HandleDamage(fights.fk_robot2, 20);
+                }
+
+                await HandleFinished(fights);
+            }
+
+
+        }
+        StateHasChanged();
+
+    }
+    private async Task HandleDamage(int robotId, int damage) { 
+        Robot one_robot = await Http.GetFromJsonAsync<Robot>($"api/robots/{robotId}");
+        await Http.PutAsJsonAsync($"api/robotPart/{damage}", one_robot);
+
+    }
+    private async Task WinLoseTieCondition(int id, int id2)
+    {
+        await Http.PutAsJsonAsync($"api/robots/win/{id}/{id2}", profile);
+        
+    }
+    private async Task TieCondition(int id, int id2)
+    {
+        await Http.PutAsJsonAsync($"api/robots/tie/{id}/{id2}", profile);
+
+    }
+    public async Task HandleFinished(Fight fight)
+    {
+
+        Console.WriteLine($"Pirmas fk {fight.fk_robot1} ir antras {fight.fk_robot2}");
+        await Http.PutAsJsonAsync("api/fights/win/mhm", fight);
+        StateHasChanged();
+    }
+    public async Task HandleState(int id)
+    {
+
+        await Http.PutAsJsonAsync($"api/fights/{id}", profile);
+        StateHasChanged();
+
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
+        
+    }
+    public async Task Decline(int id)
+    {
+        await Http.DeleteAsync($"api/fights/{id}");
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
+        StateHasChanged();
+
+    }
+    
+}

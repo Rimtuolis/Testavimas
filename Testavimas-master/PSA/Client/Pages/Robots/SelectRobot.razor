@@ -1,0 +1,192 @@
+﻿@page "/robots"
+@using PSA.Shared
+@inject NavigationManager NavManager
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+
+<h1>Robots</h1>
+
+
+<h3>Select Robot or edit its RoboSwipe card</h3>
+
+@if (Cards.Count == 0)
+{
+    <p>No robots available.</p>
+}
+else
+{
+    <div class="cardContainer">
+        @foreach (var card in Cards)
+        {
+            <div class="swipeCard">
+                <img src="@card.ImageUrl" alt="Robot Image" />
+                <h2>@card.Description</h2>
+                <div class="buttonContainer">
+                    <button class="editButton" @onclick="() => EditCard(card)">Edit</button>
+                    <button class="selectButton" @onclick="() => Swipe(card.fk_robot)">Swipe</button>
+                    <button class="viewButton" @onclick="() => Select(card.fk_robot)">View <br>matches</button>
+                    <button class="editPartsButton" @onclick="() => EditParts(card.fk_robot)">Edit parts</button>
+                </div>
+            </div>
+        }
+    </div>
+   
+        <br>
+    <div class="BUTTON">
+        @if (!statistics){
+            <button class="editPartsButton" @onclick="() => ShowStatistics()">Show Statistics</button>
+        }
+        else
+        {
+            <button class="editPartsButton" @onclick="() => HideStatistics()">Hide Statistics</button>
+        }
+    </div>
+
+    <div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <td>ID</td>
+                    <td>Name</td>
+                    <td>Wins</td>
+                    <td>Losses</td>
+                    <td>Draws</td>
+                    @if (statistics)
+                    {
+                        <td>Statistics</td>
+                    }
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var robots1 in robots)
+                {
+
+                    maxStats = robots1.Wins + robots1.Losses + robots1.Draws;
+                    stats = maxStats - robots1.Losses;
+                    stats = Math.Abs(stats);
+                    if (maxStats > 0)
+                    {
+                        CountedStats = (stats * 100) / maxStats;
+                    }
+                    else
+                    {
+                        CountedStats = 0;
+                    }
+
+                    <tr>
+                        <td>@robots1.Id</td>
+                        <td>@robots1.Nickname</td>
+                        <td>@robots1.Wins</td>
+                        <td>@robots1.Losses</td>
+                        <td>@robots1.Draws</td>
+                        @if (statistics){
+                            @if (CountedStats == 0)
+                            {
+                                <td>No data</td>
+                            }
+                            else if (CountedStats <= 20)
+                            {
+                                <td>Terrible</td>
+                            }
+                            else if (CountedStats > 20 && CountedStats <= 50)
+                            {
+                                <td>Below Average</td>
+                            }
+                            else if (CountedStats > 50 && CountedStats <= 70)
+                            {
+                                <td>Very good</td>
+                            }
+                            else if (CountedStats > 70 && CountedStats <= 100)
+                            {
+                                <td>Perfect</td>
+                            }
+                        }
+                    </tr>
+
+
+                }
+
+            </tbody>
+
+        </table>
+
+
+    </div>
+}
+
+
+@code {
+    public double CountedStats = 0;
+    double maxStats = 0;
+    double stats = 0;
+    bool statistics= false;
+    List<SwipeCard> Cards = new List<SwipeCard>();
+    List<RobotDto> robots = new List<RobotDto>();
+    protected override async Task OnInitializedAsync()
+    {
+
+        robots = await Http.GetFromJsonAsync<List<RobotDto>>($"api/robots");
+        foreach (RobotDto robot in robots)
+        {
+            if (robot != null)
+            {
+                SwipeCard card = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
+                if (card != null && !card.Description.Equals("Empty"))
+                {
+                    card.Description = robot.Nickname;
+                    Cards.Add(card);
+                }
+                else
+                {
+                    robot.Parts = new List<RobotPart>();
+                    await Http.PostAsJsonAsync<RobotDto>($"/card", robot); //robotDTO in controller
+                    SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
+                    temp.Description = robot.Nickname;
+                    Cards.Add(temp);
+                }
+
+
+
+            }
+        }
+        StateHasChanged();
+    }
+    private void EditCard(SwipeCard card)
+    {
+        NavManager.NavigateTo($"/card/edit/{card.fk_robot}", forceLoad: true);
+    }
+    private void Swipe(int robotId)
+    {
+        NavManager.NavigateTo($"/robots/swipe/{robotId}", forceLoad: true);
+    }
+    private void Select(int robotId)
+    {
+        NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
+    }
+    public async Task EditParts(int id)
+    {
+        List<RobotPart> robotParts = await Http.GetFromJsonAsync<List<RobotPart>>($"api/robotDto/{id}");
+        foreach (var robot in robots)
+        {
+            if (robot.Id == id)
+            {
+                robot.Parts = robotParts;
+                NavManager.NavigateTo($"/robot/Edit/{id}", forceLoad: true);
+            }
+
+        }
+
+    }
+    public void ShowStatistics()
+    {
+        statistics = true;
+
+    }
+    public void HideStatistics()
+    {
+        statistics = false;
+
+    }
+}
