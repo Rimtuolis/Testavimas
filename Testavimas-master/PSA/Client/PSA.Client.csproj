@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazorise" Version="1.2.3" />
+    <PackageReference Include="Blazorise.Bootstrap" Version="1.2.3" />
+    <PackageReference Include="Blazorise.Icons.Bootstrap" Version="1.2.3" />
+    <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.3" />
+    <PackageReference Include="Blazorise.Material" Version="1.2.3" />
+    <PackageReference Include="bunit" Version="1.24.10" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.8" PrivateAssets="all" />
+    <PackageReference Include="MySqlConnector" Version="2.2.2" />
+    <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\PSA.Shared.csproj" />
+  </ItemGroup>
+
+</Project>
