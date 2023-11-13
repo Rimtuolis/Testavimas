@@ -39,7 +39,7 @@ namespace PSA.Server.Controllers
         [HttpPost]
         public async Task Post([FromBody] Shared.Client client)
         {
-            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_User) from klientas");
+            var index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_User) from User");
             index++;
             await _databaseOperationsService.ExecuteAsync($"insert into klientas(name, last_name, nickname, " +
                 $"slaptazodis, gimimo_data, miestas, email, pasto_kodas, id_User) " +
@@ -51,7 +51,7 @@ namespace PSA.Server.Controllers
         [HttpDelete("{id}")]
         public async Task Delete(int id)
         {
-            await _databaseOperationsService.ExecuteAsync($"delete from klientas where id_User = {id}");
+            await _databaseOperationsService.ExecuteAsync($"delete from User where id_User = {id}");
         }
     }
 }
