@@ -1,0 +1,302 @@
+﻿@page "/betting"
+@using PSA.Shared
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<h3>Betting</h3>
+<button @onclick="ToggleTableRow"> Show betting suggestion</button>
+
+
+@if (swipeFights != null) {
+    <h1 style="text-align: center">Fights from swipe</h1>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table table-striped" width='100%'>
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <td>
+                                Date
+                            </td>
+                            <td>
+                                First robot name
+                            </td>
+                            <td>
+                                Coef. 1
+                            </td>
+                            <td>
+                                Coef. 2
+                            </td>
+                            <td>
+                                Second robot name
+                            </td>
+                        </tr>
+
+                        @foreach (Fight fight in swipeFights)
+                        {
+                            <tr>
+                                <td>
+                                    @fight.date
+                                </td>
+                                <td>
+                                    @GetName(fight.fk_robot1)
+                                </td>
+                                <td>
+                                    <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot1)">@CalculateCoef(fight, fight.fk_robot1)</button>
+                                </td>
+                                <td>
+                                    <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot2)">@CalculateCoef(fight, fight.fk_robot2)</button>
+                                </td>
+                                <td>
+                                    @GetName(fight.fk_robot2)
+                                </td>
+                            </tr>
+                            <tr style ="@(showTableRow ? "" : "display:none;")">
+                                <td>
+                                    Suggested %
+                                </td>
+                                <td>
+                                    @GetName(fight.fk_robot1)
+                                </td>
+                                <td>
+                                    @getSuggestion(fight, 1) %
+                                </td>
+                                <td>
+                                    @getSuggestion(fight, 2) %
+                                </td>
+                                <td>
+                                    @GetName(fight.fk_robot2)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+@if (tournaments != null) { 
+    @foreach (var tourney in tournaments) { 
+        <h1 style="text-align: center">@tourney.Name</h1>
+        <h2 style ="text-align: center">@tourney.Prize €</h2>
+        <h3 style="text-align: center">@tourney.Organiser</h3>
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table table-striped" width='100%'>
+                        <tbody class="table-group-divider">
+                            <tr>
+                                <td>
+                                    Date
+                                </td>
+                                <td>
+                                    First robot name
+                                </td>
+                                <td>
+                                    Coef. 1
+                                </td>
+                                <td>
+                                    Coef. 2
+                                </td>
+                                <td>
+                                    Second robot name
+                                </td>
+                            </tr>
+
+
+                            @foreach (Fight fight in tournamentFights[tourney.Id])
+                            {
+                                <tr>
+                                    <td>
+                                        @fight.date
+                                    </td>
+                                    <td>
+                                        @GetName(fight.fk_robot1)
+                                    </td>
+                                    <td>
+                                        <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot1)">@CalculateCoef(fight, fight.fk_robot1)</button>
+                                    </td>
+                                    <td>
+                                        <button class="selectButton" @onclick="() => GoToBet(fight, fight.fk_robot2)">@CalculateCoef(fight, fight.fk_robot2)</button>
+                                    </td>
+                                    <td>
+                                        @GetName(fight.fk_robot2)
+                                    </td>
+                                </tr>
+                                <tr style="@(showTableRow ? "" : "display:none;")">
+                                    <td>
+                                        Suggested %
+                                    </td>
+                                    <td>
+                                        @GetName(fight.fk_robot1)
+                                    </td>
+                                    <td>
+                                        @getSuggestion(fight, 1) %
+                                    </td>
+                                    <td>
+                                        @getSuggestion(fight, 2) %
+                                    </td>
+                                    <td>
+                                        @GetName(fight.fk_robot2)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    
+    }
+
+
+}
+
+
+
+
+
+
+@code {
+
+    private List<Fight> swipeFights;
+    private List<Robot> robots;
+    private List<Tournament> tournaments;
+    private Dictionary<int, List<Fight>> tournamentFights = new Dictionary<int, List<Fight>>();
+    private List<Bet> allBets;
+    private List<RobotPart>? robotPart;
+    private List<Product>? product;
+
+    private bool showTableRow = true;
+    protected override async Task OnInitializedAsync()
+    {
+
+        swipeFights = await Http.GetFromJsonAsync<List<Fight>>($"api/fights/swipefights");
+        robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robots/allrobots");
+        tournaments = await Http.GetFromJsonAsync<List<Tournament>>("api/Tournaments");
+        allBets = await Http.GetFromJsonAsync<List<Bet>>("api/bets/active");
+        robotPart = await Http.GetFromJsonAsync<List<RobotPart>?>("api/robotPart");
+        product = await Http.GetFromJsonAsync<List<Product>?>("api/products");
+        await LoadFights();
+        StateHasChanged();
+    }
+    private void ToggleTableRow()
+    {
+        showTableRow = !showTableRow;
+    }
+    private string GetName(int fk_robot) {
+        foreach (var robot in robots)
+        {
+            if (robot.Id == fk_robot) {
+                return robot.Nickname;
+            }
+        }
+        return "No name";
+    }
+
+    private async Task LoadFights()
+    {
+        foreach (Tournament tournament in tournaments)
+        {
+            List<Fight> fights = await Http.GetFromJsonAsync<List<Fight>>($"api/fights/tourneyfights/{tournament.Id}");
+            tournamentFights[tournament.Id] = fights;
+        }
+    }
+    private void GoToBet(Fight fight, int fk_robot) {
+        string temp = CalculateCoef(fight, fk_robot);
+        double coef = Double.Parse(temp);
+
+        NavManager.NavigateTo($"/betting/{fight.id}/{fk_robot}", forceLoad: true);
+    }
+    private string CalculateCoef(Fight fight, int fk_robot) {
+        double all_sum = 0;
+        double sum = 0;
+        double coef = 2;
+        foreach (var bet in allBets) {
+            if (bet.fk_fight_id == fight.id) {
+                all_sum += bet.Amount;
+                if (bet.fk_robot_id == fk_robot) {
+                    sum += bet.Amount;
+                }
+            }
+        }
+
+        if (sum == 0) {
+            sum += 1;
+        }
+        if (all_sum == 0) {
+            all_sum += 2;
+        }
+        coef = all_sum / sum;
+        Console.WriteLine($"{coef}");
+        return coef.ToString();
+    }
+
+    private double getWinLosse(int fk_robot) {
+        foreach (var robot in robots) {
+            if (robot.Id == fk_robot) {
+                if (robot.Losses == 0 && robot.Wins != 0)
+                {
+                    return robot.Wins / 1;
+                }
+                else if (robot.Losses == 0 && robot.Wins == 0)
+                {
+                    return 1;
+                }
+                else if (robot.Wins == 0 && robot.Losses != 0) {
+                    return 1 / robot.Losses;
+                }
+                return robot.Wins / robot.Losses;
+            }
+        }
+        return 0;
+    }
+
+    private double getSuggestion(Fight fight, int option) { 
+
+        double overall1 = 0;
+        double overall2 = 0;
+        foreach (RobotPart robotParts in robotPart)
+        {
+            foreach (Product products in product)
+            {
+                if (robotParts.fk_robotas == fight.fk_robot1)
+                {
+                    if (robotParts.fk_preke_id == products.Id && robotParts.Durability > 0)
+                    {
+                        overall1 += products.Material;
+                        overall1 += products.Attack;
+                        overall1 += products.Defense;
+                        overall1 += products.Speed;
+                    }
+                }
+                if (robotParts.fk_robotas == fight.fk_robot2 && robotParts.Durability > 0)
+                {
+                    if (robotParts.fk_preke_id == products.Id)
+                    {
+                        overall2 += products.Material;
+                        overall2 += products.Attack;
+                        overall2 += products.Defense;
+                        overall2 += products.Speed;
+                    }
+                }
+            }
+        }
+        double first = getWinLosse(fight.fk_robot1);
+        double second = getWinLosse(fight.fk_robot2);
+
+        double sum = overall1 + overall2;
+
+        if (sum == 0) {
+            sum = 1;
+        }
+        if (option == 1)
+        {
+            return overall1 / sum * 100;
+        }
+        else if (option == 2) { 
+            return overall2 / sum * 100;
+        }
+        return 50;
+    }
+}

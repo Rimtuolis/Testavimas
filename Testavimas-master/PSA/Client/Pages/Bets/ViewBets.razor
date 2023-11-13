@@ -1,0 +1,152 @@
+﻿@page "/betting/bets"
+@using PSA.Shared
+@inject NavigationManager NavManager
+@inject HttpClient Http
+
+<h3>ViewBets</h3>
+
+@if (activeBets != null)
+{
+    <h1 style="text-align: center">Active bets</h1>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table table-striped" width='100%'>
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <td>
+                                Amount
+                            </td>
+                            <td>
+                                Coef.
+                            </td>
+                            <td>
+                                Robot's name
+                            </td>
+                            <td>
+                                Possible payout
+                            </td>
+                        </tr>
+
+                        @foreach (Bet bet in activeBets)
+                        {
+                            <tr>
+                                <td>
+                                    @bet.Amount
+                                </td>
+                                <td>
+                                    @bet.Coefficient
+                                </td>
+                                <td>
+                                    @GetName(bet.fk_robot_id)
+                                </td>
+                                <td>
+                                    @Payout(bet, 1)
+                                </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+@if (historyBets != null)
+{
+    <h1 style="text-align: center">Bet's history</h1>
+    <div class="container">
+        <div class="cart_inner">
+            <div class="table-responsive">
+                <table class="table table-striped" width='100%'>
+                    <tbody class="table-group-divider">
+                        <tr>
+                            <td>
+                                Amount
+                            </td>
+                            <td>
+                                Coef.
+                            </td>
+                            <td>
+                                Robot's name
+                            </td>
+                            <td>
+                                Payout
+                            </td>
+                        </tr>
+
+                        @foreach (Bet bet in historyBets)
+                        {
+                            <tr>
+                                <td>
+                                    @bet.Amount
+                                </td>
+                                <td>
+                                    @bet.Coefficient
+                                </td>
+                                <td>
+                                    @GetName(bet.fk_robot_id)
+                                </td>
+                                <td>
+                                    @Payout(bet, 2)
+                                </td>
+                            </tr>
+                            <tr>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Bet> activeBets;
+    private List<Bet> historyBets;
+    private List<Robot> robots;
+    private List<Fight> endedFights;
+
+    protected override async Task OnInitializedAsync()
+    {
+        activeBets = await Http.GetFromJsonAsync<List<Bet>>("api/bets");
+        historyBets = await Http.GetFromJsonAsync<List<Bet>>("api/bets/history");
+        robots = await Http.GetFromJsonAsync<List<Robot>>($"api/robots/allrobots");
+        endedFights = await Http.GetFromJsonAsync<List<Fight>>($"api/fights");
+        StateHasChanged();
+    }
+    private string GetName(int fk_robot)
+    {
+        foreach (var robot in robots)
+        {
+            if (robot.Id == fk_robot)
+            {
+                return robot.Nickname;
+            }
+        }
+        return "No name";
+    }
+    private double Payout(Bet bet, int state)
+    {
+        if (state == 1)
+            return bet.Amount * bet.Coefficient;
+        else {
+            foreach (var fight in endedFights) {
+                if (fight.id == bet.fk_fight_id) {
+                    if (fight.winner == 3) {
+                        return bet.Amount;
+                    }
+                    if (fight.winner == 2 && fight.fk_robot2 == bet.fk_robot_id) { 
+                        return bet.Amount * bet.Coefficient;
+                    }
+                    if (fight.winner == 1 && fight.fk_robot1 == bet.fk_robot_id)
+                    {
+                        return bet.Amount * bet.Coefficient;
+                    }
+                }
+            }
+            return 0;
+        }
+    }
+}

@@ -1,0 +1,95 @@
+﻿@page "/products/edit/{productid:int}"
+@using PSA.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Edit product</PageTitle>
+@if (_product is not null)
+{
+    <EditForm Model="@_product" OnValidSubmit="@HandleValidSubmit">
+        <section class="cart_area section_padding">
+            <div class="container">
+                <div class="cart_inner">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        Product Name
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input @bind="@_product.Name" placeholder="@_product.Name" type="text" name="title">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Product Price
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input @bind="@price" placeholder="@price" type="text" name="price">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        Product description
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input @bind="@_product.Description" placeholder="@_product.Description" type="text" name="description">
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        Product Image
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input @bind="@_product.Picture" placeholder="@_product.Picture" type="text" name="image">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <button type="submit" class="btn btn-primary">Edit product</button>
+    </EditForm>
+}
+else
+{
+    <p><em>Loading...</em></p>
+}
+
+
+
+@code {
+    [Parameter]
+    public int? productid { get; set; }
+
+    private Product? _product;
+    private string? price = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _product = await Http.GetFromJsonAsync<Product>($"api/Products/{productid}");
+        price = Convert.ToString(_product?.Price);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if(_product is not null)
+            _product.Price = Convert.ToDouble(price);
+        await Http.PutAsJsonAsync("api/Products", _product);
+        NavManager.NavigateTo("/products", forceLoad: true);
+    }
+}

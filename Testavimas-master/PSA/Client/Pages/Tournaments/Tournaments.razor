@@ -1,0 +1,248 @@
+﻿@page "/tournaments"
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject NavigationManager NavManager
+@using PSA.Shared
+
+<PageTitle>Tournaments</PageTitle>
+
+
+@if (_tournaments == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Start date</td>
+                                <td>End date</td>
+                                <td>Name</td>
+                                <td>Prize</td>
+                                <td>Organiser</td>
+                                <td>Format</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            @foreach(Tournament tournament in _tournaments)
+                            {
+                                <tr>
+                                    <td>@tournament.Id</td>
+                                    <td>@tournament.Start_date</td>
+                                    <td>@tournament.End_date</td>
+                                    <td>@tournament.Name</td>
+                                    <td>@tournament.Prize</td>
+                                    <td>@tournament.Organiser</td>
+                                    <td>@tournament.Format</td>
+                                    
+                                    <td>
+                                        <a class="btn btn-primary" href="/tournaments/viewtournament/@tournament.Id">View</a>
+                                    </td>
+                                    @if (@profile?.LoggedIn == true && @profile?.UserLevel == AccessLevelType.ADMIN)
+                                    {
+                                        <td>
+                                            <a class="btn btn-primary" href="/tournaments/edittournament/@tournament.Id">Edit</a>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" @onclick="() => RemoveTournament(tournament.Id)">Remove</button>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private List<Tournament>? _tournaments;
+    private CurrentUser? profile;
+    private long robotsCount = 0;
+    private List<Fight>? todaysFights;
+    private DateTime dtStart, dtFinish;
+    private List<Product>? product;
+    private List<RobotPart>? robotPart;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _tournaments = await Http.GetFromJsonAsync<List<Tournament>>("api/Tournaments");
+        robotPart = await Http.GetFromJsonAsync<List<RobotPart>?>("api/robotPart");
+        product = await Http.GetFromJsonAsync<List<Product>?>("api/products");
+        Console.WriteLine("Yra");
+        foreach(Tournament tournament in _tournaments)
+        {
+            robotsCount         = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcount/{tournament.Id}");
+            Console.WriteLine("Yra");
+            if(DateTime.Today >= DateTime.Parse(tournament.Start_date) /*&& robotsCount >= 15*/)
+            {
+                Console.WriteLine("snd");
+                todaysFights = await Http.GetFromJsonAsync<List<Fight>?>($"api/fights/todaytournamentfights/{tournament.Id}");
+                foreach(Fight fight in todaysFights)
+                {
+                    Console.WriteLine("Fight");
+                    if(fight.winner == 0)
+                        SetFightWinner(fight);
+                }
+            }
+        }
+
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+        FixDate();
+
+    }
+    protected async void SetFightWinner(Fight fights)
+    {
+
+        if (DateTime.Now >= fights.date && fights.state == 1)
+        {
+            int overall1 = 0;
+            int overall2 = 0;
+            fights.state = 2;
+            foreach (RobotPart robotParts in robotPart)
+            {
+                foreach (Product products in product)
+                {
+                    if (robotParts.fk_robotas == fights.fk_robot1)
+                    {
+                        if (robotParts.fk_preke_id == products.Id && robotParts.Durability > 0)
+                        {
+                            overall1 += products.Material;
+                            overall1 += products.Attack;
+                            overall1 += products.Defense;
+                            overall1 += products.Speed;
+                        }
+                    }
+                    if (robotParts.fk_robotas == fights.fk_robot2 && robotParts.Durability > 0)
+                    {
+                        if (robotParts.fk_preke_id == products.Id)
+                        {
+                            overall2 += products.Material;
+                            overall2 += products.Attack;
+                            overall2 += products.Defense;
+                            overall2 += products.Speed;
+                        }
+                    }
+
+
+
+                }
+
+            }
+            overall1 = overall1 * 10;
+            overall2 = overall2 * 10;
+            int max = overall1 + overall2;
+            Random random = new Random();
+            int rnd = random.Next(0, max);
+            if (overall1 != overall2)
+            {
+                if (rnd <= overall1)
+                {
+                    fights.winner = 1;
+                    await WinLoseTieCondition(fights.fk_robot1, fights.fk_robot2);
+                }
+                else if (rnd > overall1)
+                {
+                    fights.winner = 2;
+                    await WinLoseTieCondition(fights.fk_robot2, fights.fk_robot1);
+                }
+
+            }
+            else
+            {
+                if (rnd <= overall1)
+                {
+                    fights.winner = 1;
+                    await WinLoseTieCondition(fights.fk_robot1, fights.fk_robot2);
+                }
+                else if (rnd > overall1)
+                {
+                    fights.winner = 2;
+                    await WinLoseTieCondition(fights.fk_robot2, fights.fk_robot1);
+                }
+
+            }
+            Console.WriteLine(rnd.ToString());
+            if (fights.winner == 1)
+            {
+                await HandleDamage(fights.fk_robot1, 5);
+                await HandleDamage(fights.fk_robot2, 10);
+
+            }
+            else if (fights.winner == 2)
+            {
+                await HandleDamage(fights.fk_robot1, 10);
+                await HandleDamage(fights.fk_robot2, 5);
+            }
+            else
+            {
+                await HandleDamage(fights.fk_robot1, 20);
+                await HandleDamage(fights.fk_robot2, 20);
+            }
+
+            await HandleFinished(fights);
+        }
+            
+    }
+    private async Task HandleDamage(int robotId, int damage) { 
+        Robot one_robot = await Http.GetFromJsonAsync<Robot>($"api/robots/{robotId}");
+        await Http.PutAsJsonAsync($"api/robotPart/{damage}", one_robot);
+
+    }
+    private async Task WinLoseTieCondition(int id, int id2)
+    {
+        await Http.PutAsJsonAsync($"api/robots/win/{id}/{id2}", profile);
+        
+    }
+    private async Task TieCondition(int id, int id2)
+    {
+        await Http.PutAsJsonAsync($"api/robots/tie/{id}/{id2}", profile);
+
+    }
+    public async Task HandleFinished(Fight fight)
+    {
+
+        Console.WriteLine($"Pirmas fk {fight.fk_robot1} ir antras {fight.fk_robot2}");
+        await Http.PutAsJsonAsync("api/fights/win/mhm", fight);
+        StateHasChanged();
+    }
+    public async Task HandleState(int id)
+    {
+
+        await Http.PutAsJsonAsync($"api/fights/{id}", profile);
+        StateHasChanged();
+
+        NavManager.NavigateTo($"/fights", forceLoad: true);
+        
+    }
+
+    protected async void FixDate()
+    {
+        foreach(Tournament tournament in _tournaments)
+        {
+            dtStart = DateTime.Parse(tournament.Start_date);
+            tournament.Start_date = dtStart.ToString("yyyy-MM-dd");
+
+            dtFinish = DateTime.Parse(tournament.End_date);
+            tournament.End_date = dtFinish.ToString("yyyy-MM-dd");
+        }
+    }
+
+    public async Task RemoveTournament(int tournamentId)
+    {
+        await Http.DeleteAsync($"api/Tournaments/{tournamentId}");
+
+        _tournaments = _tournaments?.Where(tournament => tournament.Id != tournamentId).ToList();
+    }
+}
