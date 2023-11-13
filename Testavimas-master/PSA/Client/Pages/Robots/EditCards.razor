@@ -1,0 +1,52 @@
+﻿@page "/card/edit/{robotId:int}"
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@using PSA.Shared
+
+<PageTitle>Edit Card</PageTitle>
+
+<h3>Edit Card</h3>
+@if (card != null) {
+    <div class="form-group">
+        <label for="imageUrl">Image URL:</label>
+        <input type="text" class="form-control" id="imageUrl" @bind="card.ImageUrl" />
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea class="form-control" id="description" @bind="card.Description"></textarea>
+    </div>
+
+    <button class="btn btn-primary" @onclick="SaveCard">Save</button>
+    <button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+}
+
+
+
+@code {
+
+    SwipeCard card;
+
+    [Parameter]
+    public int robotId { get; set; }
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        card = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robotId}");
+        StateHasChanged();
+    }
+
+    public void Cancel()
+    {
+        NavManager.NavigateTo("/robots");
+    }
+    public async void SaveCard()
+    {
+        if (card is not null)
+        {
+            await Http.PutAsJsonAsync("/card", card);
+        }
+        NavManager.NavigateTo("/robots"); 
+    }
+}

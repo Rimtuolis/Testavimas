@@ -1,0 +1,154 @@
+﻿@page "/robot/edit/{id:int}"
+@using PSA.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+<PageTitle>Edit robot</PageTitle>
+@if (_robotParts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+            <div class="row">
+                <div class="col-xl-2 col-lg-2 col-md-2">
+                    <div class="single-product mb-60">
+
+                        <img class="small-img" src="@pictures[3]" alt="" style="width: 150px" />
+
+                        <div class="product-caption">
+                            <h4><a href="/products/3" placeholder="Choose Head">@names[3]</a></h4>
+                            <div class="price">
+                                <ul>
+                                    <li>Durability : @durability[3] %</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-2">
+                    <div class="single-product mb-60">
+
+                        <img class="small-img" src="@pictures[7]" alt="" style="width: 150px" />
+
+                        <div class="product-caption">
+                            <h4><a href="/products/7" placeholder="Choose Body">@names[7]</a></h4>
+                            <div class="price">
+                                <ul>
+                                    <li>Durability : @durability[7] %</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-2">
+                    <div class="single-product mb-60">
+
+                        <img class="small-img" src="@pictures[4]" alt="" style="width: 150px" />
+                        <div class="product-caption">
+                            <h4><a href="/products/4" placeholder="Choose Left Arm">@names[4]</a></h4>
+                            <div class="price">
+                                <ul>
+                                    <li>Durability : @durability[4] %</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-2">
+                    <div class="single-product mb-60">
+
+                        <img class="small-img" src="@pictures[5]" alt="" style="width: 150px" />
+                        <div class="product-caption">
+                            <h4><a href="/products/5" placeholder="Choose Right Arm">@names[5]</a></h4>
+                            <div class="price">
+                                <ul>
+                                    <li>Durability : @durability[5] %</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-2">
+                    <div class="single-product mb-60">
+
+                        <img class="small-img" src="@pictures[6]" alt="" style="width: 150px" />
+
+                        <div class="product-caption">
+                            <h4><a href="/products/6" placeholder="Choose Left Leg">@names[6]</a></h4>
+                            <div class="price">
+                                <ul>
+                                    <li>Durability : @durability[6] %</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-2 col-lg-2 col-md-2">
+                    <div class="single-product mb-60">
+
+                        <img class="small-img" src="@pictures[2]" alt="" style="width: 150px" />
+                        <div class="product-caption">
+                            <h4><a href="/products/2" placeholder="Choose Right Leg">@names[2]</a></h4>
+                            <div class="price">
+                                <ul>
+                                    <li>Durability : @durability[2] %</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? id { get; set; }
+
+    private List<RobotPart>? _robotParts;
+    private string? price = "";
+    private Product? selectedProduct;
+    private String[]? pictures = { "", "", "", "", "", "", "", "", "" };
+    private String[]? names = { "", "", "", "", "", "", "", "", "" };
+    private Double[]? prices = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private int[]? durability = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _robotParts = await Http.GetFromJsonAsync<List<RobotPart>>($"api/robotDto/{id}");
+        //price = Convert.ToString(_product?.Price);
+        foreach (var item in _robotParts)
+        {
+            await GetRobotPart(item.fk_preke_id, item.Durability);
+
+        }
+        StateHasChanged();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        //if (_product is not null)
+        //    _product.Price = Convert.ToDouble(price);
+        //await Http.PutAsJsonAsync("api/Products", _product);
+        //NavManager.NavigateTo("/products", forceLoad: true);
+    }
+    protected async Task GetRobotPart(int id, int _durability)
+    {
+        if (id != 0)
+        {
+            selectedProduct = await Http.GetFromJsonAsync<Product>($"api/robots/parts/{id}");
+            pictures[(int)selectedProduct.Category] = selectedProduct.Picture;
+            names[(int)selectedProduct.Category] = selectedProduct.Name;
+            prices[(int)selectedProduct.Category] = selectedProduct.Price;
+            durability[(int)selectedProduct.Category] = _durability;
+
+
+        }
+    }
+}

@@ -1,0 +1,118 @@
+﻿@page "/robot/automatic"
+@using PSA.Shared
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using Microsoft.Extensions.Logging
+@inject HttpClient Http
+@inject NavigationManager NavManager
+@inject IJSRuntime JS
+<PageTitle>Robot Automatic Creation</PageTitle>
+
+<EditForm Model="@_autoGenerator" OnValidSubmit="@HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+        <p>
+            <label>
+                Material:
+                <InputSelect @bind-Value="_autoGenerator.Material">
+                <option selected="selected" value="">Select a material</option>
+                    <option value="1">Steel</option>
+                    <option value="2">Aluminum</option>
+                    <option value="4">Polycarbonate</option>
+                    <option value="5">PVC</option>
+                    <option value="6">Titanium</option>
+                </InputSelect>
+            </label>
+        </p>
+    <p>
+        <label>
+            Fighting Style:
+            <InputSelect @bind-Value="_autoGenerator.Fighting_Style">
+                <option selected="selected" value="">Select a fighting style</option>
+                <option value="1">Agressive</option>
+                <option value="2">Defensive</option>
+                <option value="3">Speedy</option>
+                <option value="4">Balanced</option>
+            </InputSelect>
+        </label>
+    </p>
+    <p>
+        <label>
+            Budget:
+            <InputSelect @bind-Value="_autoGenerator.Budget">
+                <option selected="selected" value="">Select a budget</option>
+                <option value="1">Cheap</option>
+                <option value="2">Medium</option>
+                <option value="3">Expensive</option>
+            </InputSelect>
+        </label>
+    </p>
+    <p>
+        <label>
+            Zodiac:
+            <InputSelect @bind-Value="_autoGenerator.Zodiac">
+                <option selected="selected" value="">Select a sign </option>
+                <option value="1">Taurus</option>
+                <option value="2">Aries</option>
+                <option value="3">Gemini</option>
+                <option value="4">Cancer</option>
+                <option value="5">Leo</option>
+                <option value="6">Virgo</option>
+                <option value="7">Libra</option>
+                <option value="8">Scorpio</option>
+                <option value="9">Sagittarius</option>
+                <option value="10">Capricorn</option>
+                <option value="11">Aquarius</option>
+                <option value="12">Pisces</option>
+            </InputSelect>
+        </label>
+    </p>
+<button type="submit" class="btn">Submit selections</button>
+</EditForm>
+@*
+<EditForm Model="@products" OnValidSubmit="@HandleValidSubmit">
+    <div class="mb-3 col-7">
+        <label for="Name"><b>Product name</b></label>
+        <input class="form-control" id="Name" @bind="@product.Name" placeholder="Name" type="text" name="Name" required>
+    </div>
+    <div class="mb-3">
+        <label for="Description"><b>Product description</b></label>
+        <textarea class="form-control" id="Description" @bind="@product.Description" placeholder="Description" name="Description" required></textarea>
+    </div>
+    <div class="col-2">
+        <label for="Price"><b>Price</b></label>
+        <input type="text" @bind="@price" class="form-control" id="Price" placeholder="Price">
+    </div>
+    <div class="mb-3">
+        <label for="Picture"><b>Product picture</b></label>
+        <input class="form-control" id="Picture" @bind="@product.Picture" placeholder="Picture" type="text" name="Picture">
+    </div>
+    <button type="submit" class="btn">Kurti produktą</button>
+</EditForm>
+*@
+@code {
+    private Product[]? products;
+    private CurrentUser? profile;
+    private AutoGenerator? _autoGenerator = new AutoGenerator();
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await Http.GetFromJsonAsync<Product[]>("api/products");
+        //Console.WriteLine(products);
+        //Console.WriteLine(products.Length);
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+    }
+    private async Task HandleValidSubmit()
+    {
+        if (_autoGenerator.Zodiac >= 1 && _autoGenerator.Material >= 1 && _autoGenerator.Fighting_Style >= 1 && _autoGenerator.Budget >= 1)
+        {
+            await Http.PostAsJsonAsync<AutoGenerator?>("api/autobuilder", _autoGenerator);
+            //profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+            NavManager.NavigateTo("/robot/automatic/generated", forceLoad: true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Not all parts were selected");
+        }
+    }
+}

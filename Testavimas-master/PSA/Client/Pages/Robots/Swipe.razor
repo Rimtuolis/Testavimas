@@ -1,0 +1,227 @@
+﻿@page "/robots/swipe/{robotId:int}"
+@using Blazorise
+@using PSA.Shared
+@inject HttpClient Http
+@inject IJSRuntime JS
+
+<PageTitle>Robot swipe with love</PageTitle>
+
+@if (profile == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <div class="swiper">
+
+
+        <div class="swipeCard">
+            @if (currentCard != null)
+            {
+                <img src="@currentCard.ImageUrl" draggable="false" alt="Card Image" />
+                <button class="info-button" @onclick:stopPropagation @onclick="() => ShowDescription(currentCard)">i</button>
+                <div class="description" style="display: @(showDescription ? "block" : "none")">
+                    <p>@currentCard.Description</p>
+                </div>
+                <div class="actions" draggable="false">
+                    <button class="dislike-button" @onclick="Dislike">Dislike</button>
+                    <button class="like-button" @onclick="Like">Like</button>
+                </div>
+            }
+            else
+            {
+                <p>No more cards available.</p>
+            }
+
+        </div>
+
+
+    </div>
+@*    <Modal @ref="modalRef">
+        <ModalContent Centered>
+            <ModalHeader>
+                <ModalTitle>IT IS A "MATCH"</ModalTitle>
+                <CloseButton />
+            </ModalHeader>
+            <ModalBody>
+                <Validations @ref="validations" Mode="ValidationMode.Manual" ValidateOnLoad="false">
+                    <Validation Validator="@ValidationRule.IsNotEmpty">
+                        <Field>
+                            <FieldLabel>Select match date</FieldLabel>
+                            <FieldBody>
+                                <DatePicker @bind-Date="@selectedDate" TimeAs24hr="true">
+                                    <Feedback>
+                                        <ValidationError />
+                                    </Feedback>
+                                </DatePicker>
+                            </FieldBody>
+                        </Field>
+                    </Validation>
+                    <Button Color="Color.Primary" Clicked="@CreateFight">Submit</Button>
+                </Validations>
+
+            </ModalBody>
+
+        </ModalContent>
+    </Modal>*@
+            <Modal @ref="modalRef">
+            <ModalContent Centered>
+                <ModalHeader>
+                    <ModalTitle>IT IS A "MATCH"</ModalTitle>
+                    <CloseButton />
+                </ModalHeader>
+                <ModalBody>
+                    <Validations @ref="validations" Mode="ValidationMode.Manual" ValidateOnLoad="false">
+                    <Validation Validator="ValidateCheck">
+                            <Field>
+                                <FieldLabel>Select match date</FieldLabel>
+                                <FieldBody>
+                                    <DatePicker @bind-Date="@selectedDate" TValue="DateTime?" InputMode="DateInputMode.DateTime" Placeholder="@today" TimeAs24hr="true">
+                                        <Feedback>
+                                            <ValidationError />
+                                        </Feedback>
+                                    </DatePicker>
+                                </FieldBody>
+                            </Field>
+                        </Validation>
+                        <Button Color="Color.Primary" Clicked="@CreateFight">Submit</Button>
+                    </Validations>
+
+                </ModalBody>
+
+            </ModalContent>
+        </Modal>
+
+
+
+
+    //CUSTOM VALIDATOR
+    //PATTERN
+    //AUTO
+    //Model
+
+}
+
+
+
+@code {
+
+    [Parameter]
+    public int robotId { get; set; }
+
+    private CurrentUser? profile;
+    public SwipeCard currentCard;
+    private bool showDescription;
+    private List<SwipeCard> allCards;
+    private Modal modalRef;
+    private Validations validations;
+    bool test = true;
+
+    private DateTime? selectedDate;
+    private string today = DateTime.Now.AddDays(1).ToString();
+
+    private void OnDateSelected(DateTime value)
+    {
+        selectedDate = value;
+    }
+    void ValidateCheck(ValidatorEventArgs e)
+    {
+        Console.WriteLine($"Data pagal validation:  {e.Value.ToString()}");
+
+        e.Status = string.IsNullOrEmpty(Convert.ToString(e.Value))
+     ? ValidationStatus.Error
+     : ValidationStatus.Success;
+
+
+
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+        allCards = await Http.GetFromJsonAsync<List<SwipeCard>>("/card");
+        await LoadNextCard();
+        var lDotNetReference = DotNetObjectReference.Create(this);
+        JS.InvokeVoidAsync("GLOBAL.SetDotnetReference", lDotNetReference);
+
+        await JS.InvokeAsync<object>("tinderSwipe");
+    }
+    private async Task LoadNextCard()
+    {
+        currentCard = allCards.FirstOrDefault();
+        StateHasChanged();
+        showDescription = false;
+        if (currentCard != null)
+        {
+            allCards.Remove(currentCard);
+        }
+    }
+
+    private void ShowDescription(SwipeCard card)
+    {
+        showDescription = !showDescription;
+    }
+
+    [JSInvokable("Dislike")]
+    public async Task Dislike()
+    {
+        await LoadNextCard();
+        StateHasChanged();
+    }
+    [JSInvokable("Like")]
+    public async Task Like()
+    {
+        var response = await Http.PostAsJsonAsync($"card/swipe/{robotId}", currentCard);
+        if (response.IsSuccessStatusCode)
+        {
+            bool result = bool.Parse(await response.Content.ReadAsStringAsync());
+            if (result)
+            {
+                await modalRef.Show();
+                test = false;
+            }
+
+        }
+        if (test)
+        {
+            await LoadNextCard();
+            StateHasChanged();
+        }
+    }
+
+    private async Task CreateFight()
+    {
+        if (await validations.ValidateAll())
+        {
+            Console.WriteLine($"Data pagal selected: {selectedDate.ToString()}");
+
+            DateTime UpdatedTime = selectedDate ?? DateTime.Now.AddDays(1);
+            Console.WriteLine($"Data pagal selected to string: {UpdatedTime}");
+
+            Fight fight = new Fight();
+            
+            fight.date = UpdatedTime;
+            fight.fk_robot1 = robotId;
+
+            fight.fk_robot2 = currentCard.fk_robot;
+            fight.state = 1;
+            fight.winner = 0;
+
+            await Http.PostAsJsonAsync("api/fights", fight);
+
+            selectedDate = DateTime.Now.AddDays(1);
+
+            await validations.ClearAll();
+            await modalRef.Hide();
+            test = true;
+            await LoadNextCard();
+            StateHasChanged();
+        }
+        
+
+
+
+    }
+}
+

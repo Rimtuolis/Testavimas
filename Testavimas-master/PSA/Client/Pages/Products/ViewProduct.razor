@@ -1,0 +1,118 @@
+﻿@page "/products/view/{id}"
+@using PSA.Shared
+@inject HttpClient Http
+@inject NavigationManager NavManager
+
+
+@if (product == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+    <div class="product_image_area">
+        <div class="container">
+            <div class="row justify-content-center">
+
+                <img src="@product.Picture" alt="#" class="product-image">
+
+                <div class="col-lg-8">
+                    <div class="single_product_text text-center">
+                        <h3>@product.Name</h3>
+                        <p>@product.Description</p>
+                        <div class="card_area">
+                            <div class="product_count_area">
+                                <p>Price  : </p>
+                                <p>@product.Price € </p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Material  : </p>
+                                <p>@_materials[(int)product.Material]</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Category  : </p>
+                                <p>@_categories[(int)product.Category]</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Connection  : </p>
+                                <p>@_connections[(int)product.Connection]</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Attack  : </p>
+                                <p>@product.Attack</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Defense : </p>
+                                <p>@product.Defense</p>
+                            </div>
+                            <div class="product_count_area">
+                                <p>Speed : </p>
+                                <p>@product.Speed</p>
+                            </div>
+                            <div class="add_to_cart">
+                                @if (profile?.LoggedIn == true)
+                                {
+                                    <button @onclick="()=>AddToCart(product)" class="btn_3">Add to cart</button>
+                                    <button @onclick="()=>AddToBuilder(product)" class="btn_3">Add to builder</button>
+                                }
+                                else
+                                {
+                                    <a href="login" class="btn_3">Log in to add to cart</a>
+
+                                }
+                                @if (@profile?.UserLevel == AccessLevelType.ADMIN)
+                                {
+
+                                    <a class="btn btn-primary" href="/products/edit/@product.Id">Edit</a>
+                                    <a class="btn btn-primary" @onclick="() => RemoveProductFromDB(product.Id)">Remove</a>
+
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+}
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+
+    private Product? product;
+    private CurrentUser? profile;
+    private string[] _categories = { "a", "bim", "Right Leg", "Head", "Left Arm", "Right Arm", "Left Leg", "Body" };
+    private string[] _materials = { "a", "Steel", "Aluminum", "b", "Polycarbonate", "PVC", "Titanium" };
+    private string[] _connections = { "X", "A", "B", "C" ,"D"};
+
+    protected override async Task OnInitializedAsync()
+    {
+        profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
+        product = await Http.GetFromJsonAsync<Product?>("api/products/" + id);
+    }
+
+    public async Task AddToCart(Product product)
+    {
+        await Http.PostAsJsonAsync("/api/cart/add", product);
+        NavManager.NavigateTo("/products/view/" + id, forceLoad: true);
+    }
+    public async Task AddToBuilder(Product product)
+    {
+        await Http.PostAsJsonAsync("/api/builder/add", product);
+        NavManager.NavigateTo("/robot/manual/", forceLoad: true);
+    }
+
+    public async void RemoveProductFromDB(int id)
+    {
+        await Http.DeleteAsync($"api/products/{id}");
+        await InvokeAsync(() => StateHasChanged());
+        NavManager.NavigateTo("/products", forceLoad: true);
+    }
+
+}
