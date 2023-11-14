@@ -53,17 +53,11 @@ else
                         Total dealer: <br />
                         @if (blackJack?.dealerCards is not null)
                             @blackJack.dealerCards.Sum(card => card.value)
-
-
-
                         </div>
                         <div class="col-2 d-inline-flex">
                             Total player: <br />
                             @if (blackJack?.playerCards is not null)
                             @blackJack.playerCards.Sum(card => card.value)
-
-
-
                         </div>
                     </div>
                     <div class="col-6">
@@ -99,7 +93,6 @@ else
         </div>
     }
 }
-
 @code {
     PSA.Shared.BlackJack? blackJack;
     private CurrentUser? currentUser;
