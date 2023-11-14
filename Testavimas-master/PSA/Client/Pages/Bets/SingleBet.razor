@@ -35,7 +35,7 @@ else{
 
     private List<Bet> allBets;
     double coef = 1;
-    private string bet = "";
+    public string bet = "";
     private CurrentUser? currentUser;
     private double betAmount = 0;
 
@@ -47,7 +47,7 @@ else{
         StateHasChanged();
     }
 
-    private double CalculateCoef(int fight_id, int fk_robot)
+    public double CalculateCoef(int fight_id, int fk_robot)
     {
         double all_sum = 0;
         double sum = 0;
@@ -76,7 +76,7 @@ else{
         return coefic;
     }
 
-    public async void HandleBet()
+    public async Task HandleBet()
     {
         bool err = false;
         try
@@ -105,9 +105,7 @@ else{
                 bet.Coefficient = coef;
                 bet.state = 1;
                 await Http.PostAsJsonAsync("api/Bets", bet);
-                Console.WriteLine("SEDIM CIA");
                 currentUser.balance -= betAmount;
-                Console.WriteLine($"SEDIM CIA {currentUser.balance}");
                 await Http.PutAsJsonAsync($"api/Bets/balance", currentUser);
                 NavManager.NavigateTo("/betting/bets", forceLoad: true);
 

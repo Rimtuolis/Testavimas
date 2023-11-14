@@ -121,7 +121,7 @@ else
     public double CountedStats = 0;
     double maxStats = 0;
     double stats = 0;
-    bool statistics= false;
+    public bool statistics= false;
     List<SwipeCard> Cards = new List<SwipeCard>();
     List<RobotDto> robots = new List<RobotDto>();
     protected override async Task OnInitializedAsync()
@@ -143,25 +143,23 @@ else
                     robot.Parts = new List<RobotPart>();
                     await Http.PostAsJsonAsync<RobotDto>($"/card", robot); //robotDTO in controller
                     SwipeCard temp = await Http.GetFromJsonAsync<SwipeCard>($"card/element/{robot.Id}");
+                    statistics = true;
                     temp.Description = robot.Nickname;
                     Cards.Add(temp);
                 }
-
-
-
             }
         }
         StateHasChanged();
     }
-    private void EditCard(SwipeCard card)
+    public void EditCard(SwipeCard card)
     {
         NavManager.NavigateTo($"/card/edit/{card.fk_robot}", forceLoad: true);
     }
-    private void Swipe(int robotId)
+    public void Swipe(int robotId)
     {
         NavManager.NavigateTo($"/robots/swipe/{robotId}", forceLoad: true);
     }
-    private void Select(int robotId)
+    public void Select(int robotId)
     {
         NavManager.NavigateTo($"/fights/{robotId}", forceLoad: true);
     }
@@ -175,9 +173,7 @@ else
                 robot.Parts = robotParts;
                 NavManager.NavigateTo($"/robot/Edit/{id}", forceLoad: true);
             }
-
         }
-
     }
     public void ShowStatistics()
     {

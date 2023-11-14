@@ -2,8 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PSA.Client.Pages.Tournaments;
-using PSA.Server.Controllers;
+using PSA.Server.Services;
 using PSA.Services;
 using PSA.Shared;
 using System;
@@ -20,10 +19,12 @@ namespace PSA.Server.Controllers.Tests
         private readonly Mock<IDatabaseOperationsService> _databaseOperationMock;
         private readonly Mock<ILogger<TournamentFightsController>> _loggerMock;
         private readonly Fixture _fixture = new Fixture();
+        private readonly Mock<ICurrentUserService> _currentUserMock;
         public TournamentFightsControllerTests()
         {
             _databaseOperationMock = new Mock<IDatabaseOperationsService>();
             _loggerMock = new Mock<ILogger<TournamentFightsController>>();
+            _currentUserMock = new Mock<ICurrentUserService>();
         }
         [TestMethod]
         public async Task GetTournamentFightsListTest()
@@ -34,16 +35,21 @@ namespace PSA.Server.Controllers.Tests
             var output = await sut.Get();
             Assert.AreEqual(expectedTournamenttList, output);
         }
-        /*[TestMethod]
+        [TestMethod]
         public async Task GetByIdTest()
         {
-            var expectedTournament = _fixture.Build<Shared.TournamentFight>().With(x => x.id, 12).Create();
-            _databaseOperationMock.Setup(x => x.ReadItemAsync<TournamentFight>($"SELECT * FROM turnyro_kova where fk_turnyras = {expectedTournament.id}")).ReturnsAsync(expectedTournament);
-            var sut = new TournamentFightsController(_databaseOperationMock.Object, _loggerMock.Object);
-            var outpuT = await sut.Get(expectedTournament.id);
-            Assert.AreEqual(expectedTournament, outpuT);
+            var tournamentId = 1;
 
-        }*/
+            var expectedTournamentFights = new List<TournamentFight>();
+            _databaseOperationMock.Setup(x => x.ReadListAsync<TournamentFight>($"select * from turnyro_kova where fk_turnyras = {tournamentId}")).ReturnsAsync(expectedTournamentFights);
+
+            TournamentFightsController _tournamentFightsController = new TournamentFightsController(_databaseOperationMock.Object, _loggerMock.Object);
+            var result = await _tournamentFightsController.Get(tournamentId);
+
+            // Assert
+            Assert.AreEqual(expectedTournamentFights, result);
+
+        }
         [TestMethod]
         public async Task CreateTest()
         {

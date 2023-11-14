@@ -37,30 +37,36 @@ namespace PSA.Server.Controllers.Tests
             var output = await sut.GetActiveAllBets();
             Assert.AreEqual(expectedBetsList, output);
         }
-        /*[TestMethod]
+        [TestMethod]
         public async Task GetUserBetsTest()
         {
             var expectedBetsList = _fixture.Create<List<Shared.Bet>>();
-            var currentUser = _fixture.Create<CurrentUser>();
-            var id = currentUser.Id;
-            _databaseOperationMock.Setup(x => x.ReadListAsync<Bet>($"SELECT * FROM statymas where fk_user_id = {id} and state = 1")).ReturnsAsync(expectedBetsList);
+            var userId = 1;
+            var currentUser = new CurrentUser { Id = userId };
+            _currentUserMock.Setup(x => x.GetUser()).Returns(currentUser);
+
+            _databaseOperationMock.Setup(x => x.ReadListAsync<Bet>($"SELECT * FROM statymas where fk_user_id = {userId} and state = 1")).ReturnsAsync(expectedBetsList);
             var sut = new BetsController(_loggerMock.Object, _currentUserMock.Object, _databaseOperationMock.Object);
             var output = await sut.Get();
-            //Assert.AreEqual(expectedBetsList, output);
-            _currentUserMock.Verify(x => x.SetUser(currentUser), Times.Once);
-        }*/
-        /*[TestMethod]
+
+            Assert.IsNotNull(output);
+            Assert.AreEqual(expectedBetsList, output);
+        }
+        [TestMethod]
         public async Task GetUserHistoryTest()
         {
             var expectedBetsList = _fixture.Create<List<Shared.Bet>>();
-            var currentUser = _fixture.Create<CurrentUser>();
-            var id = currentUser.Id;
-            _databaseOperationMock.Setup(x => x.ReadListAsync<Bet>($"SELECT * FROM statymas where fk_user_id = {id} and state = 2")).ReturnsAsync(expectedBetsList);
+            var userId = 1;
+            var currentUser = new CurrentUser { Id = userId };
+            _currentUserMock.Setup(x => x.GetUser()).Returns(currentUser);
+
+            _databaseOperationMock.Setup(x => x.ReadListAsync<Bet>($"SELECT * FROM statymas where fk_user_id = {userId} and state = 2")).ReturnsAsync(expectedBetsList);
             var sut = new BetsController(_loggerMock.Object, _currentUserMock.Object, _databaseOperationMock.Object);
-            var output = await sut.Get();
-            //Assert.AreEqual(expectedBetsList, output);
-            _currentUserMock.Verify(x => x.SetUser(currentUser), Times.Once);
-        }*/
+
+            var output = await sut.GetHistory();
+            Assert.IsNotNull(output);
+            Assert.AreEqual(expectedBetsList, output);
+        }
         [TestMethod]
         public async Task GetByIdTest()
         {

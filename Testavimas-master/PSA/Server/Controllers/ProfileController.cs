@@ -47,14 +47,14 @@ namespace PSA.Server.Controllers
 
         // POST api/profiles/edit
         [HttpPost("edit")]
-        public async void EditProfile([FromBody] ProfileCreation value)
+        public async Task EditProfile([FromBody] ProfileCreation value)
         {   
             await _databaseOperationsService.ExecuteAsync($"UPDATE user SET name='{value.name}', last_name = '{value.last_name}',  password = '{value.password}', birthdate = '{value.birthdate}', city = '{value.city}', email = '{value.email}', post_code='{value.post_code}' WHERE `nickname`='{value.nickname}'");
         }
 
         // POST api/profiles/delete
         [HttpPost("delete")]
-        public async void DeleteProfile([FromBody] ProfileCreation value)
+        public async Task DeleteProfile([FromBody] ProfileCreation value)
         {
             await _databaseOperationsService.ExecuteAsync($"DELETE FROM user WHERE nickname ='{value.nickname}'");
             

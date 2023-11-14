@@ -286,10 +286,6 @@ else
         await GetRobotPart(robotParts.Head);
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
     }
-    protected async Task GetSpecificProductAsync(string category)
-    {
-        specificProducts = await Http.GetFromJsonAsync<Product[]>($"api/products/{category}");
-    }
     protected async Task GetRobotPart(int id)
     {
         if (id != 0)

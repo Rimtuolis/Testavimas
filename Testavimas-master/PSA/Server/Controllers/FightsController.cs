@@ -19,7 +19,7 @@ namespace PSA.Server.Controllers
             _currentUserService = currentUserService;
 		}
         [HttpGet]
-        public async Task<IEnumerable<Fight>> GetAllCompletedFights (int robotId)
+        public async Task<IEnumerable<Fight>> GetAllCompletedFights()
 		{
 			return await _databaseOperationsService.ReadListAsync<Fight>($"select * from kova where state = 3");
 		}

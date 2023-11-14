@@ -29,18 +29,8 @@ namespace PSA.Server.Controllers
 		[HttpGet("allrobots")]
 		public async Task<IEnumerable<Robot>> GetAllRobots()
 		{
-			return await _databaseOperationsService.ReadListAsync<Robot>($"SELECT * FROM robotas ");
+			return await _databaseOperationsService.ReadListAsync<Robot>($"SELECT * FROM robotas");
 		}
-		[HttpGet("reikia/id")]
-        public async Task<Robot?> Getid(int id)
-        {
-            return await _databaseOperationsService.ReadItemAsync<Robot?>($"SELECT * FROM robotas where fk_user_id = {_currentUserService.GetUser().Id}");
-        }
-        [HttpGet("get/getAll")]
-        public async Task<IEnumerable<Robot>?> GetAll()
-        {
-            return await _databaseOperationsService.ReadListAsync<Robot?>($"SELECT * FROM robotas");
-        }
         // Gets tournament by ID
         // GET api/<TournamentsController>/5
         [HttpGet("{id}")]

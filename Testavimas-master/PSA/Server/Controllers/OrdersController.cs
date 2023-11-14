@@ -58,31 +58,9 @@ namespace PSA.Server.Controllers
                     index = 0;
                 }
                 index++;
-                //var sandelininkuIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
-                //var sandelininkas = sandelininkuIds[new Random().Next(0, sandelininkuIds.Count - 1)];
 
                 await _databaseOperationsService.ExecuteAsync($"insert into uzsakymas(suma, data, busena, id_Uzsakymas, fk_user_id) values({total}, NOW(), {(int)OrderState.Patvirtintas}, {index}, {_currentUserService.GetUser().Id})");
 
-                //foreach (var product in cart)
-                //{
-                //    for (int i = 0; i < product.Kiekis; i++)
-                //    {
-                //        await _databaseOperationsService.ExecuteAsync($"insert into prekes_uzakymas values({index}, {product.Id_Preke})");
-                //    }
-                //}
-                //var contract_index = await _databaseOperationsService.ReadItemAsync<int?>("select max(id_Sutartis) from sutartis");
-                //contract_index++;
-                //var ManagersIds = await _databaseOperationsService.ReadListAsync<int>("select id_Sandelinkas from sandelinkas");
-                //var managerID = ManagersIds[new Random().Next(0, ManagersIds.Count - 1)];
-               // await _databaseOperationsService.ExecuteAsync($"insert into sutartis values(NOW(), {contract_index}, {index}, {managerID})");
-                //await _databaseOperationsService.ExecuteAsync($"insert into email_saskaita(data, prekiu_skaicius, suma, " +
-                    //$"papildoma_informacija, fk_Sandelinkasid_Sandelinkas, fk_Klientasid_User, fk_Sutartisid_Sutartis) " +
-                    //$"values(NOW(), {cart.Count}, {total}, '-', {sandelininkas}, {_currentUserService.GetUser().Id}, {contract_index})");
-                //Shared.Client? client = await _databaseOperationsService.ReadItemAsync<Shared.Client>($"select * from klientas where id_User = {_currentUserService.GetUser().Id}");
-                //Contract? contract = await _databaseOperationsService.ReadItemAsync<Contract>($"select * from sutartis where id_Sutartis = {contract_index}");
-                //Manager? manager = await _databaseOperationsService.ReadItemAsync<Manager>($"select * from vadybininkas where id_Vadybininkas = {managerID}");
-                //Worker? worker = await _databaseOperationsService.ReadItemAsync<Worker>($"select * from sandelinkas where id_Sandelinkas = {sandelininkas}");
-                //await _mailService.SendInvoice(client, contract, manager, worker);
                 _cartService.ClearCart();
             }
             catch (Exception ex)

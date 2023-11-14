@@ -6,93 +6,93 @@
 
 <PageTitle>View Tournament</PageTitle>
 
-@if(_tournament is not null)
+@if (_tournament is not null)
 {
-<section class="cart_area section_padding">
-    <div class="container">
-        <div class="cart_inner">
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <td>ID</td>
-                            <td>Start</td>
-                            <td>Finish</td>
-                            <td>Name</td>
-                            <td>Prize</td>
-                            <td>Organiser</td>
-                            <td>Format</td>
-                            <td>State</td>
-                            <td>Registration</td>
-                        </tr>
-                    </thead>
-                    <tbody class="table-group-divider">
-                        <tr>
-                            <td>@_tournament.Id</td>
-                            <td>@_tournament.Start_date</td>
-                            <td>@_tournament.End_date</td>
-                            <td>@_tournament.Name</td>
-                            <td>@_tournament.Prize</td>
-                            <td>@_tournament.Organiser</td>
-                            <td>@_tournament.Format</td>
-                            <td>@busena</td>
-                            @if (@profile?.LoggedIn == true)
-                            {
-                                @if(DateTime.Today < DateTime.Parse(@_tournament.Start_date))
+    <section class="cart_area section_padding">
+        <div class="container">
+            <div class="cart_inner">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <td>ID</td>
+                                <td>Start</td>
+                                <td>Finish</td>
+                                <td>Name</td>
+                                <td>Prize</td>
+                                <td>Organiser</td>
+                                <td>Format</td>
+                                <td>State</td>
+                                <td>Registration</td>
+                            </tr>
+                        </thead>
+                        <tbody class="table-group-divider">
+                            <tr>
+                                <td>@_tournament.Id</td>
+                                <td>@_tournament.Start_date</td>
+                                <td>@_tournament.End_date</td>
+                                <td>@_tournament.Name</td>
+                                <td>@_tournament.Prize</td>
+                                <td>@_tournament.Organiser</td>
+                                <td>@_tournament.Format</td>
+                                <td>@busena</td>
+                                @if (@profile?.LoggedIn == true)
                                 {
-                                    <td>
-                                        <a class="btn btn-primary" href="/robots/registerontournament/@tournamentId">Register</a>
-                                    </td>
+                                    @if (DateTime.Today < DateTime.Parse(@_tournament.Start_date))
+                                    {
+                                        <td>
+                                            <a class="btn btn-primary" href="/robots/registerontournament/@tournamentId">Register</a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td>Closed</td>
+                                    }
+
                                 }
                                 else
                                 {
-                                    <td>Closed</td>
+                                    <td>Log in to see</td>
                                 }
-
-                            }
-                            else
-                            {
-                                <td>Log in to see</td>
-                            }
-                        </tr>
-                        <tr>
-                            <td colspan="7">
-                                Fights(@_fights.Count)
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                Blue corner
-                            </td>
-                            <td>
-                                Red corner
-                            </td>
-                            <td>
-                                Date
-                            </td>
-                            <td>
-                                Winner
-                            </td>
-                            <td>
-                                Status
-                            </td>
-                            <td colspan="2">
-                                <a class="btn btn-primary" href="/robots/InTournament/@tournamentId">View registered</a>
-                            </td>
-                        </tr>
+                            </tr>
+                            <tr>
+                                <td colspan="7">
+                                    Fights(@_fights.Count)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Blue corner
+                                </td>
+                                <td>
+                                    Red corner
+                                </td>
+                                <td>
+                                    Date
+                                </td>
+                                <td>
+                                    Winner
+                                </td>
+                                <td>
+                                    Status
+                                </td>
+                                <td colspan="2">
+                                    <a class="btn btn-primary" href="/robots/InTournament/@tournamentId">View registered</a>
+                                </td>
+                            </tr>
                             @foreach (Fight fight in _fights)
                             {
-                               <tr>
-                                   <td>
-                                       @fight.fk_robot1
-                                   </td>
-                                   <td>
-                                       @fight.fk_robot2
-                                   </td>
-                                   <td>
-                                       @fight.date
-                                   </td>
-                                   <td>
+                                <tr>
+                                    <td>
+                                        @fight.fk_robot1
+                                    </td>
+                                    <td>
+                                        @fight.fk_robot2
+                                    </td>
+                                    <td>
+                                        @fight.date
+                                    </td>
+                                    <td>
                                         @fight.winner
                                     </td>
                                     <td>
@@ -104,9 +104,9 @@
                                             <a class="btn btn-primary" href="/fights/betonfight/@fight.id">Bet</a>
                                         </td>
                                     }
-                               </tr> 
+                                </tr>
                             }
-                            @if(DateTime.Today >= DateTime.Parse(@_tournament.End_date))
+                            @if (DateTime.Today >= DateTime.Parse(@_tournament.End_date))
                             {
                                 <tr>
                                     <td colspan="7">Laimetojas</td>
@@ -115,15 +115,16 @@
                                     <td colspan="7">@winner</td>
                                 </tr>
                             }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 }
-else{
-<p><em>Loading...</em></p>
+else
+{
+    <p><em>Loading...</em></p>
 }
 @code {
     [Parameter]
@@ -132,7 +133,7 @@ else{
     private Tournament? _tournament;
 
     private List<TournamentFight>? _tournamentFights;
-    private TournamentFight?       _newTournamentFight;
+    private TournamentFight? _newTournamentFight;
     private List<Fight> _fights = new List<Fight>();
     private List<Fight> todaysFights = new List<Fight>();
     private List<TournamentRobot> tournamentRobots = new List<TournamentRobot>();
@@ -141,7 +142,7 @@ else{
     private Robot? newRobot, prevRobot;
     private TournamentFight? lastFight;
     private int winner;
-    private string? busena;
+    public string? busena;
     private long robotsCount = 0;
     private long robotsCountNoFights = 0;
     private Fight? _prevFight, _newFight;
@@ -154,19 +155,19 @@ else{
         profile = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
         _tournamentFights = await Http.GetFromJsonAsync<List<TournamentFight>>($"api/TournamentFights/{tournamentId}");
         tournamentRobots = await Http.GetFromJsonAsync<List<TournamentRobot>>($"api/tournamentrobots/{tournamentId}");
-        if(DateTime.Today < DateTime.Parse(_tournament.Start_date))
+        if (DateTime.Today < DateTime.Parse(_tournament.Start_date))
         {
-            if(tournamentRobots is not null)
-                foreach(TournamentRobot tournamentRobot in tournamentRobots)
+            if (tournamentRobots is not null)
+                foreach (TournamentRobot tournamentRobot in tournamentRobots)
                 {
-                    if(prevTournamentrobot != null)
+                    if (prevTournamentrobot != null)
                     {
-                        if(prevTournamentrobot.turi_kova == 0 && tournamentRobot.turi_kova == 0)
+                        if (prevTournamentrobot.turi_kova == 0 && tournamentRobot.turi_kova == 0)
                         {
                             tournamentRobot.turi_kova = 1;
                             prevTournamentrobot.turi_kova = 1;
-                            await Http.PutAsJsonAsync<TournamentRobot>($"api/TournamentRobots/",tournamentRobot);
-                            await Http.PutAsJsonAsync<TournamentRobot>($"api/TournamentRobots/",prevTournamentrobot);
+                            await Http.PutAsJsonAsync<TournamentRobot>($"api/TournamentRobots/", tournamentRobot);
+                            await Http.PutAsJsonAsync<TournamentRobot>($"api/TournamentRobots/", prevTournamentrobot);
 
                             Fight _newFight = new Fight();
                             _newFight.fk_robot1 = prevTournamentrobot.fk_robotas;
@@ -205,20 +206,20 @@ else{
                     await Http.PutAsJsonAsync<Fight>($"api/Fights/", _prevFight);
 
                     _newFight = new Fight();
-                    if(fight.winner == 1)
+                    if (fight.winner == 1)
                     {
                         _newFight.fk_robot1 = fight.fk_robot1;
                     }
-                    else if(fight.winner == 2)
+                    else if (fight.winner == 2)
                     {
                         _newFight.fk_robot1 = fight.fk_robot2;
                     }
 
-                    if(_prevFight.winner == 1)
+                    if (_prevFight.winner == 1)
                     {
                         _newFight.fk_robot2 = _prevFight.fk_robot1;
                     }
-                    else if(_prevFight.winner == 2)
+                    else if (_prevFight.winner == 2)
                     {
                         _newFight.fk_robot2 = _prevFight.fk_robot2;
                     }
@@ -238,12 +239,19 @@ else{
                 _prevFight = fight;
             }
         }
-        robotsCount         = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcount/{tournamentId}");
+        robotsCount = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcount/{tournamentId}");
+        //if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCount < 15)
+        //{
+        //    await Http.DeleteAsync($"api/Tournaments/{tournamentId}");
+        //    StateHasChanged();
+        //    NavManager.NavigateTo("/tournaments", forceLoad: true);
+        //    await JS.InvokeVoidAsync("alert", "Not enough participants registered, tournament removed");
+        //}
 
 
         robotsCountNoFights = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcountnofights/{tournamentId}");
 
-        if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCountNoFights > 0 /* && robotsCount == 15*/)
+        if (DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCountNoFights > 0 /* && robotsCount == 15*/)
         {
             noFightsTournamentRobot = await Http.GetFromJsonAsync<TournamentRobot>($"api/tournamentrobots/existsnofight/{tournamentId}");
             Fight _newFight = new Fight();
@@ -268,16 +276,16 @@ else{
         }
 
 
-        if(DateTime.Today >= DateTime.Parse(_tournament.End_date))
+        if (DateTime.Today >= DateTime.Parse(_tournament.End_date))
         {
             lastFight = await Http.GetFromJsonAsync<TournamentFight>($"api/tournamentfights/getlastfight/{tournamentId}");
             int lastfightid = lastFight.fk_kova;
             Fight fightkek = await Http.GetFromJsonAsync<Fight>($"api/Fights/{lastfightid}");
-            if(fightkek.winner == 1)
+            if (fightkek.winner == 1)
             {
                 winner = fightkek.fk_robot1;
             }
-            else if(fightkek.winner == 2)
+            else if (fightkek.winner == 2)
             {
                 winner = fightkek.fk_robot2;
             }
@@ -285,13 +293,13 @@ else{
         }
         this.checkDates();
     }
-    protected void checkDates()
+    public void checkDates()
     {
-        if(DateTime.Today < DateTime.Parse(_tournament.Start_date))
+        if (DateTime.Today < DateTime.Parse(_tournament.Start_date))
         {
             busena = "Not started";
         }
-        else if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && DateTime.Today < DateTime.Parse(_tournament.End_date))
+        else if (DateTime.Today >= DateTime.Parse(_tournament.Start_date) && DateTime.Today < DateTime.Parse(_tournament.End_date))
         {
             busena = "Ongoing";
         }

@@ -1,12 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Nullable>enable</Nullable>
-		<IsPackable>false</IsPackable>
-	</PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
-	<ItemGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
 		<Using Include="Bunit" />
 		<Using Include="Bunit.TestDoubles" />
 		<Using Include="Microsoft.Extensions.DependencyInjection" />
@@ -14,14 +17,14 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="AutoFixture" Version="4.18.0" />
-		<PackageReference Include="bunit" Version="1.24.10" />
+    <PackageReference Include="AutoFixture" Version="4.18.0" />
+    <PackageReference Include="bunit" Version="1.24.10" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.12.0" />
 		<PackageReference Include="coverlet.collector" Version="6.0.0">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="Moq" Version="4.18.4" />
 	</ItemGroup>
 
 
@@ -29,13 +32,13 @@
 	<ItemGroup>
 		<PackageReference Include="MSTest.TestAdapter" Version="3.0.4" />
 		<PackageReference Include="MSTest.TestFramework" Version="3.0.4" />
-		<PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
-	</ItemGroup>
+    <PackageReference Include="RichardSzalay.MockHttp" Version="7.0.0" />
+  </ItemGroup>
 
 
 
-	<ItemGroup>
-	  <ProjectReference Include="..\PSA\Client\PSA.Client.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PSA\Client\PSA.Client.csproj" />
+  </ItemGroup>
 
 </Project>
