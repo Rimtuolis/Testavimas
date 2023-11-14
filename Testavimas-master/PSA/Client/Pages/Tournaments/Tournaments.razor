@@ -80,18 +80,14 @@ else
         _tournaments = await Http.GetFromJsonAsync<List<Tournament>>("api/Tournaments");
         robotPart = await Http.GetFromJsonAsync<List<RobotPart>?>("api/robotPart");
         product = await Http.GetFromJsonAsync<List<Product>?>("api/products");
-        Console.WriteLine("Yra");
         foreach(Tournament tournament in _tournaments)
         {
-            robotsCount         = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcount/{tournament.Id}");
-            Console.WriteLine("Yra");
+            robotsCount = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcount/{tournament.Id}");
             if(DateTime.Today >= DateTime.Parse(tournament.Start_date) /*&& robotsCount >= 15*/)
             {
-                Console.WriteLine("snd");
                 todaysFights = await Http.GetFromJsonAsync<List<Fight>?>($"api/fights/todaytournamentfights/{tournament.Id}");
                 foreach(Fight fight in todaysFights)
                 {
-                    Console.WriteLine("Fight");
                     if(fight.winner == 0)
                         SetFightWinner(fight);
                 }
@@ -173,7 +169,6 @@ else
                 }
 
             }
-            Console.WriteLine(rnd.ToString());
             if (fights.winner == 1)
             {
                 await HandleDamage(fights.fk_robot1, 5);
@@ -195,17 +190,17 @@ else
         }
             
     }
-    private async Task HandleDamage(int robotId, int damage) { 
+    public async Task HandleDamage(int robotId, int damage) { 
         Robot one_robot = await Http.GetFromJsonAsync<Robot>($"api/robots/{robotId}");
         await Http.PutAsJsonAsync($"api/robotPart/{damage}", one_robot);
 
     }
-    private async Task WinLoseTieCondition(int id, int id2)
+    public async Task WinLoseTieCondition(int id, int id2)
     {
         await Http.PutAsJsonAsync($"api/robots/win/{id}/{id2}", profile);
         
     }
-    private async Task TieCondition(int id, int id2)
+    public async Task TieCondition(int id, int id2)
     {
         await Http.PutAsJsonAsync($"api/robots/tie/{id}/{id2}", profile);
 
@@ -213,7 +208,6 @@ else
     public async Task HandleFinished(Fight fight)
     {
 
-        Console.WriteLine($"Pirmas fk {fight.fk_robot1} ir antras {fight.fk_robot2}");
         await Http.PutAsJsonAsync("api/fights/win/mhm", fight);
         StateHasChanged();
     }
