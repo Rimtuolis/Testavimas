@@ -41,6 +41,32 @@ namespace PSA.ClientTests
     {
         public static Fixture _fixture = new();
 
+        public static IEnumerable<object[]> GetDataForHandleStands()
+        {
+            yield return new object[] {
+               _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 23) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 16)}).Create()
+
+        };
+            yield return new object[] {
+               _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 23) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 23)}).Create()
+
+        };
+            yield return new object[] {
+               _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 21) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 21) }).Create()
+
+            };
+            yield return new object[] {
+                _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 19) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 20) }).Create()
+            };
+            yield return new object[] {
+                _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 20) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 19) }).Create()
+            };
+            yield return new object[] {
+                _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 18) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 18) }).Create()
+            };
+
+        }
+
         [TestMethod]
         public async Task PlayingTests_boolFalse()
         {
@@ -124,29 +150,28 @@ namespace PSA.ClientTests
         }
 
         [TestMethod]
-        public async Task HandleHitTests()
+        [DynamicData(nameof(GetDataForHandleStands), DynamicDataSourceType.Method)]
+        public async Task HandleHitTests(Shared.BlackJack tempBlack)
         {
             // Arrange
             var mock = Services.AddMockHttpClient();
 
             var tempBool = true;
             var tempCurrent = _fixture.Build<CurrentUser>().With(x => x.Id, 1).Create();
-            var tempBlack = _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 19) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 19) }).Create();
+            var tempBlackx = _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 21) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 21) }).Create();
             var tempCard = _fixture.Build<Shared.Card>().With(x => x.value, 21).CreateMany().ToList();
             mock.When($"/api/currentuser").RespondJson(tempCurrent);
             mock.When($"/api/blackjack/gamestate").RespondJson(tempBool);
             mock.When($"/api/blackjack/game").RespondJson(tempBlack);
             mock.When($"/api/blackjack/hit/{tempBlack?.Id}").RespondJson(tempBlack);
-            //mock.When($"/api/blackjack/hit/").RespondJson(tempBlack);
             mock.When($"/api/blackjack/gamestate/{tempBlack?.Id}").RespondJson(tempBlack);
             mock.When($"/api/blackjack/resetdeck/{tempBlack?.Id}").RespondJson(tempBlack);
 
             var cut = RenderComponent<BlackJack>();
 
-            //cut.WaitForState(() => cut.FindAll("div").Count > 0);
-
+ 
+            await cut.InvokeAsync(() => cut.Instance.Playing());
             await cut.InvokeAsync(() => cut.Instance.HandleHit());
-            //cut.WaitForState(() => cut.FindAll("div").Count > 0);
             var jsMock = new Mock<IJSRuntime>();
             JSInterop.Mode = JSRuntimeMode.Loose;
             JSInterop.Setup<string>("alert").SetResult("bUnit is awesome");
@@ -159,29 +184,28 @@ namespace PSA.ClientTests
         }
 
         [TestMethod]
-        public async Task HandleStandTests()
+        [DynamicData(nameof(GetDataForHandleStands), DynamicDataSourceType.Method)]
+        public async Task HandleStandTests(Shared.BlackJack tempBlack)
         {
             // Arrange
             var mock = Services.AddMockHttpClient();
 
             var tempBool = true;
             var tempCurrent = _fixture.Build<CurrentUser>().With(x => x.Id, 1).Create();
-            var tempBlack = _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 19) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 16) }).Create();
+            var tempBlackx = _fixture.Build<Shared.BlackJack>().With(x => x.Id, 1).With(y => y.playerCards, new List<Shared.Card> { new Shared.Card("", "", 19) }).With(y => y.dealerCards, new List<Shared.Card> { new Shared.Card("", "", 16) }).Create();
             var tempCard = _fixture.Build<Shared.Card>().With(x => x.value, 21).CreateMany().ToList();
             mock.When($"/api/currentuser").RespondJson(tempCurrent);
             mock.When($"/api/blackjack/gamestate").RespondJson(tempBool);
             mock.When($"/api/blackjack/game").RespondJson(tempBlack);
             mock.When($"/api/blackjack/hit/{tempBlack?.Id}").RespondJson(tempBlack);
-            mock.When($"/api/blackjack/gamestate/{tempBlack.Id}").RespondJson(tempBlack);
-            mock.When($"/api/blackjack/resetdeck/{tempBlack.Id}").RespondJson(tempBlack);
-            mock.When($"/api/blackjack/hitdealer/{tempBlack.Id}").RespondJson(tempBlack);
+            mock.When($"/api/blackjack/gamestate/{tempBlack?.Id}").RespondJson(tempBlack);
+            mock.When($"/api/blackjack/resetdeck/{tempBlack?.Id}").RespondJson(tempBlack);
+            mock.When($"/api/blackjack/hitdealer/{tempBlack?.Id}").RespondJson(tempBlack);
 
             var cut = RenderComponent<BlackJack>();
 
-            //cut.WaitForState(() => cut.FindAll("div").Count > 0);
-
+            await cut.InvokeAsync(() => cut.Instance.Playing());
             await cut.InvokeAsync(() => cut.Instance.HandleStand());
-            //cut.WaitForState(() => cut.FindAll("div").Count > 0);
             var jsMock = new Mock<IJSRuntime>();
             JSInterop.Mode = JSRuntimeMode.Loose;
             JSInterop.Setup<string>("alert").SetResult("bUnit is awesome");
