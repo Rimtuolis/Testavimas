@@ -142,7 +142,7 @@ else
     private Robot? newRobot, prevRobot;
     private TournamentFight? lastFight;
     private int winner;
-    private string? busena;
+    public string? busena;
     private long robotsCount = 0;
     private long robotsCountNoFights = 0;
     private Fight? _prevFight, _newFight;
@@ -293,7 +293,7 @@ else
         }
         this.checkDates();
     }
-    protected void checkDates()
+    public void checkDates()
     {
         if (DateTime.Today < DateTime.Parse(_tournament.Start_date))
         {

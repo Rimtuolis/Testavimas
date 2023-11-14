@@ -102,7 +102,7 @@ else
         FixDate();
 
     }
-    protected async void SetFightWinner(Fight fights)
+    public async Task SetFightWinner(Fight fights)
     {
 
         if (DateTime.Now >= fights.date && fights.state == 1)
