@@ -103,7 +103,7 @@ namespace PSA.ClientTests
 
             var cut = RenderComponent<SingleBet>();
             cut.WaitForState(() => cut.FindAll("button").Count > 0, timeout: TimeSpan.FromSeconds(1)); 
-            await cut.InvokeAsync(() => cut.Instance.bet = "10.20");
+            await cut.InvokeAsync(() => cut.Instance.bet = "10,20");
             await cut.InvokeAsync(() => cut.Instance.HandleBet());
 
 

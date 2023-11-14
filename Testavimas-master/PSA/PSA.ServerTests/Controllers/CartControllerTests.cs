@@ -65,5 +65,23 @@ namespace PSA.Server.Controllers.Tests
 
             _cartServiceMock.Verify(x => x.RemoveProductFromCart(productToRemove), Times.Once);
         }
+        [TestMethod]
+        public void GetCart_ShouldReturnCartContents()
+        {
+            // Arrange
+            var expectedCartContents = _fixture.CreateMany<Product>().ToList();
+
+            var cartServiceStub = new CartServiceStub(expectedCartContents);
+            var cartController = new CartController(cartServiceStub);
+
+            // Act
+            var result = cartController.GetCart();
+
+            // Assert
+            Assert.IsNotNull(result);
+            Assert.IsInstanceOfType(result, typeof(List<Product>));
+            CollectionAssert.AreEqual(expectedCartContents, result); 
+        }
     }
+
 }
