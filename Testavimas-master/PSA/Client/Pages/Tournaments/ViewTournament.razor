@@ -239,13 +239,6 @@ else{
             }
         }
         robotsCount         = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcount/{tournamentId}");
-        //if(DateTime.Today >= DateTime.Parse(_tournament.Start_date) && robotsCount < 15)
-        //{
-        //    await Http.DeleteAsync($"api/Tournaments/{tournamentId}");
-        //    StateHasChanged();
-        //    NavManager.NavigateTo("/tournaments", forceLoad: true);
-        //    await JS.InvokeVoidAsync("alert", "Not enough participants registered, tournament removed");
-        //}
 
 
         robotsCountNoFights = await Http.GetFromJsonAsync<int>($"api/tournamentrobots/getcountnofights/{tournamentId}");

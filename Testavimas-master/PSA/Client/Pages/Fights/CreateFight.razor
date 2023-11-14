@@ -10,52 +10,51 @@
 
 <PageTitle>Fight Creation</PageTitle>
 
-@if (robots == null && robots1 is null){
+@if (robots == null && robots1 is null) {
     <p>Loading..</p>
 }
-else{
-<EditForm Model="@fight" OnValidSubmit="@HandleValidSubmit">
-    <div class="mb-3 col-7">
-        <label for="Start"><b>Fight datetime</b></label>
+else {
+    <EditForm Model="@fight" OnValidSubmit="@HandleValidSubmit">
+        <div class="mb-3 col-7">
+            <label for="Start"><b>Fight datetime</b></label>
             <input class="form-control" type="datetime-local" asp-format="{0:yyyy-MM-ddTHH:mm:ss}" data-val="true" id="DateTime" @bind="@fight.date"  asp-for="DateTime" required>
-        
-    </div>
-    <div class="mb-3 col-7">
-        <label for="End_date"><b>Your robot</b></label>
-        <InputSelect @bind-Value="fight.fk_robot1">
-          
-            @foreach (Robot robot in robots){
-            <option value="@robot.Id">@robot.Nickname</option>
-            }
-         </InputSelect>
-        
-    </div>
-    <div class="mb-3 col-7">
-        <label for="End_date"><b>Your robot</b></label>
-        <InputSelect @bind-Value="fight.fk_robot2">
-            @foreach (Robot robot1 in robots1)
-            {
-                <option value="@robot1.Id">@robot1.Nickname</option>
-            }
-        </InputSelect>
 
-    </div>
-    <button type="submit" class="btn">Kurti kova</button>
-</EditForm>
+        </div>
+        <div class="mb-3 col-7">
+            <label for="End_date"><b>Your robot</b></label>
+            <InputSelect @bind-Value="fight.fk_robot1">
 
+                @foreach (Robot robot in robots) {
+                    <option value="@robot.Id">@robot.Nickname</option>
+                }
+            </InputSelect>
 
+        </div>
+        <div class="mb-3 col-7">
+            <label for="End_date"><b>Your robot</b></label>
+            <InputSelect @bind-Value="fight.fk_robot2">
+                @foreach (Robot robot1 in robots1)
+                {
+                    <option value="@robot1.Id">@robot1.Nickname</option>
+                }
+            </InputSelect>
 
+        </div>
+        <button type="submit" class="btn">Kurti kova</button>
+    </EditForm>
 }
 
 @code {
-    DateTime dt = new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified);
     private Fight fight = new Fight();
+
+    DateTime dt = new DateTime(DateTime.Now.Ticks, DateTimeKind.Unspecified);
     private List<Robot>? robots;
     private List<Robot>? robots1;
     private DateTime? prize;
     private CurrentUser? currentUser;
     protected override async Task OnInitializedAsync()
     {
+        fight.date = DateTime.MaxValue;
         currentUser = await Http.GetFromJsonAsync<CurrentUser>("api/currentuser");
         robots = await Http.GetFromJsonAsync<List<Robot>?>("api/robots/component/mySelf");
         robots1 = await Http.GetFromJsonAsync<List<Robot>?>("api/robots/component/getOponent");

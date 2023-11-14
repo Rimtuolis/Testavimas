@@ -53,8 +53,8 @@ else
                                         <h5>@product.Total€</h5>
                                     </td>
                                     <td>
-                                        <button @onclick="()=>RemoveFromCart(product)" class="btn_3">Remove all from cart</button>
-                                        <button @onclick="()=>RemoveFromCartOneQuantity(product)" class="btn_3">Remove one piece</button>
+                                        <button @onclick="()=>RemoveFromCart(product)" class="btn_3 removeAll">Remove all from cart</button>
+                                        <button @onclick="()=>RemoveFromCartOneQuantity(product)" class="btn_3 removeOne">Remove one piece</button>
                                     </td>
                                 </tr>
                             }

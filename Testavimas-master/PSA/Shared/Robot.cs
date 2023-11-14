@@ -25,5 +25,15 @@ namespace PSA.Shared
         {
             this.Nickname = string.Empty;
         }
+
+        public Robot(string nickname, int wins, int losses, int draws, int fk_user_id, int id)
+        {
+            Nickname = nickname;
+            Wins = wins;
+            Losses = losses;
+            Draws = draws;
+            this.fk_user_id = fk_user_id;
+            Id = id;
+        }
     }
 }

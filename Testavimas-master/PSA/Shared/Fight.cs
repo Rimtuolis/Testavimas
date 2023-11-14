@@ -18,5 +18,18 @@ namespace PSA.Shared
         public int fk_robot1 { get; set; }
         public int fk_robot2 { get; set; }
 
+        public Fight(DateTime date, int winner, int id, int state, int fk_robot1, int fk_robot2)
+        {
+            this.date = date;
+            this.winner = winner;
+            this.id = id;
+            this.state = state;
+            this.fk_robot1 = fk_robot1;
+            this.fk_robot2 = fk_robot2;
+        }
+
+        public Fight()
+        {
+        }
     }
 }

@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSA.Client", "PSA\Client\PS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSA.Shared", "PSA\Shared\PSA.Shared.csproj", "{047ACAF1-4CC0-43A9-B684-7C8D2BB97F5F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSA.ServerTests", "PSA\PSA.ServerTests\PSA.ServerTests.csproj", "{DCDFE6AD-01C1-46E0-AE8A-7995942730FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSA.ServerTests", "PSA\PSA.ServerTests\PSA.ServerTests.csproj", "{DCDFE6AD-01C1-46E0-AE8A-7995942730FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSA.ClientTests", "PSA.ClientTests\PSA.ClientTests.csproj", "{BED63DBE-E9EF-46A9-832F-B42201F18E5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{DCDFE6AD-01C1-46E0-AE8A-7995942730FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCDFE6AD-01C1-46E0-AE8A-7995942730FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCDFE6AD-01C1-46E0-AE8A-7995942730FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BED63DBE-E9EF-46A9-832F-B42201F18E5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BED63DBE-E9EF-46A9-832F-B42201F18E5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BED63DBE-E9EF-46A9-832F-B42201F18E5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BED63DBE-E9EF-46A9-832F-B42201F18E5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

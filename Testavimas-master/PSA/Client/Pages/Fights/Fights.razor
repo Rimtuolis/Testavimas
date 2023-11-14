@@ -283,17 +283,17 @@ else
         StateHasChanged();
 
     }
-    private async Task HandleDamage(int robotId, int damage) { 
+    public async Task HandleDamage(int robotId, int damage) { 
         Robot one_robot = await Http.GetFromJsonAsync<Robot>($"api/robots/{robotId}");
         await Http.PutAsJsonAsync($"api/robotPart/{damage}", one_robot);
 
     }
-    private async Task WinLoseTieCondition(int id, int id2)
+    public async Task WinLoseTieCondition(int id, int id2)
     {
         await Http.PutAsJsonAsync($"api/robots/win/{id}/{id2}", profile);
         
     }
-    private async Task TieCondition(int id, int id2)
+    public async Task TieCondition(int id, int id2)
     {
         await Http.PutAsJsonAsync($"api/robots/tie/{id}/{id2}", profile);
 
